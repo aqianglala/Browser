@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--在5.0之前，会默认就有一个外边距（不过并非是margin，只是效果相同）-->
+    <dimen name="fab_margin">0dp</dimen>
+
+    <dimen name="common_height">40dp</dimen>
+
+    <dimen name="uc_news_header_title_height">45dip</dimen>
+    <dimen name="uc_news_header_title_init_offset">-45dip</dimen>
+    <dimen name="uc_news_header_pager_offset">-90dip</dimen>
+    <dimen name="uc_news_tabs_height">45dip</dimen>
+</resources>

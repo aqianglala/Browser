@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!--解决FloatingActionButton 5.0以上没有阴影的问题-->
+    <dimen name="fab_margin">16dp</dimen>
+</resources>
