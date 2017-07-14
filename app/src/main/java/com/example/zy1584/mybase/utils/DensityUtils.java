@@ -1,6 +1,8 @@
 package com.example.zy1584.mybase.utils;
 
 import android.content.Context;
+import android.content.res.Resources;
+import android.util.DisplayMetrics;
 import android.util.TypedValue;
 
 /**
@@ -25,6 +27,11 @@ public class DensityUtils
     {
         return (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP,
                 dpVal, context.getResources().getDisplayMetrics());
+    }
+
+    public static int dpToPx(float dp) {
+        DisplayMetrics metrics = Resources.getSystem().getDisplayMetrics();
+        return (int) (dp * metrics.density + 0.5f);
     }
 
     /**

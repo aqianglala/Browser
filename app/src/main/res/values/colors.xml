@@ -6,4 +6,11 @@
 
     <color name="colorPrimaryIcons">#FFFFFF</color>
     <color name="colorPrimaryLight">#CFD8DC</color>
+
+    <color name="icon_light_theme">#8A000000</color>
+    <color name="icon_blue_theme">#8A000000</color>
+    <color name="icon_dark_theme">#FFFFFFFF</color>
+
+    <color name="selected_dark">#0FFFFFFF</color>
+    <color name="selected_light">#0F000000</color>
 </resources>

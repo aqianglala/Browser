@@ -4,12 +4,16 @@ import android.app.Application;
 import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
+import android.support.annotation.NonNull;
 
 import com.example.zy1584.mybase.utils.CrashHandler;
 import com.example.zy1584.mybase.utils.ForegroundCallbacks;
 import com.orhanobut.logger.AndroidLogAdapter;
 import com.orhanobut.logger.BuildConfig;
 import com.orhanobut.logger.Logger;
+
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 public class BaseApplication extends Application {
 
@@ -19,6 +23,9 @@ public class BaseApplication extends Application {
     private static Handler mainHandler;
     private static Looper mainlooper;
     private String TAG = "base_tag";
+
+    private static final Executor mIOThread = Executors.newSingleThreadExecutor();
+    private static final Executor mTaskThread = Executors.newCachedThreadPool();
 
     @Override
     public void onCreate() {
@@ -66,6 +73,21 @@ public class BaseApplication extends Application {
 
     public static Looper getMainlooper() {
         return mainlooper;
+    }
+
+    @NonNull
+    public static Executor getIOThread() {
+        return mIOThread;
+    }
+
+    @NonNull
+    public static Executor getTaskThread() {
+        return mTaskThread;
+    }
+
+    @NonNull
+    public static BaseApplication get(@NonNull Context context) {
+        return (BaseApplication) context.getApplicationContext();
     }
 
 }
