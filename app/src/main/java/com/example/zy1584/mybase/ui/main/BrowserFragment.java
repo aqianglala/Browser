@@ -11,6 +11,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.util.ArrayMap;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
@@ -36,6 +37,7 @@ import com.example.zy1584.mybase.ui.main.view.LightningChromeClient;
 import com.example.zy1584.mybase.ui.main.view.LightningViewTitle;
 import com.example.zy1584.mybase.ui.main.view.LightningWebClient;
 import com.example.zy1584.mybase.utils.DensityUtils;
+import com.example.zy1584.mybase.utils.GlobalParams;
 import com.example.zy1584.mybase.utils.UIUtils;
 import com.example.zy1584.mybase.utils.Utils;
 import com.example.zy1584.mybase.widget.AnimatedProgressBar;
@@ -60,8 +62,10 @@ import static android.view.ViewGroup.LayoutParams.MATCH_PARENT;
 public class BrowserFragment extends BaseFragment implements BrowserFrgContract.FrgView {
     @Nullable
     private WebView mWebView;
-    private boolean mIsIncognitoTab;
     public PreferenceManager mPreferences;
+    private boolean mIsIncognitoTab;
+    private String mUrl;
+    private Bundle webViewState;
 
     public static final String HEADER_REQUESTED_WITH = "X-Requested-With";
     public static final String HEADER_WAP_PROFILE = "X-Wap-Profile";
@@ -105,8 +109,30 @@ public class BrowserFragment extends BaseFragment implements BrowserFrgContract.
     }
 
     @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+        if (webViewState != null) {
+            //Fragment实例并未被销毁, 重新create view
+            mWebView.restoreState(webViewState);
+        } else if (savedInstanceState != null) {
+            //Fragment实例被销毁重建
+            mWebView.restoreState(savedInstanceState);
+        } else {
+            //全新Fragment
+            if (TextUtils.isEmpty(mUrl)) {
+                mUrl = mPreferences.getHomepage();
+            }
+            mWebView.loadUrl(mUrl, mRequestHeaders);
+        }
+    }
+
+    @Override
     protected void initView(Bundle savedInstanceState) {
         super.initView(savedInstanceState);
+        final Bundle arguments = getArguments();
+        mIsIncognitoTab = arguments.getBoolean(GlobalParams.IS_INCOGNITO, false);
+        mUrl = arguments.getString(GlobalParams.URL);
+
         mHistoryDatabase = new HistoryDatabase(mActivity);
         mBookmarkManager = new BookmarkManager(mActivity);
         mUntitledTitle = getString(R.string.untitled);
@@ -148,16 +174,6 @@ public class BrowserFragment extends BaseFragment implements BrowserFrgContract.
         initializeSettings();
         initializePreferences(mActivity);
 
-        mWebView.loadUrl("http://www.baidu.com", mRequestHeaders);
-//        if (url != null) {
-//            if (!url.trim().isEmpty()) {
-//                mWebView.loadUrl(url, mRequestHeaders);
-//            } else {
-//                // don't load anything, the user is looking for a blank tab
-//            }
-//        } else {
-//            loadHomepage();
-//        }
         content_frame.addView(mWebView, MATCH_PARENT, MATCH_PARENT);
     }
 
@@ -748,6 +764,9 @@ public class BrowserFragment extends BaseFragment implements BrowserFrgContract.
         super.onPause();
         if (mWebView != null) {
             mWebView.onPause();
+            //Fragment不被销毁(Fragment被加入back stack)的情况下, 依靠Fragment中的成员变量保存WebView状态
+            webViewState = new Bundle();
+            mWebView.saveState(webViewState);
             Log.d(TAG, "WebView onPause: " + mWebView.getId());
         }
     }
@@ -768,6 +787,15 @@ public class BrowserFragment extends BaseFragment implements BrowserFrgContract.
         if (mHistoryDatabase != null) {
             mHistoryDatabase.close();
             mHistoryDatabase = null;
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        //Fragment被销毁的情况, 依靠outState保存WebView状态
+        if (mWebView != null) {
+            mWebView.saveState(outState);
         }
     }
 

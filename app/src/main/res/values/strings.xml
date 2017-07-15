@@ -38,5 +38,6 @@
     <string name="title_error">错误</string>
     <string name="import_bookmark_error">无法从文件导入书签</string>
     <string name="action_ok">确认</string>
+    <string name="max_tabs">达到最大标签数</string>
 
 </resources>

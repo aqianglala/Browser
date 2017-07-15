@@ -4,8 +4,10 @@ import android.graphics.drawable.BitmapDrawable;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Message;
+import android.support.annotation.StringRes;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
 import android.util.Log;
@@ -25,12 +27,14 @@ import android.widget.VideoView;
 
 import com.example.zy1584.mybase.R;
 import com.example.zy1584.mybase.base.BaseActivity;
-import com.example.zy1584.mybase.base.BasePresenter;
+import com.example.zy1584.mybase.manager.TabsManager;
 import com.example.zy1584.mybase.ui.main.adapter.MainFragmentAdapter;
 import com.example.zy1584.mybase.ui.main.mvp.BrowserActContract;
+import com.example.zy1584.mybase.ui.main.mvp.BrowserActPresenter;
 import com.example.zy1584.mybase.ui.navigation.NavigationFragment;
 import com.example.zy1584.mybase.ui.search.SearchFragment;
 import com.example.zy1584.mybase.utils.ActivityCollector;
+import com.example.zy1584.mybase.utils.Utils;
 
 import java.util.ArrayList;
 
@@ -39,12 +43,13 @@ import butterknife.OnClick;
 
 import static com.example.zy1584.mybase.R.id.viewPager;
 
-public class BrowserActivity extends BaseActivity implements BrowserActContract.ActView{
+public class BrowserActivity extends BaseActivity<BrowserActPresenter> implements BrowserActContract.ActView{
     private ArrayList<Fragment> fragments = new ArrayList<>();
     private MainFragment mainFragment;
     private NavigationFragment navigationFragment;
     private PopupWindow mPopupWindow;
     private int keyCount;
+    private TabsManager mTabsManager;
 
     private PreferenceManager mPreferences;
 
@@ -101,13 +106,14 @@ public class BrowserActivity extends BaseActivity implements BrowserActContract.
     }
 
     @Override
-    protected BasePresenter loadPresenter() {
+    protected BrowserActPresenter loadPresenter() {
         return null;
     }
 
     @Override
     protected void doBusiness(Bundle savedInstanceState) {
         mPreferences = new PreferenceManager(this);
+        mTabsManager = new TabsManager(this);
         initFragments();
         MainFragmentAdapter adapter = new MainFragmentAdapter(getSupportFragmentManager(), fragments);
         mViewPager.setAdapter(adapter);
@@ -330,6 +336,11 @@ public class BrowserActivity extends BaseActivity implements BrowserActContract.
         setRequestedOrientation(mOriginalOrientation);
     }
 
+    @Override
+    public void showSnackbar(@StringRes int resource) {
+        Utils.showSnackbar(this, resource);
+    }
+
     /**
      * This method sets whether or not the activity will display
      * in full-screen mode (i.e. the ActionBar will be hidden) and
@@ -379,4 +390,36 @@ public class BrowserActivity extends BaseActivity implements BrowserActContract.
         }
 
     }
+
+    public TabsManager getTabModel(){
+        return mTabsManager;
+    }
+
+    public void show(Fragment fragment){
+        if (fragment != null && fragment.isHidden()) {
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.show(fragment);
+            transaction.commit();
+        }
+    }
+
+    public void hide(Fragment fragment){
+        if (fragment != null && !fragment.isHidden()) {
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.hide(fragment);
+            transaction.commit();
+        }
+    }
+
+    public void add(Fragment fragment, boolean isShow){
+        if (fragment != null && !fragment.isHidden()) {
+            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            transaction.add(R.id.fl_container_except_bottom, fragment);
+            if (!isShow){
+                transaction.hide(fragment);
+            }
+            transaction.commit();
+        }
+    }
+
 }
