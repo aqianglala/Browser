@@ -33,6 +33,7 @@ import com.example.zy1584.mybase.ui.main.BrowserFragment;
 import com.example.zy1584.mybase.ui.main.Constants;
 import com.example.zy1584.mybase.ui.main.IntentUtils;
 import com.example.zy1584.mybase.ui.main.Preconditions;
+import com.example.zy1584.mybase.ui.main.mvp.BrowserActContract;
 import com.example.zy1584.mybase.ui.main.mvp.BrowserFrgContract;
 import com.example.zy1584.mybase.utils.Utils;
 
@@ -49,6 +50,8 @@ public class LightningWebClient extends WebViewClient {
     private final Activity mActivity;
     @NonNull
     private BrowserFrgContract.FrgView mBrowserView;
+    @NonNull
+    private BrowserActContract.ActView mActView;
 
     private BrowserFragment mFragment;
     @NonNull
@@ -63,6 +66,7 @@ public class LightningWebClient extends WebViewClient {
         mActivity = activity;
         mFragment = fragment;
         mBrowserView = (BrowserFrgContract.FrgView)fragment;
+        mActView = (BrowserActContract.ActView) activity;
         mAdBlock.updatePreference();
         mIntentUtils = new IntentUtils(activity);
     }
@@ -94,9 +98,8 @@ public class LightningWebClient extends WebViewClient {
     public void onPageFinished(@NonNull WebView view, String url) {
         if (view.isShown()) {
             mBrowserView.updateUrl(url, true);
-            // TODO: 2017-7-13 由activity处理
-//            mUIController.setBackButtonEnabled(view.canGoBack());
-//            mUIController.setForwardButtonEnabled(view.canGoForward());
+            mActView.setBackButtonEnabled(view.canGoBack());
+            mActView.setForwardButtonEnabled(view.canGoForward());
             view.postInvalidate();
         }
         if (view.getTitle() == null || view.getTitle().isEmpty()) {

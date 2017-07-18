@@ -4,10 +4,6 @@
     android:layout_height="match_parent"
     android:background="@android:color/white">
 
-    <TextView
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:gravity="center"
-        android:text="搜索"/>
+    <include layout="@layout/include_search_input_bar"/>
 
 </LinearLayout>

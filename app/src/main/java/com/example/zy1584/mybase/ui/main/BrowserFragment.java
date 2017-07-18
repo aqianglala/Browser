@@ -29,6 +29,7 @@ import com.example.zy1584.mybase.R;
 import com.example.zy1584.mybase.base.BaseApplication;
 import com.example.zy1584.mybase.base.BaseFragment;
 import com.example.zy1584.mybase.base.BasePresenter;
+import com.example.zy1584.mybase.manager.TabsManager;
 import com.example.zy1584.mybase.ui.main.db.BookmarkManager;
 import com.example.zy1584.mybase.ui.main.db.HistoryDatabase;
 import com.example.zy1584.mybase.ui.main.db.HistoryItem;
@@ -66,6 +67,11 @@ public class BrowserFragment extends BaseFragment implements BrowserFrgContract.
     private boolean mIsIncognitoTab;
     private String mUrl;
     private Bundle webViewState;
+    private boolean mIsCreated;
+
+    public boolean isCreated() {
+        return mIsCreated;
+    }
 
     public static final String HEADER_REQUESTED_WITH = "X-Requested-With";
     public static final String HEADER_WAP_PROFILE = "X-Wap-Profile";
@@ -98,6 +104,15 @@ public class BrowserFragment extends BaseFragment implements BrowserFrgContract.
     @BindView(R.id.iv_right)
     ImageView iv_right;
 
+    public static BrowserFragment newInstance(String url, boolean isIncognito) {
+        BrowserFragment f = new BrowserFragment();
+        final Bundle bundle = new Bundle();
+        bundle.putString(GlobalParams.URL, url);
+        bundle.putBoolean(GlobalParams.IS_INCOGNITO, isIncognito);
+        f.setArguments(bundle);
+        return f;
+    }
+
     @Override
     protected int getLayoutId() {
         return R.layout.fragment_browser;
@@ -124,14 +139,17 @@ public class BrowserFragment extends BaseFragment implements BrowserFrgContract.
             }
             mWebView.loadUrl(mUrl, mRequestHeaders);
         }
+        mIsCreated= true;
     }
 
     @Override
     protected void initView(Bundle savedInstanceState) {
         super.initView(savedInstanceState);
         final Bundle arguments = getArguments();
-        mIsIncognitoTab = arguments.getBoolean(GlobalParams.IS_INCOGNITO, false);
-        mUrl = arguments.getString(GlobalParams.URL);
+        if (arguments != null){
+            mIsIncognitoTab = arguments.getBoolean(GlobalParams.IS_INCOGNITO, false);
+            mUrl = arguments.getString(GlobalParams.URL);
+        }
 
         mHistoryDatabase = new HistoryDatabase(mActivity);
         mBookmarkManager = new BookmarkManager(mActivity);
@@ -179,7 +197,7 @@ public class BrowserFragment extends BaseFragment implements BrowserFrgContract.
 
     @Override
     protected void doBusiness(Bundle savedInstanceState) {
-        
+
     }
 
     /**
@@ -481,6 +499,71 @@ public class BrowserFragment extends BaseFragment implements BrowserFrgContract.
 
     public boolean getInvertePage() {
         return mInvertPage;
+    }
+
+    /**
+     * Requests focus down on the WebView instance
+     * if the view does not already have focus.
+     */
+    public void requestFocus() {
+        if (mWebView != null && !mWebView.hasFocus()) {
+            mWebView.requestFocus();
+        }
+    }
+
+    /**
+     * Loads the URL in the WebView. If the proxy settings
+     * are still initializing, then the URL will not load
+     * as it is necessary to have the settings initialized
+     * before a load occurs.
+     *
+     * @param url the non-null URL to attempt to load in
+     *            the WebView.
+     */
+    public synchronized void loadUrl(@NonNull String url) {
+        if (mWebView != null) {
+            mWebView.loadUrl(url, mRequestHeaders);
+        }
+    }
+
+    /**
+     * Tell the WebView to navigate backwards
+     * in its history to the previous page.
+     */
+    public synchronized void goBack() {
+        if (mWebView != null) {
+            mWebView.goBack();
+        }
+    }
+
+    /**
+     * Tell the WebView to navigate forwards
+     * in its history to the next page.
+     */
+    public synchronized void goForward() {
+        if (mWebView != null) {
+            mWebView.goForward();
+        }
+    }
+
+    /**
+     * Determines whether or not the WebView can go
+     * backward or if it as the end of its history.
+     *
+     * @return true if the WebView can go back, false otherwise.
+     */
+    public boolean canGoBack() {
+        return mWebView != null && mWebView.canGoBack();
+    }
+
+    /**
+     * Determine whether or not the WebView can go
+     * forward or if it is at the front of its history.
+     *
+     * @return true if it can go forward, false otherwise.
+     */
+    public boolean canGoForward() {
+        return mWebView != null && mWebView.canGoForward();
     }
 
     /**
@@ -788,6 +871,9 @@ public class BrowserFragment extends BaseFragment implements BrowserFrgContract.
             mHistoryDatabase.close();
             mHistoryDatabase = null;
         }
+        BrowserActivity browserAct = (BrowserActivity) mActivity;
+        TabsManager tabModel = browserAct.getTabModel();
+        tabModel.updateTabList(this);
     }
 
     @Override
@@ -821,4 +907,29 @@ public class BrowserFragment extends BaseFragment implements BrowserFrgContract.
             mWebView = null;
         }
     }
+
+    /**
+     * Pauses the JavaScript timers of the
+     * WebView instance, which will trigger a
+     * pause for all WebViews in the app.
+     */
+    public synchronized void pauseTimers() {
+        if (mWebView != null) {
+            mWebView.pauseTimers();
+            Log.d(TAG, "Pausing JS timers");
+        }
+    }
+
+    /**
+     * Resumes the JavaScript timers of the
+     * WebView instance, which will trigger a
+     * resume for all WebViews in the app.
+     */
+    public synchronized void resumeTimers() {
+        if (mWebView != null) {
+            mWebView.resumeTimers();
+            Log.d(TAG, "Resuming JS timers");
+        }
+    }
+
 }

@@ -1,16 +1,22 @@
 package com.example.zy1584.mybase.ui.main;
 
+import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Rect;
 import android.graphics.drawable.BitmapDrawable;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Message;
+import android.support.annotation.NonNull;
 import android.support.annotation.StringRes;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
+import android.text.TextUtils;
 import android.util.Log;
+import android.view.Display;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -27,6 +33,7 @@ import android.widget.VideoView;
 
 import com.example.zy1584.mybase.R;
 import com.example.zy1584.mybase.base.BaseActivity;
+import com.example.zy1584.mybase.base.BaseFragment;
 import com.example.zy1584.mybase.manager.TabsManager;
 import com.example.zy1584.mybase.ui.main.adapter.MainFragmentAdapter;
 import com.example.zy1584.mybase.ui.main.mvp.BrowserActContract;
@@ -34,28 +41,37 @@ import com.example.zy1584.mybase.ui.main.mvp.BrowserActPresenter;
 import com.example.zy1584.mybase.ui.navigation.NavigationFragment;
 import com.example.zy1584.mybase.ui.search.SearchFragment;
 import com.example.zy1584.mybase.utils.ActivityCollector;
+import com.example.zy1584.mybase.utils.CompressImage;
+import com.example.zy1584.mybase.utils.UrlUtils;
 import com.example.zy1584.mybase.utils.Utils;
 
 import java.util.ArrayList;
 
 import butterknife.BindView;
 import butterknife.OnClick;
+import rx.Observable;
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.functions.Action1;
+import rx.schedulers.Schedulers;
 
 import static com.example.zy1584.mybase.R.id.viewPager;
 
-public class BrowserActivity extends BaseActivity<BrowserActPresenter> implements BrowserActContract.ActView{
+public class BrowserActivity extends BaseActivity<BrowserActPresenter> implements BrowserActContract.ActView {
     private ArrayList<Fragment> fragments = new ArrayList<>();
     private MainFragment mainFragment;
     private NavigationFragment navigationFragment;
     private PopupWindow mPopupWindow;
     private int keyCount;
     private TabsManager mTabsManager;
+    private String mSearchText;
 
     private PreferenceManager mPreferences;
 
     private int mOriginalOrientation;
     private boolean mIsFullScreen = false;
     private boolean mIsImmersive = false;
+    private boolean mFullScreen;
     private static final FrameLayout.LayoutParams COVER_SCREEN_PARAMS = new FrameLayout.LayoutParams(
             ViewGroup.LayoutParams.MATCH_PARENT, ViewGroup.LayoutParams.MATCH_PARENT);
 
@@ -72,7 +88,6 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
 
     @BindView(R.id.ll_toolbar_container)
     LinearLayout ll_toolbar_container;
-    private BrowserFragment mCurrentFrg;
 
     @OnClick(R.id.ib_back)
     void back() {
@@ -93,6 +108,15 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
     @OnClick(R.id.ib_tab)
     void showTabs() {
         toast("点击标签");
+        getShotInThread().subscribe(new Action1<Bitmap>() {
+            @Override
+            public void call(Bitmap bitmap) {
+                mTabsManager.setShot(bitmap);
+                // TODO: 2017-7-17 这里可以优化成全局的fragment
+                TabsFragment tabsFragment = new TabsFragment();
+                addFragment(tabsFragment, R.id.fl_container_full, true);
+            }
+        });
     }
 
     @OnClick(R.id.ib_home)
@@ -107,7 +131,7 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
 
     @Override
     protected BrowserActPresenter loadPresenter() {
-        return null;
+        return new BrowserActPresenter();
     }
 
     @Override
@@ -117,6 +141,22 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
         initFragments();
         MainFragmentAdapter adapter = new MainFragmentAdapter(getSupportFragmentManager(), fragments);
         mViewPager.setAdapter(adapter);
+
+        @SuppressWarnings("VariableNotUsedInsideIf")
+        Intent intent = savedInstanceState == null ? getIntent() : null;
+
+        boolean launchedFromHistory = intent != null && (intent.getFlags() & Intent.FLAG_ACTIVITY_LAUNCHED_FROM_HISTORY) != 0;
+
+        if (launchedFromHistory) {
+            intent = null;
+        }
+        if (intent != null) {
+            String url = intent.getDataString();
+            if (!TextUtils.isEmpty(url)){
+                searchTheWeb(url);
+            }
+        }
+        setIntent(null);
     }
 
     private void initFragments() {
@@ -128,14 +168,25 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
 
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
-        if(keyCode == KeyEvent.KEYCODE_BACK){
-            // TODO: 2017-7-14 处理全屏播放时返回键问题
-            if (mCustomView != null || mCustomViewCallback != null) {
+        if (keyCode == KeyEvent.KEYCODE_BACK) {
+            BrowserFragment currentTab = mTabsManager.getCurrentTab();
+            if(currentTab != null){
+                if (currentTab.canGoBack()){
+                    if (!currentTab.isShown()) {
+                        onHideCustomView();
+                        return true;
+                    } else {
+                        currentTab.goBack();
+                        return true;
+                    }
+                }
+            }else if (mCustomView != null || mCustomViewCallback != null) {
                 onHideCustomView();
-            } else if (getSupportFragmentManager().getBackStackEntryCount() == 0){
-                if (mainFragment.onBackPressed()){
+                return true;
+            }else if (getSupportFragmentManager().getBackStackEntryCount() == 0) {
+                if (mainFragment.onBackPressed()) {
                     return true;
-                }else if (keyCount<1){
+                } else if (keyCount < 1) {
                     keyCount++;
                     toast(R.string.exit_app_toast);
                     return true;
@@ -213,18 +264,43 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
     /**
      * 跳转到搜索页
      */
-    public void jumpToSearch(){
-//        SearchFragment fragment = new SearchFragment();
-        mCurrentFrg = new BrowserFragment();
-        addFragment(mCurrentFrg, R.id.fl_container_full, true);
+    public void jumpToSearch() {
+        getShotInThread().subscribe(new Action1<Bitmap>() {
+            @Override
+            public void call(Bitmap bitmap) {
+                SearchFragment searchFragment = new SearchFragment();
+                addFragment(searchFragment, R.id.fl_container_full, true);
+            }
+        });
     }
 
     /**
      * 跳转到搜索结果页
      */
-    public void jumpToSearchResult(){
-        SearchFragment searchFragment = new SearchFragment();
-        addFragment(searchFragment, R.id.fl_container_except_bottom, true);
+    public void loadUrlInNewFragment(String query) {
+        BrowserFragment fragment = BrowserFragment.newInstance(query, false);
+        add(fragment);
+        mTabsManager.updateCurrentTab(fragment);
+    }
+
+    /**
+     * searches the web for the query fixing any and all problems with the input
+     * checks if it is a search, url, etc.
+     */
+    public void searchTheWeb(@NonNull String query) {
+        final BrowserFragment currentTab = mTabsManager.getCurrentTab();
+        if (query.isEmpty()) {
+            return;
+        }
+        String searchUrl = mSearchText + UrlUtils.QUERY_PLACE_HOLDER;
+        query = query.trim();
+        String urlFilter = UrlUtils.smartUrlFilter(query, true, searchUrl);
+        if (currentTab != null) {
+            currentTab.stopLoading();
+            currentTab.loadUrl(urlFilter);
+        } else {
+            loadUrlInNewFragment(urlFilter);
+        }
     }
 
     @Override
@@ -245,6 +321,7 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
 
     @Override
     public void onShowCustomView(View view, WebChromeClient.CustomViewCallback callback, int requestedOrientation) {
+        final BrowserFragment currentTab = mTabsManager.getCurrentTab();
         if (view == null || mCustomView != null) {
             if (callback != null) {
                 try {
@@ -284,12 +361,15 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
         mFullscreenContainer.addView(mCustomView, COVER_SCREEN_PARAMS);
         decorView.requestLayout();
         setFullscreen(true, true);
-        mCurrentFrg.setVisibility(View.INVISIBLE);
+        if (currentTab != null) {
+            currentTab.setVisibility(View.INVISIBLE);
+        }
     }
 
     @Override
     public void onHideCustomView() {
-        if (mCustomView == null || mCustomViewCallback == null || mCurrentFrg == null) {
+        final BrowserFragment currentTab = mTabsManager.getCurrentTab();
+        if (mCustomView == null || mCustomViewCallback == null) {
             if (mCustomViewCallback != null) {
                 try {
                     mCustomViewCallback.onCustomViewHidden();
@@ -301,7 +381,9 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
             return;
         }
         Log.d(TAG, "onHideCustomView");
-        mCurrentFrg.setVisibility(View.VISIBLE);
+        if (currentTab != null) {
+            currentTab.setVisibility(View.VISIBLE);
+        }
         try {
             mCustomView.setKeepScreenOn(false);
         } catch (SecurityException e) {
@@ -337,8 +419,18 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
     }
 
     @Override
-    public void showSnackbar(@StringRes int resource) {
+    public void showSnackBar(@StringRes int resource) {
         Utils.showSnackbar(this, resource);
+    }
+
+    @Override
+    public void setForwardButtonEnabled(boolean enabled) {
+
+    }
+
+    @Override
+    public void setBackButtonEnabled(boolean enabled) {
+
     }
 
     /**
@@ -376,6 +468,47 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
         }
     }
 
+    public Bitmap getShot() {
+        // 获取windows中最顶层的view
+        View view = getWindow().getDecorView();
+        view.buildDrawingCache();
+
+        // 获取状态栏高度
+        Rect rect = new Rect();
+        view.getWindowVisibleDisplayFrame(rect);
+        int statusBarHeights = rect.top;
+        Display display = getWindowManager().getDefaultDisplay();
+
+        // 获取屏幕宽和高
+        int widths = display.getWidth();
+        int heights = display.getHeight();
+
+        // 允许当前窗口保存缓存信息
+        view.setDrawingCacheEnabled(true);
+
+        // 去掉状态栏
+        Bitmap bmp = Bitmap.createBitmap(view.getDrawingCache(), 0,
+                statusBarHeights, widths, heights / 2 - statusBarHeights);
+
+        // 销毁缓存信息
+        view.destroyDrawingCache();
+
+        return bmp;
+    }
+
+    private Observable<Bitmap> getShotInThread() {
+        // 屏幕截图
+        final Bitmap shot = getShot();
+        return Observable.create(new Observable.OnSubscribe<Bitmap>() {
+            @Override
+            public void call(Subscriber<? super Bitmap> subscriber) {
+                Bitmap shotCompressed = CompressImage.compressImage(shot);
+                subscriber.onNext(shotCompressed);
+                subscriber.onCompleted();
+            }
+        }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
+    }
+
     private class VideoCompletionListener implements MediaPlayer.OnCompletionListener,
             MediaPlayer.OnErrorListener {
 
@@ -391,19 +524,19 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
 
     }
 
-    public TabsManager getTabModel(){
+    public TabsManager getTabModel() {
         return mTabsManager;
     }
 
-    public void show(Fragment fragment){
-        if (fragment != null && fragment.isHidden()) {
+    public void show(BaseFragment fragment) {
+        if (fragment != null) {
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             transaction.show(fragment);
             transaction.commit();
         }
     }
 
-    public void hide(Fragment fragment){
+    public void hide(BaseFragment fragment) {
         if (fragment != null && !fragment.isHidden()) {
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             transaction.hide(fragment);
@@ -411,15 +544,64 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
         }
     }
 
-    public void add(Fragment fragment, boolean isShow){
-        if (fragment != null && !fragment.isHidden()) {
-            FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.add(R.id.fl_container_except_bottom, fragment);
-            if (!isShow){
-                transaction.hide(fragment);
-            }
-            transaction.commit();
+    public void add(BaseFragment fragment) {
+        if (fragment != null) {
+            addFragment(fragment, R.id.fl_container_except_bottom, true);
         }
     }
 
+    public void remove(BaseFragment fragment) {
+        if (fragment == null) return;
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.remove(fragment);
+        transaction.commit();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (mTabsManager != null) {
+            mTabsManager.pauseAll();
+        }
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        initializePreferences();
+        if (mTabsManager != null) {
+            mTabsManager.resumeAll();
+        }
+    }
+
+    private void initializePreferences() {
+        mFullScreen = mPreferences.getFullScreenEnabled();
+
+        setFullscreen(mPreferences.getHideStatusBarEnabled(), false);
+
+        switch (mPreferences.getSearchChoice()) {
+            case 0:
+                mSearchText = mPreferences.getSearchUrl();
+                if (!mSearchText.startsWith(Constants.HTTP)
+                        && !mSearchText.startsWith(Constants.HTTPS)) {
+                    mSearchText = Constants.BAIDU_SEARCH;
+                }
+                break;
+            case 1:
+                mSearchText = Constants.BAIDU_SEARCH;
+                break;
+            case 2:
+                mSearchText = Constants.GOOGLE_SEARCH;
+                break;
+            case 3:
+                mSearchText = Constants.BING_SEARCH;
+                break;
+            case 4:
+                mSearchText = Constants.YAHOO_SEARCH;
+                break;
+            case 5:
+                mSearchText = Constants.SEARCH_360;
+                break;
+        }
+    }
 }

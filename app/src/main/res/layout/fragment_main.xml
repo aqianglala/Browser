@@ -3,19 +3,29 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent">
-
-    <LinearLayout
+    
+    <FrameLayout
         android:id="@id/id_uc_news_header_pager"
         android:layout_width="match_parent"
         android:layout_height="290dip"
         android:background="@android:color/holo_blue_light"
-        android:orientation="vertical"
         android:paddingTop="80dp"
         app:layout_behavior="@string/behavior_uc_header_pager">
 
         <include layout="@layout/include_search_qr_code"/>
 
-    </LinearLayout>
+    </FrameLayout>
+
+    <!--<LinearLayout-->
+        <!--android:id="@id/id_uc_news_header_pager"-->
+        <!--android:layout_width="match_parent"-->
+        <!--android:layout_height="290dip"-->
+        <!--android:background="@android:color/holo_blue_light"-->
+        <!--android:orientation="vertical"-->
+        <!--android:paddingTop="80dp"-->
+        <!--app:layout_behavior="@string/behavior_uc_header_pager">-->
+
+    <!--</LinearLayout>-->
 
     <FrameLayout
         android:layout_width="match_parent"

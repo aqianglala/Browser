@@ -6,10 +6,8 @@ import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 
-import com.example.zy1584.mybase.utils.CrashHandler;
 import com.example.zy1584.mybase.utils.ForegroundCallbacks;
 import com.orhanobut.logger.AndroidLogAdapter;
-import com.orhanobut.logger.BuildConfig;
 import com.orhanobut.logger.Logger;
 
 import java.util.concurrent.Executor;
@@ -34,13 +32,13 @@ public class BaseApplication extends Application {
 
         getMainThreadData();
         ForegroundCallbacks.init(this);
-        CrashHandler.getInstance().init(getApplicationContext());
+//        CrashHandler.getInstance().init(getApplicationContext());
 
 //        LeakCanary.install(this);
         Logger.addLogAdapter(new AndroidLogAdapter() {
             @Override
             public boolean isLoggable(int priority, String tag) {
-                return BuildConfig.DEBUG;
+                return true;
             }
         });
     }

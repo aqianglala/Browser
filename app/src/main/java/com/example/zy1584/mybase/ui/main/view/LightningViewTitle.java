@@ -19,6 +19,8 @@ public class LightningViewTitle {
 
     @Nullable
     private Bitmap mFavicon = null;
+    @Nullable
+    private Bitmap mShot = null;
     @NonNull
     private String mTitle;
     @NonNull
@@ -104,6 +106,15 @@ public class LightningViewTitle {
             return getDefaultIcon(mContext, darkTheme);
         }
         return mFavicon;
+    }
+
+    @Nullable
+    public Bitmap getmShot() {
+        return mShot;
+    }
+
+    public void setmShot(@Nullable Bitmap mShot) {
+        this.mShot = mShot;
     }
 
 }
