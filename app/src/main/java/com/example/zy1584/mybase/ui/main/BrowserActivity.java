@@ -35,6 +35,7 @@ import com.example.zy1584.mybase.R;
 import com.example.zy1584.mybase.base.BaseActivity;
 import com.example.zy1584.mybase.base.BaseFragment;
 import com.example.zy1584.mybase.manager.TabsManager;
+import com.example.zy1584.mybase.ui.downloadManager.DownloadManagerActivity;
 import com.example.zy1584.mybase.ui.main.adapter.MainFragmentAdapter;
 import com.example.zy1584.mybase.ui.main.mvp.BrowserActContract;
 import com.example.zy1584.mybase.ui.main.mvp.BrowserActPresenter;
@@ -247,6 +248,7 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
             case R.id.ib_download:
                 dismissPopupWindow();
                 toast("下载");
+                gotoActivity(DownloadManagerActivity.class);
                 break;
             case R.id.ib_exit:
                 dismissPopupWindow();

@@ -8,6 +8,8 @@ import android.graphics.Color;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.util.ArrayMap;
@@ -30,6 +32,7 @@ import com.example.zy1584.mybase.base.BaseApplication;
 import com.example.zy1584.mybase.base.BaseFragment;
 import com.example.zy1584.mybase.base.BasePresenter;
 import com.example.zy1584.mybase.manager.TabsManager;
+import com.example.zy1584.mybase.ui.downloadManager.LightningDownloadListener;
 import com.example.zy1584.mybase.ui.main.db.BookmarkManager;
 import com.example.zy1584.mybase.ui.main.db.HistoryDatabase;
 import com.example.zy1584.mybase.ui.main.db.HistoryItem;
@@ -44,6 +47,7 @@ import com.example.zy1584.mybase.utils.Utils;
 import com.example.zy1584.mybase.widget.AnimatedProgressBar;
 
 import java.io.File;
+import java.lang.ref.WeakReference;
 import java.util.Map;
 
 import butterknife.BindView;
@@ -94,6 +98,7 @@ public class BrowserFragment extends BaseFragment implements BrowserFrgContract.
 
     @NonNull
     private GestureDetector mGestureDetector;
+    @NonNull private final WebViewHandler mWebViewHandler = new WebViewHandler(this);
 
     @BindView(R.id.content_frame)
     FrameLayout content_frame;
@@ -184,8 +189,7 @@ public class BrowserFragment extends BaseFragment implements BrowserFrgContract.
         mWebView.setNetworkAvailable(true);
         mWebView.setWebChromeClient(new LightningChromeClient(mActivity, this));
         mWebView.setWebViewClient(new LightningWebClient(mActivity, this));
-        // TODO: 2017-7-13
-//        mWebView.setDownloadListener(new LightningDownloadListener(mActivity));
+        mWebView.setDownloadListener(new LightningDownloadListener(mActivity));
         mGestureDetector = new GestureDetector(mActivity, new CustomGestureListener());
         mWebView.setOnTouchListener(new TouchListener());
         sDefaultUserAgent = mWebView.getSettings().getUserAgentString();
@@ -547,6 +551,41 @@ public class BrowserFragment extends BaseFragment implements BrowserFrgContract.
     }
 
     /**
+     * Handles a long click on the page and delegates the URL to the
+     * proper dialog if it is not null, otherwise, it tries to get the
+     * URL using HitTestResult.
+     *
+     * @param url the url that should have been obtained from the WebView touch node
+     *            thingy, if it is null, this method tries to deal with it and find
+     *            a workaround.
+     */
+    private void longClickPage(@Nullable final String url) {
+//        if (mWebView == null) {
+//            return;
+//        }
+//        final WebView.HitTestResult result = mWebView.getHitTestResult();
+//        String currentUrl = mWebView.getUrl();
+//        if (url != null) {
+//            if (result != null) {
+//                if (result.getType() == WebView.HitTestResult.SRC_IMAGE_ANCHOR_TYPE || result.getType() == WebView.HitTestResult.IMAGE_TYPE) {
+//                    mBookmarksDialogBuilder.showLongPressImageDialog(mActivity, url, getUserAgent());
+//                } else {
+//                    mBookmarksDialogBuilder.showLongPressLinkDialog(mActivity, url);
+//                }
+//            } else {
+//                mBookmarksDialogBuilder.showLongPressLinkDialog(mActivity, url);
+//            }
+//        } else if (result != null && result.getExtra() != null) {
+//            final String newUrl = result.getExtra();
+//            if (result.getType() == WebView.HitTestResult.SRC_IMAGE_ANCHOR_TYPE || result.getType() == WebView.HitTestResult.IMAGE_TYPE) {
+//                mBookmarksDialogBuilder.showLongPressImageDialog(mActivity, newUrl, getUserAgent());
+//            } else {
+//                mBookmarksDialogBuilder.showLongPressLinkDialog(mActivity, newUrl);
+//            }
+//        }
+    }
+
+    /**
      * Determines whether or not the WebView can go
      * backward or if it as the end of its history.
      *
@@ -810,16 +849,16 @@ public class BrowserFragment extends BaseFragment implements BrowserFrgContract.
 
         @Override
         public void onLongPress(MotionEvent e) {
-//            if (mCanTriggerLongPress) {
-//                Message msg = mWebViewHandler.obtainMessage();
-//                if (msg != null) {
-//                    msg.setTarget(mWebViewHandler);
-//                    if (mWebView == null) {
-//                        return;
-//                    }
-//                    mWebView.requestFocusNodeHref(msg);
-//                }
-//            }
+            if (mCanTriggerLongPress) {
+                Message msg = mWebViewHandler.obtainMessage();
+                if (msg != null) {
+                    msg.setTarget(mWebViewHandler);
+                    if (mWebView == null) {
+                        return;
+                    }
+                    mWebView.requestFocusNodeHref(msg);
+                }
+            }
         }
 
         /**
@@ -929,6 +968,31 @@ public class BrowserFragment extends BaseFragment implements BrowserFrgContract.
         if (mWebView != null) {
             mWebView.resumeTimers();
             Log.d(TAG, "Resuming JS timers");
+        }
+    }
+
+    /**
+     * A Handler used to get the URL from a long click
+     * event on the WebView. It does not hold a hard
+     * reference to the WebView and therefore will not
+     * leak it if the WebView is garbage collected.
+     */
+    private static class WebViewHandler extends Handler {
+
+        @NonNull private final WeakReference<BrowserFragment> mReference;
+
+        public WebViewHandler(BrowserFragment view) {
+            mReference = new WeakReference<>(view);
+        }
+
+        @Override
+        public void handleMessage(@NonNull Message msg) {
+            super.handleMessage(msg);
+            final String url = msg.getData().getString("url");
+            BrowserFragment view = mReference.get();
+            if (view != null) {
+                view.longClickPage(url);
+            }
         }
     }
 

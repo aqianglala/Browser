@@ -41,4 +41,30 @@
     <string name="max_tabs">达到最大标签数</string>
     <string name="search_hint">搜索</string>
 
+    <string name="tasks_manager_demo_status_loading">加载中...</string>
+    <string name="tasks_manager_demo_status_pending">队列中</string>
+    <string name="tasks_manager_demo_status_started">开始下载</string>
+    <string name="tasks_manager_demo_status_connected">已连接上</string>
+    <string name="tasks_manager_demo_status_progress">下载中...</string>
+    <string name="tasks_manager_demo_status_downloading" formatted="false">正在下载 %d</string>
+    <string name="tasks_manager_demo_status_error">出错</string>
+    <string name="tasks_manager_demo_status_paused">暂停</string>
+    <string name="tasks_manager_demo_status_completed">下载完成</string>
+    <string name="tasks_manager_demo_status_not_downloaded">未下载</string>
+
+    <string name="start">开始</string>
+    <string name="pause">暂停</string>
+    <string name="delete">删除</string>
+
+    <string name="dialog_download">确定下载此文件？</string>
+    <string name="action_download">下载管理</string>
+
+    <string name="download_sdcard_busy_dlg_msg">存储设备正忙，为确保正常下载此文件，请关闭USB大容量存储。</string>
+    <string name="download_sdcard_busy_dlg_title">USB 存储不可用</string>
+    <string name="download_no_sdcard_dlg_msg">为正常下载此文件需要 USB 存储设备。</string>
+    <string name="download_no_sdcard_dlg_title">未找到存储卡</string>
+    <string name="problem_download">连接无效，无法下载</string>
+    <string name="cannot_download">仅可下载以 \"http\" 或 \"https\" 开头的链接地址</string>
+    <string name="problem_location_download">存储位置错误</string>
+
 </resources>

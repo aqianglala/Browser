@@ -34,6 +34,8 @@ public class IntentUtils {
     }
 
     public boolean startActivityForUrl(@Nullable WebView tab, @NonNull String url) {
+        // 有些手机上的浏览器能处理下载链接，因而会跳转到其他浏览器进行下载，这里需要过滤掉
+        if (url.startsWith("http")) return false;
         Intent intent;
         try {
             intent = Intent.parseUri(url, Intent.URI_INTENT_SCHEME);

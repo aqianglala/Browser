@@ -5,6 +5,8 @@ import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.example.zy1584.mybase.ui.downloadManager.DownloadHandler;
+
 
 public class PreferenceManager {
 
@@ -140,10 +142,10 @@ public class PreferenceManager {
         return mPrefs.getBoolean(Name.COOKIES, true);
     }
 
-//    @NonNull
-//    public String getDownloadDirectory() {
-//        return mPrefs.getString(Name.DOWNLOAD_DIRECTORY, DownloadHandler.DEFAULT_DOWNLOAD_PATH);
-//    }
+    @NonNull
+    public String getDownloadDirectory() {
+        return mPrefs.getString(Name.DOWNLOAD_DIRECTORY, DownloadHandler.DEFAULT_DOWNLOAD_PATH);
+    }
 
     public int getFlashSupport() {
         return mPrefs.getInt(Name.ADOBE_FLASH_SUPPORT, 0);

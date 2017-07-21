@@ -7,6 +7,7 @@ import android.os.Looper;
 import android.support.annotation.NonNull;
 
 import com.example.zy1584.mybase.utils.ForegroundCallbacks;
+import com.liulishuo.filedownloader.FileDownloader;
 import com.orhanobut.logger.AndroidLogAdapter;
 import com.orhanobut.logger.Logger;
 
@@ -41,6 +42,7 @@ public class BaseApplication extends Application {
                 return true;
             }
         });
+        FileDownloader.setupOnApplicationOnCreate(this);
     }
 
     private void getMainThreadData() {

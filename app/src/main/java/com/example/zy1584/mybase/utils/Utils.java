@@ -23,6 +23,7 @@ import java.io.Closeable;
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.text.DecimalFormat;
 import java.util.Date;
 
 import static com.bumptech.glide.gifdecoder.GifHeaderParser.TAG;
@@ -215,6 +216,23 @@ public class Utils {
             return Constants.HTTPS + domain;
         else
             return domain.startsWith("www.") ? domain.substring(4) : domain;
+    }
+
+    public static String formatFileSize(long size){
+        return new DecimalFormat("##0.00").format(size*1.0/(1024*1024));
+    }
+
+    /**
+     * speed为kb
+     * @param speed
+     * @return
+     */
+    public static String formatSpeed(double speed){
+        if (speed >1024){
+            return new DecimalFormat("##0.0").format(speed*1.0/1024)+"MB/s";
+        }else{
+            return new DecimalFormat("##0.0").format(speed*1.0)+"KB/s";
+        }
     }
 
 }

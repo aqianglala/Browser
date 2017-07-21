@@ -102,6 +102,7 @@ public class LightningWebClient extends WebViewClient {
             mActView.setForwardButtonEnabled(view.canGoForward());
             view.postInvalidate();
         }
+
         if (view.getTitle() == null || view.getTitle().isEmpty()) {
             mFragment.getTitleInfo().setTitle(mActivity.getString(R.string.untitled));
         } else {

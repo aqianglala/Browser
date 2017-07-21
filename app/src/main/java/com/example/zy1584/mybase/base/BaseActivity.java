@@ -1,6 +1,5 @@
 package com.example.zy1584.mybase.base;
 
-import android.app.Activity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -50,7 +49,7 @@ public abstract class BaseActivity<P extends BasePresenter> extends AppCompatAct
 
     protected String TAG;
     protected LayoutInflater mInflater;
-    protected Activity mActivity;
+    protected BaseActivity mActivity;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
