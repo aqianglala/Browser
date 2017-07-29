@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
+    android:layout_height="50dp"
     android:id="@+id/ll_toolbar_container"
     android:background="@android:color/white"
     android:orientation="horizontal">
@@ -9,41 +9,45 @@
     <ImageButton
         android:id="@+id/ib_back"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
         android:layout_weight="1"
         android:background="?android:attr/selectableItemBackground"
-        android:src="@mipmap/ic_launcher" />
+        android:src="@drawable/ic_back" />
 
     <ImageButton
         android:id="@+id/ib_forward"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
         android:layout_weight="1"
         android:background="?android:attr/selectableItemBackground"
-        android:src="@mipmap/ic_launcher" />
+        android:src="@drawable/ic_forward" />
 
-    <ImageButton
-        android:id="@+id/ib_menu"
+    <LinearLayout
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:background="?android:attr/selectableItemBackground"
-        android:src="@mipmap/ic_launcher" />
+        android:gravity="center"
+        android:layout_height="match_parent">
+        <ImageButton
+            android:id="@+id/ib_menu"
+            android:layout_width="17.5dp"
+            android:layout_height="17.5dp"
+            android:background="@drawable/ic_menu" />
+    </LinearLayout>
 
     <ImageButton
         android:id="@+id/ib_tab"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
         android:layout_weight="1"
         android:background="?android:attr/selectableItemBackground"
-        android:src="@mipmap/ic_launcher" />
+        android:src="@drawable/ic_home" />
 
     <ImageButton
         android:id="@+id/ib_home"
         android:layout_width="0dp"
-        android:layout_height="wrap_content"
+        android:layout_height="50dp"
         android:layout_weight="1"
         android:background="?android:attr/selectableItemBackground"
-        android:src="@mipmap/ic_launcher" />
+        android:src="@drawable/ic_home" />
 
 </LinearLayout>

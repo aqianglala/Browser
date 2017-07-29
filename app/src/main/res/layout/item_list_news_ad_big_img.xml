@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="232dp"
+    android:orientation="vertical"
+    android:paddingLeft="@dimen/news_item_padding_left"
+    android:paddingRight="@dimen/news_item_padding_right">
+
+    <TextView
+        android:id="@+id/tv_title"
+        android:layout_width="wrap_content"
+        android:layout_height="32dp"
+        android:maxLines="1"
+        android:gravity="center_vertical"
+        android:ellipsize="end"
+        style="@style/TextAppearance.AppCompat.Medium"
+        android:textColor="@android:color/black"
+        android:text="aaaaaaaaaaaaa"
+        />
+
+    <ImageView
+        android:id="@+id/iv_thumbnail"
+        android:layout_width="match_parent"
+        android:layout_height="180dp"
+        android:scaleType="centerCrop" />
+
+    <ImageView
+        android:layout_width="20dp"
+        android:layout_height="20dp"
+        android:src="@mipmap/ic_launcher"/>
+
+</LinearLayout>

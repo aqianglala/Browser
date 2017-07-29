@@ -35,14 +35,18 @@ import com.example.zy1584.mybase.R;
 import com.example.zy1584.mybase.base.BaseActivity;
 import com.example.zy1584.mybase.base.BaseFragment;
 import com.example.zy1584.mybase.manager.TabsManager;
-import com.example.zy1584.mybase.ui.downloadManager.DownloadManagerActivity;
+import com.example.zy1584.mybase.preference.PreferenceManager;
+import com.example.zy1584.mybase.ui.download.DownloadManagerActivity;
 import com.example.zy1584.mybase.ui.main.adapter.MainFragmentAdapter;
 import com.example.zy1584.mybase.ui.main.mvp.BrowserActContract;
 import com.example.zy1584.mybase.ui.main.mvp.BrowserActPresenter;
 import com.example.zy1584.mybase.ui.navigation.NavigationFragment;
 import com.example.zy1584.mybase.ui.search.SearchFragment;
+import com.example.zy1584.mybase.ui.windowManager.WindowManagerFragment;
 import com.example.zy1584.mybase.utils.ActivityCollector;
 import com.example.zy1584.mybase.utils.CompressImage;
+import com.example.zy1584.mybase.utils.Constants;
+import com.example.zy1584.mybase.utils.LocationUtils;
 import com.example.zy1584.mybase.utils.UrlUtils;
 import com.example.zy1584.mybase.utils.Utils;
 
@@ -114,8 +118,8 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
             public void call(Bitmap bitmap) {
                 mTabsManager.setShot(bitmap);
                 // TODO: 2017-7-17 这里可以优化成全局的fragment
-                TabsFragment tabsFragment = new TabsFragment();
-                addFragment(tabsFragment, R.id.fl_container_full, true);
+                WindowManagerFragment windowManagerFragment = new WindowManagerFragment();
+                addFragment(windowManagerFragment, R.id.fl_container_full, true);
             }
         });
     }
@@ -158,6 +162,8 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
             }
         }
         setIntent(null);
+        // 定位
+        new LocationUtils(this).getLocation();
     }
 
     private void initFragments() {

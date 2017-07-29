@@ -15,4 +15,5 @@ public class GlobalParams {
     public static final String IS_INCOGNITO = "is_incognito";
     public static final String URL = "url";
     public static final String HOME_PAGE = "http://www.baidu.com";
+
 }

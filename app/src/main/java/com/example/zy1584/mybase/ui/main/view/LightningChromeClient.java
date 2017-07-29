@@ -23,7 +23,7 @@ import com.anthonycr.grant.PermissionsResultAction;
 import com.example.zy1584.mybase.R;
 import com.example.zy1584.mybase.base.BaseApplication;
 import com.example.zy1584.mybase.ui.main.BrowserFragment;
-import com.example.zy1584.mybase.ui.main.Preconditions;
+import com.example.zy1584.mybase.utils.Preconditions;
 import com.example.zy1584.mybase.ui.main.mvp.BrowserActContract;
 import com.example.zy1584.mybase.ui.main.mvp.BrowserFrgContract;
 import com.example.zy1584.mybase.utils.Utils;

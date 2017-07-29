@@ -74,7 +74,7 @@
         android:id="@+id/id_uc_news_content"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="#F0F4C3"
+        android:background="@android:color/white"
         app:layout_behavior="@string/behavior_contents" />
 
 </android.support.design.widget.CoordinatorLayout>

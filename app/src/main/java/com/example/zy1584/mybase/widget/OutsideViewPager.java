@@ -3,6 +3,7 @@ package com.example.zy1584.mybase.widget;
 import android.content.Context;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.View;
 
 /**
@@ -56,6 +57,40 @@ public class OutsideViewPager extends ViewPager {
 //        return super.onInterceptTouchEvent(ev);
 //    }
 
+
+    @Override
+    public boolean dispatchTouchEvent(MotionEvent ev) {
+        int childCount = getChildCount();
+        NewsViewPager newsViewPager = null;
+        for (int i = 0; i< childCount; i++){
+            View child = getChildAt(i);
+            if (child instanceof NewsViewPager){
+                newsViewPager = (NewsViewPager) child;
+                break;
+            }
+        }
+        if (newsViewPager != null && newsViewPager.isPagingEnabled()){
+            return true;
+        }
+        return super.dispatchTouchEvent(ev);
+    }
+
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent ev) {
+        int childCount = getChildCount();
+        NewsViewPager newsViewPager = null;
+        for (int i = 0; i< childCount; i++){
+            View child = getChildAt(i);
+            if (child instanceof NewsViewPager){
+                newsViewPager = (NewsViewPager) child;
+                break;
+            }
+        }
+        if (newsViewPager != null && newsViewPager.isPagingEnabled()){
+            return false;
+        }
+        return super.onInterceptTouchEvent(ev);
+    }
 
     @Override
     protected boolean canScroll(View v, boolean checkV, int dx, int x, int y) {

@@ -2,11 +2,16 @@ package com.example.zy1584.mybase.base;
 
 import android.app.Application;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
 
+import com.example.zy1584.mybase.receiver.PackageChangeReceiver;
+import com.example.zy1584.mybase.ui.download.GlobalMonitor;
 import com.example.zy1584.mybase.utils.ForegroundCallbacks;
+import com.liulishuo.filedownloader.FileDownloadMonitor;
 import com.liulishuo.filedownloader.FileDownloader;
 import com.orhanobut.logger.AndroidLogAdapter;
 import com.orhanobut.logger.Logger;
@@ -21,6 +26,7 @@ public class BaseApplication extends Application {
     private static long mainThreadId;
     private static Handler mainHandler;
     private static Looper mainlooper;
+    private PackageChangeReceiver mPackageReceiver = null;
     private String TAG = "base_tag";
 
     private static final Executor mIOThread = Executors.newSingleThreadExecutor();
@@ -43,6 +49,19 @@ public class BaseApplication extends Application {
             }
         });
         FileDownloader.setupOnApplicationOnCreate(this);
+        FileDownloadMonitor.setGlobalMonitor(GlobalMonitor.getImpl());
+        //设置包安装，卸载的监听器
+        registerPackageChangeReceivier();
+    }
+
+    private void registerPackageChangeReceivier() {
+        mPackageReceiver = new PackageChangeReceiver();
+        IntentFilter InF = new IntentFilter();
+        InF.addAction(Intent.ACTION_PACKAGE_ADDED);
+        InF.addAction(Intent.ACTION_PACKAGE_REMOVED);
+        InF.addAction(Intent.ACTION_PACKAGE_REPLACED);
+        InF.addDataScheme("package");
+        registerReceiver(mPackageReceiver, InF);
     }
 
     private void getMainThreadData() {

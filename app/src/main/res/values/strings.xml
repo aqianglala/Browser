@@ -66,5 +66,5 @@
     <string name="problem_download">连接无效，无法下载</string>
     <string name="cannot_download">仅可下载以 \"http\" 或 \"https\" 开头的链接地址</string>
     <string name="problem_location_download">存储位置错误</string>
-
+    
 </resources>

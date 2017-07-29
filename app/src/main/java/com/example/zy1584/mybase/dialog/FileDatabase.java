@@ -8,7 +8,7 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.example.zy1584.mybase.base.BaseApplication;
-import com.example.zy1584.mybase.db.FileItem;
+import com.example.zy1584.mybase.ui.download.db.FileItem;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,6 +33,8 @@ public class FileDatabase extends SQLiteOpenHelper {
     public static final String KEY_NAME = "name";
     public static final String KEY_TYPE = "type";
     public static final String KEY_PATH = "path";
+    public static final String KEY_CLICK_ID = "click_id"; // 腾讯广告联盟统计使用，丧心病狂
+    public static final String KEY_CONVERSION_LINK = "conversion_link"; // 腾讯广告联盟统计使用，丧心病狂
 
     @Nullable
     private SQLiteDatabase mDatabase;
@@ -60,7 +62,9 @@ public class FileDatabase extends SQLiteOpenHelper {
                 + KEY_URL + " TEXT,"
                 + KEY_NAME + " TEXT,"
                 + KEY_TYPE + " INTEGER,"
-                + KEY_PATH + " TEXT" + ')';
+                + KEY_PATH + " TEXT,"
+                + KEY_CLICK_ID + " TEXT,"
+                + KEY_CONVERSION_LINK + " TEXT"+ ')';
         db.execSQL(CREATE_FILE_TABLE);
     }
 
@@ -135,6 +139,8 @@ public class FileDatabase extends SQLiteOpenHelper {
                 item.setName(cursor.getString(2));
                 item.setType(cursor.getInt(3));
                 item.setPath(cursor.getString(4));
+                item.setClickId(cursor.getString(5));
+                item.setConversionLink(cursor.getString(6));
                 itemList.add(item);
             } while (cursor.moveToNext());
         }

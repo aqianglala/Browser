@@ -4,30 +4,40 @@ import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 
 import com.example.zy1584.mybase.BuildConfig;
 import com.example.zy1584.mybase.R;
 import com.example.zy1584.mybase.base.BaseFragment;
-import com.example.zy1584.mybase.base.BasePresenter;
 import com.example.zy1584.mybase.ui.main.adapter.TestFragmentAdapter;
-import com.example.zy1584.mybase.ui.news.NewsListFragment;
+import com.example.zy1584.mybase.ui.main.bean.ChannelBean;
+import com.example.zy1584.mybase.ui.main.mvp.MainFrgContract;
+import com.example.zy1584.mybase.ui.main.mvp.MainFrgPresenter;
+import com.example.zy1584.mybase.ui.news.NewsChannelFragment;
+import com.example.zy1584.mybase.ui.news.NewsRecommendFragment;
+import com.example.zy1584.mybase.utils.LocationUtils;
+import com.example.zy1584.mybase.utils.SPUtils;
 import com.example.zy1584.mybase.widget.NewsViewPager;
 import com.example.zy1584.mybase.widget.behavior.uc.UcNewsHeaderPagerBehavior;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 
 /**
  * Created by zy1584 on 2017-7-3.
  */
 
-public class MainFragment extends BaseFragment implements UcNewsHeaderPagerBehavior.OnPagerStateListener {
+public class MainFragment extends BaseFragment<MainFrgPresenter> implements UcNewsHeaderPagerBehavior.OnPagerStateListener,
+        MainFrgContract.View{
     private NewsViewPager mNewsPager;
     private TabLayout mTableLayout;
-    private List<NewsListFragment> mFragments;
+    private List<BaseFragment> mFragments = new ArrayList<>();
     private UcNewsHeaderPagerBehavior mPagerBehavior;
 
     @Override
@@ -36,8 +46,8 @@ public class MainFragment extends BaseFragment implements UcNewsHeaderPagerBehav
     }
 
     @Override
-    protected BasePresenter loadPresenter() {
-        return null;
+    protected MainFrgPresenter loadPresenter() {
+        return new MainFrgPresenter();
     }
 
     @Override
@@ -47,15 +57,9 @@ public class MainFragment extends BaseFragment implements UcNewsHeaderPagerBehav
         mPagerBehavior.setPagerStateListener(this);
         mNewsPager = (NewsViewPager) mContentView.findViewById(R.id.id_uc_news_content);
         mTableLayout = (TabLayout) mContentView.findViewById(R.id.id_uc_news_tab);
-        mFragments = new ArrayList<>();
-        for (int i = 0; i < 4; i++) {
-            mFragments.add(NewsListFragment.newInstance(String.valueOf(i), false));
-            mTableLayout.addTab(mTableLayout.newTab().setText("Tab" + i));
-        }
-        mTableLayout.setTabMode(TabLayout.MODE_FIXED);
-        mTableLayout.addOnTabSelectedListener(new TabSelectedListener());
-        mNewsPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(mTableLayout));
-        mNewsPager.setAdapter(new TestFragmentAdapter(mFragments, getFragmentManager()));
+
+        mFragments.add(new NewsRecommendFragment());
+        mTableLayout.addTab(mTableLayout.newTab().setText("推荐"));
     }
 
     @Override
@@ -67,7 +71,7 @@ public class MainFragment extends BaseFragment implements UcNewsHeaderPagerBehav
 
     @Override
     protected void doBusiness(Bundle savedInstanceState) {
-
+        mPresenter.getChannelList();
     }
 
     @Override
@@ -103,6 +107,42 @@ public class MainFragment extends BaseFragment implements UcNewsHeaderPagerBehav
             return true;
         }
         return false;
+    }
+
+
+    @Override
+    public void onReceiveChannelList(Map<String, ChannelBean> channelMap) {
+        if (channelMap.size() == 0) return;
+        String[] defaultChannels = getResources().getStringArray(R.array.default_channel);
+        List<String> channels = new LinkedList(Arrays.asList(defaultChannels));
+        String province = (String) SPUtils.get(LocationUtils.PROVINCE, "");
+        String city = (String) SPUtils.get(LocationUtils.CITY, "");
+        if (!TextUtils.isEmpty(province)){
+            for (ChannelBean bean : channelMap.values()){
+                if (bean == null) continue;
+                if (city.contains(bean.getChanName()) || province.contains(bean.getChanName())){
+                    channels.add(2, bean.getChanId());
+                    break;
+                }
+            }
+        }
+        for (String key : channels){
+            ChannelBean bean = channelMap.get(key);
+            if (bean != null){
+                NewsChannelFragment fragment = NewsChannelFragment.newInstance(bean.getChanCode());
+                mFragments.add(fragment);
+                mTableLayout.addTab(mTableLayout.newTab().setText(bean.getChanName()));
+            }
+        }
+        mTableLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
+        mTableLayout.addOnTabSelectedListener(new TabSelectedListener());
+        mNewsPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(mTableLayout));
+        mNewsPager.setAdapter(new TestFragmentAdapter(mFragments, getFragmentManager()));
+    }
+
+    @Override
+    public void onGetChannelListError(Throwable e) {
+
     }
 
     class TabSelectedListener implements TabLayout.OnTabSelectedListener {

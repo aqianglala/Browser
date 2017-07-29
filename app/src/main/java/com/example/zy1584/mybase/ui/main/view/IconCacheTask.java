@@ -5,7 +5,7 @@ import android.graphics.Bitmap;
 import android.net.Uri;
 import android.util.Log;
 
-import com.example.zy1584.mybase.ui.main.Constants;
+import com.example.zy1584.mybase.utils.Constants;
 import com.example.zy1584.mybase.utils.Utils;
 
 import java.io.File;
