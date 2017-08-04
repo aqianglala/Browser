@@ -1,4 +1,4 @@
-package com.example.zy1584.mybase.ui.news.adapter.recommend;
+package com.example.zy1584.mybase.ui.news.adapter;
 
 import android.content.Context;
 import android.util.Log;
@@ -10,7 +10,7 @@ import com.bumptech.glide.Glide;
 import com.example.zy1584.mybase.R;
 import com.example.zy1584.mybase.bean.ADResponseBean.DataBean._$8050018672826551Bean.ListBean;
 import com.example.zy1584.mybase.bean.BaseNewsItem;
-import com.example.zy1584.mybase.ui.news.adapter.recommend.NewsRecommendAdapter.onADItemClickListener;
+import com.example.zy1584.mybase.ui.news.interfaces.OnADItemClickListener;
 import com.zhy.adapter.recyclerview.base.ItemViewDelegate;
 import com.zhy.adapter.recyclerview.base.ViewHolder;
 
@@ -19,9 +19,9 @@ import com.zhy.adapter.recyclerview.base.ViewHolder;
  */
 
 public class ItemADBigImgDelegate implements ItemViewDelegate<BaseNewsItem> {
-    private onADItemClickListener mListener;
+    private OnADItemClickListener mListener;
 
-    public ItemADBigImgDelegate(onADItemClickListener mListener) {
+    public ItemADBigImgDelegate(OnADItemClickListener mListener) {
         this.mListener = mListener;
     }
 
@@ -61,9 +61,9 @@ public class ItemADBigImgDelegate implements ItemViewDelegate<BaseNewsItem> {
         private ViewHolder holder;
         private ListBean item;
         private int position;
-        private onADItemClickListener listener;
+        private OnADItemClickListener listener;
 
-        public MyOnTouchListener(ViewHolder holder, ListBean item, int position, onADItemClickListener listener) {
+        public MyOnTouchListener(ViewHolder holder, ListBean item, int position, OnADItemClickListener listener) {
             this.holder = holder;
             this.item = item;
             this.position = position;

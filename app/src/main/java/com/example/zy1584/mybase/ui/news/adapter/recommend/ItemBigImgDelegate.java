@@ -6,7 +6,7 @@ import android.widget.ImageView;
 import com.bumptech.glide.Glide;
 import com.example.zy1584.mybase.R;
 import com.example.zy1584.mybase.bean.BaseNewsItem;
-import com.example.zy1584.mybase.ui.news.RecommendBean.NewslistBean;
+import com.example.zy1584.mybase.bean.RecommendBean.NewslistBean;
 import com.example.zy1584.mybase.utils.DateUtil;
 import com.zhy.adapter.recyclerview.base.ItemViewDelegate;
 import com.zhy.adapter.recyclerview.base.ViewHolder;

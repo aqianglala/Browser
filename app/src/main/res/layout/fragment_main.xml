@@ -8,7 +8,7 @@
         android:id="@id/id_uc_news_header_pager"
         android:layout_width="match_parent"
         android:layout_height="290dip"
-        android:background="@android:color/holo_blue_light"
+        android:background="@drawable/bg_blue_shape"
         android:paddingTop="80dp"
         app:layout_behavior="@string/behavior_uc_header_pager">
 

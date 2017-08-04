@@ -138,7 +138,7 @@ public class Utils {
     public static void showSnackbar(@NonNull Activity activity, @StringRes int resource) {
         View view = activity.findViewById(R.id.coordinator_layout);
         if (view == null) {
-            Log.d(TAG, "Unable to find coordinator layout, using content view");
+            Log.d(TAG, "Unable to find coordinator layout, using content mContentView");
             view = activity.findViewById(android.R.id.content);
         }
         if (view == null) return;
@@ -154,7 +154,7 @@ public class Utils {
     public static void showSnackbar(@NonNull Activity activity, @NonNull String message) {
         View view = activity.findViewById(R.id.coordinator_layout);
         if (view == null) {
-            Log.d(TAG, "Unable to find coordinator layout, using content view");
+            Log.d(TAG, "Unable to find coordinator layout, using content mContentView");
             view = activity.findViewById(android.R.id.content);
         }
         if (view == null) return;

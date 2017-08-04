@@ -66,5 +66,25 @@
     <string name="problem_download">连接无效，无法下载</string>
     <string name="cannot_download">仅可下载以 \"http\" 或 \"https\" 开头的链接地址</string>
     <string name="problem_location_download">存储位置错误</string>
-    
+
+    <!--rx提示-->
+    <string name="prompt_task_exist">任务已在队列中</string>
+    <string name="prompt_same_file_exist">存在同名文件</string>
+    <string name="menu_add_bookmark">添加书签</string>
+    <string name="menu_bookmark_history">书签/历史</string>
+    <string name="menu_refresh">刷新</string>
+    <string name="menu_setting">设置</string>
+    <string name="menu_download">下载</string>
+    <string name="menu_exit">退出</string>
+    <string name="bookmark_add_to">添加至</string>
+    <string name="bookmark">书签</string>
+    <string name="bookmark_home">主页书签</string>
+    <string name="bookmark_edit_cancel">取消</string>
+    <string name="bookmark_edit_save">保存</string>
+    <string name="bookmark_edit_title">编辑书签</string>
+    <string name="bookmark_edit">编辑</string>
+    <string name="name_url">名称/网址</string>
+    <string name="remove">删除</string>
+    <string name="download_title">下载</string>
+    <!--rx提示-->
 </resources>

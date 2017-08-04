@@ -1,10 +1,10 @@
 package com.example.zy1584.mybase.preference;
 
-import android.content.Context;
 import android.content.SharedPreferences;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
+import com.example.zy1584.mybase.base.BaseApplication;
 import com.example.zy1584.mybase.ui.download.DownloadHandler;
 import com.example.zy1584.mybase.utils.Constants;
 
@@ -74,8 +74,14 @@ public class PreferenceManager {
 
     private static final String PREFERENCES = "settings";
 
-    public PreferenceManager(@NonNull final Context context) {
-        mPrefs = context.getSharedPreferences(PREFERENCES, 0);
+    private static final PreferenceManager instance = new PreferenceManager();
+
+    private PreferenceManager(){
+        mPrefs = BaseApplication.getContext().getSharedPreferences(PREFERENCES, 0);
+    }
+
+    public static PreferenceManager getInstance(){
+        return instance;
     }
 
     @NonNull

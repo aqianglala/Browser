@@ -65,7 +65,7 @@ public abstract class HeaderScrollingViewBehavior extends ViewOffsetBehavior<Vie
                     final int heightMeasureSpec = View.MeasureSpec.makeMeasureSpec(height,
                             childLpHeight == ViewGroup.LayoutParams.MATCH_PARENT ? View.MeasureSpec.EXACTLY : View.MeasureSpec.AT_MOST);
 
-                    // Now measure the scrolling view with the correct height
+                    // Now measure the scrolling mContentView with the correct height
                     parent.onMeasureChild(child, parentWidthMeasureSpec, widthUsed, heightMeasureSpec, heightUsed);
 
                     return true;
@@ -124,14 +124,14 @@ public abstract class HeaderScrollingViewBehavior extends ViewOffsetBehavior<Vie
     }
 
     /**
-     * The gap between the top of the scrolling view and the bottom of the header layout in pixels.
+     * The gap between the top of the scrolling mContentView and the bottom of the header layout in pixels.
      */
     final int getVerticalLayoutGap() {
         return mVerticalLayoutGap;
     }
 
     /**
-     * Set the distance that this view should overlap any {@link AppBarLayout}.
+     * Set the distance that this mContentView should overlap any {@link AppBarLayout}.
      *
      * @param overlayTop the distance in px
      */
@@ -140,7 +140,7 @@ public abstract class HeaderScrollingViewBehavior extends ViewOffsetBehavior<Vie
     }
 
     /**
-     * Returns the distance that this view should overlap any {@link AppBarLayout}.
+     * Returns the distance that this mContentView should overlap any {@link AppBarLayout}.
      */
     public final int getOverlayTop() {
         return mOverlayTop;

@@ -2,10 +2,17 @@ package com.example.zy1584.mybase.http;
 
 
 import com.example.zy1584.mybase.base.BaseApplication;
+import com.example.zy1584.mybase.utils.GlobalParams;
 import com.example.zy1584.mybase.utils.NetUtils;
+import com.example.zy1584.mybase.utils.SPUtils;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.HashMap;
 
 import okhttp3.Cache;
 import okhttp3.CacheControl;
@@ -14,6 +21,7 @@ import okhttp3.Interceptor;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
 import okhttp3.Response;
+import okhttp3.ResponseBody;
 import okhttp3.logging.HttpLoggingInterceptor;
 import retrofit2.Retrofit;
 import retrofit2.adapter.rxjava.RxJavaCallAdapterFactory;
@@ -123,6 +131,62 @@ public class Http {
         return cacheInterceptor;
     }
 
+    /**
+     * 地址校验
+     */
+    private static Interceptor addServerAddressInterceptor() {
+        Interceptor serverAddressInterceptor = new Interceptor() {
+            @Override
+            public Response intercept(Chain chain) throws IOException {
+                Request originalRequest = chain.request();
+                Request newRequest = null;
+
+                HttpUrl url = originalRequest.url();
+                String host = url.host();
+                int port = url.port();
+                if (host.equals(GlobalParams.HOLDER_HOST) && port == GlobalParams.HOLDER_PORT){// 请求地址
+                    if (requestServerAddress()){
+                        String newIp = (String) SPUtils.get(GlobalParams.IP, "");
+                        String newPort = (String) SPUtils.get(GlobalParams.PORT, "");
+                        HttpUrl newUrl = originalRequest.url().newBuilder()
+                                .host(newIp)
+                                .port(Integer.parseInt(newPort))
+                                .build();
+                        Request.Builder requestBuilder = originalRequest.newBuilder()
+                                .url(newUrl);
+                        newRequest = requestBuilder.build();
+                    }
+                }else{
+                    newRequest = originalRequest;
+                }
+
+                return chain.proceed(newRequest);
+            }
+        };
+        return serverAddressInterceptor;
+    }
+
+    private static boolean requestServerAddress() throws IOException {
+        HashMap<String, String> params = NetProtocol.getImpl(BaseApplication.getContext()).getRequestServerAddressQueryMap();
+        ResponseBody body = httpService.requestServerAddress(params).execute().body();
+        if (body != null){
+            if (body != null){
+                try {
+                    JSONArray jsonArray = new JSONArray(body.string());
+                    JSONObject obj = (JSONObject) jsonArray.get(0);
+                    SPUtils.put(GlobalParams.IP, obj.optString("IP"));
+                    SPUtils.put(GlobalParams.PORT, obj.optString("Port"));
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
     public static Retrofit getRetrofit() {
         if (retrofit == null) {
             synchronized (Http.class) {
@@ -140,6 +204,7 @@ public class Http {
 //                            .addInterceptor(addHeaderInterceptor()) // 添加header
 //                            .addNetworkInterceptor(addCacheInterceptor())
                             .addInterceptor(httpLoggingInterceptor) //日志,所有的请求响应度看到
+                            .addInterceptor(addServerAddressInterceptor())// 地址验证
                             .cache(cache)  //添加缓存
 //                            .connectTimeout(connectTimeout, TimeUnit.SECONDS)
 //                            .readTimeout(readTimeout, TimeUnit.SECONDS)

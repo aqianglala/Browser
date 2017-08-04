@@ -2,7 +2,6 @@ package com.example.zy1584.mybase.ui.main;
 
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
-import android.support.design.widget.Snackbar;
 import android.support.design.widget.TabLayout;
 import android.text.TextUtils;
 import android.util.Log;
@@ -39,6 +38,7 @@ public class MainFragment extends BaseFragment<MainFrgPresenter> implements UcNe
     private TabLayout mTableLayout;
     private List<BaseFragment> mFragments = new ArrayList<>();
     private UcNewsHeaderPagerBehavior mPagerBehavior;
+    private TestFragmentAdapter mNewsPagerAdapter;
 
     @Override
     protected int getLayoutId() {
@@ -60,6 +60,11 @@ public class MainFragment extends BaseFragment<MainFrgPresenter> implements UcNe
 
         mFragments.add(new NewsRecommendFragment());
         mTableLayout.addTab(mTableLayout.newTab().setText("推荐"));
+        mTableLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
+        mTableLayout.addOnTabSelectedListener(new TabSelectedListener());
+        mNewsPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(mTableLayout));
+        mNewsPagerAdapter = new TestFragmentAdapter(mFragments, getFragmentManager());
+        mNewsPager.setAdapter(mNewsPagerAdapter);
     }
 
     @Override
@@ -91,13 +96,11 @@ public class MainFragment extends BaseFragment<MainFrgPresenter> implements UcNe
         if (BuildConfig.DEBUG) {
             Log.d(TAG, "onPagerClosed: ");
         }
-        Snackbar.make(mNewsPager, "pager closed", Snackbar.LENGTH_SHORT).show();
         mNewsPager.setPagingEnabled(true);
     }
 
     @Override
     public void onPagerOpened() {
-        Snackbar.make(mNewsPager, "pager opened", Snackbar.LENGTH_SHORT).show();
         mNewsPager.setPagingEnabled(false);
     }
 
@@ -134,10 +137,7 @@ public class MainFragment extends BaseFragment<MainFrgPresenter> implements UcNe
                 mTableLayout.addTab(mTableLayout.newTab().setText(bean.getChanName()));
             }
         }
-        mTableLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
-        mTableLayout.addOnTabSelectedListener(new TabSelectedListener());
-        mNewsPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(mTableLayout));
-        mNewsPager.setAdapter(new TestFragmentAdapter(mFragments, getFragmentManager()));
+        mNewsPagerAdapter.notifyDataSetChanged();
     }
 
     @Override

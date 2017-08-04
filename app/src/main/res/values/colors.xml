@@ -13,4 +13,6 @@
 
     <color name="selected_dark">#0FFFFFFF</color>
     <color name="selected_light">#0F000000</color>
+
+    <color name="color_blue">#43BBEF</color>
 </resources>

@@ -35,12 +35,19 @@ public class AdBlock {
 
     PreferenceManager mPreferenceManager;
 
-    public AdBlock(@NonNull Context context) {
-        mPreferenceManager = new PreferenceManager(context);
+    private static final AdBlock instance = new AdBlock();
+
+    private AdBlock() {
+        Context context = BaseApplication.getContext();
+        mPreferenceManager = PreferenceManager.getInstance();
         if (mBlockedDomainsList.isEmpty() && Constants.FULL_VERSION) {
             loadHostsFile(context);
         }
         mBlockAds = mPreferenceManager.getAdBlockEnabled();
+    }
+
+    public static AdBlock getInstance(){
+        return instance;
     }
 
     public void updatePreference() {

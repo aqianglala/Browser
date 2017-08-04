@@ -145,7 +145,7 @@ public class NewsChannelBean {
                 this.content = content;
             }
 
-            public static class ContentBean {
+            public static class ContentBean implements BaseNewsItem {
                 /**
                  * sdk_hot : 0
                  * url : http://op.inews.qq.com/m/ENT2017072604400200?refer=100000256&chl_code=ent&h=0

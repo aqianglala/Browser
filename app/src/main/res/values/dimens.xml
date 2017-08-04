@@ -44,4 +44,7 @@
     <dimen name="news_item_padding_right">16dp</dimen>
     <dimen name="news_item_padding_top">16dp</dimen>
     <dimen name="news_item_padding_bottom">16dp</dimen>
+
+    <dimen name="menu_height">150dp</dimen>
+    <dimen name="popup_window_padding">16dp</dimen>
 </resources>

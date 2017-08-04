@@ -134,7 +134,7 @@ public class BrowserFragment extends BaseFragment implements BrowserFrgContract.
     public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
         if (webViewState != null) {
-            //Fragment实例并未被销毁, 重新create view
+            //Fragment实例并未被销毁, 重新create mContentView
             mWebView.restoreState(webViewState);
         } else if (savedInstanceState != null) {
             //Fragment实例被销毁重建
@@ -158,8 +158,8 @@ public class BrowserFragment extends BaseFragment implements BrowserFrgContract.
             mUrl = arguments.getString(GlobalParams.URL);
         }
 
-        mHistoryDatabase = new HistoryDatabase(mActivity);
-        mBookmarkManager = new BookmarkManager(mActivity);
+        mHistoryDatabase = HistoryDatabase.getInstance();
+        mBookmarkManager = BookmarkManager.getInstance();
         mUntitledTitle = getString(R.string.untitled);
         mDeleteIcon = UIUtils.getDrawable(R.drawable.ic_action_delete);
         mRefreshIcon = UIUtils.getDrawable(R.drawable.ic_action_refresh);
@@ -215,7 +215,7 @@ public class BrowserFragment extends BaseFragment implements BrowserFrgContract.
      */
     @SuppressLint({"NewApi", "SetJavaScriptEnabled"})
     public synchronized void initializePreferences(@NonNull Context context) {
-        mPreferences = new PreferenceManager(context);
+        mPreferences = PreferenceManager.getInstance();
         if (mWebView == null) {
             return;
         }
@@ -509,7 +509,7 @@ public class BrowserFragment extends BaseFragment implements BrowserFrgContract.
 
     /**
      * Requests focus down on the WebView instance
-     * if the view does not already have focus.
+     * if the mContentView does not already have focus.
      */
     public void requestFocus() {
         if (mWebView != null && !mWebView.hasFocus()) {

@@ -211,7 +211,7 @@ public class ADResponseBean {
                     int height = view.getHeight();
 
                     if(viewIsPartiallyHiddenTop()){
-                        // view is partially hidden behind the top edge
+                        // mContentView is partially hidden behind the top edge
                         percents = (height - mCurrentViewRect.top) * 100 / height;
                     } else if(viewIsPartiallyHiddenBottom(height)){
                         percents = mCurrentViewRect.bottom * 100 / height;

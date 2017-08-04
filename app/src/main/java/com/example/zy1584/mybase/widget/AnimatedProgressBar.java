@@ -78,7 +78,7 @@ public class AnimatedProgressBar extends View {
     /**
      * Returns the current progress value between 0 and 100
      *
-     * @return progress of the view
+     * @return progress of the mContentView
      */
     public int getProgress() {
         return mProgress;
@@ -120,8 +120,8 @@ public class AnimatedProgressBar extends View {
         mRect.left = 0;
         mRect.top = 0;
         mRect.bottom = getBottom() - getTop();
-        if (progress < mProgress && !mBidirectionalAnimate) {   // if the we only animate the view in one direction
-            // then reset the view width if it is less than the
+        if (progress < mProgress && !mBidirectionalAnimate) {   // if the we only animate the mContentView in one direction
+            // then reset the mContentView width if it is less than the
             // previous progress
             mDrawWidth = 0;
         } else if (progress == mProgress) {     // we don't need to go any farther if the progress is unchanged
@@ -143,8 +143,8 @@ public class AnimatedProgressBar extends View {
      * private method used to create and run the animation used to change the progress
      *
      * @param initialWidth is the width at which the progress starts at
-     * @param maxWidth     is the maximum width (total width of the view)
-     * @param deltaWidth   is the amount by which the width of the progress view will change
+     * @param maxWidth     is the maximum width (total width of the mContentView)
+     * @param deltaWidth   is the amount by which the width of the progress mContentView will change
      */
     private void animateView(final int initialWidth, final int maxWidth, final int deltaWidth) {
         Animation fill = new Animation() {

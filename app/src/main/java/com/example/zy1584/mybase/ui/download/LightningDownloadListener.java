@@ -18,7 +18,7 @@ public class LightningDownloadListener implements DownloadListener {
 
     public LightningDownloadListener(Activity context) {
         mActivity = context;
-        mPreferenceManager = new PreferenceManager(context);
+        mPreferenceManager = PreferenceManager.getInstance();
     }
 
     @Override

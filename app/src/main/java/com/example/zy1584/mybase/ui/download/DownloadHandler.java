@@ -25,10 +25,12 @@ import com.anthonycr.grant.PermissionsManager;
 import com.anthonycr.grant.PermissionsResultAction;
 import com.example.zy1584.mybase.BuildConfig;
 import com.example.zy1584.mybase.R;
+import com.example.zy1584.mybase.bus.RXEvent;
 import com.example.zy1584.mybase.dialog.BrowserDialog;
 import com.example.zy1584.mybase.preference.PreferenceManager;
 import com.example.zy1584.mybase.ui.main.BrowserActivity;
 import com.example.zy1584.mybase.utils.Constants;
+import com.example.zy1584.mybase.utils.RxBus;
 
 import java.io.File;
 import java.io.IOException;
@@ -209,8 +211,7 @@ public class DownloadHandler {
             // This only happens for very bad urls, we want to catch the
             // exception here
             Log.e(TAG, "Exception while trying to parse url '" + url + '\'', e);
-            // TODO: 2017-7-21 弹框提醒无法下载
-//            eventBus.post(new BrowserEvents.ShowSnackBarMessage(R.string.problem_download));
+            RxBus.getInstance().post(new RXEvent(RXEvent.TAG_BROWSER_MSG, R.string.problem_download));
             return;
         }
 
@@ -222,12 +223,12 @@ public class DownloadHandler {
         File dir = new File(downloadFolder.getPath());
         if (!dir.isDirectory() && !dir.mkdirs()) {
             // Cannot make the directory
-//            eventBus.post(new BrowserEvents.ShowSnackBarMessage(R.string.problem_location_download));
+            RxBus.getInstance().post(new RXEvent(RXEvent.TAG_BROWSER_MSG, R.string.problem_location_download));
             return;
         }
 
         if (!isWriteAccessAvailable(downloadFolder)) {
-//            eventBus.post(new BrowserEvents.ShowSnackBarMessage(R.string.problem_location_download));
+            RxBus.getInstance().post(new RXEvent(RXEvent.TAG_BROWSER_MSG, R.string.problem_location_download));
             return;
         }
         // 广告联盟

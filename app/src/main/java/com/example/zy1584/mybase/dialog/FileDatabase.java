@@ -1,6 +1,5 @@
 package com.example.zy1584.mybase.dialog;
 
-import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -39,8 +38,14 @@ public class FileDatabase extends SQLiteOpenHelper {
     @Nullable
     private SQLiteDatabase mDatabase;
 
-    public FileDatabase(Context context) {
-        super(context, DATABASE_NAME, null, DATABASE_VERSION);
+    private static final FileDatabase instance = new FileDatabase();
+
+    public static FileDatabase getInstance(){
+        return instance;
+    }
+
+    private FileDatabase(){
+        super(BaseApplication.getContext(), DATABASE_NAME, null, DATABASE_VERSION);
         initialize();
     }
 

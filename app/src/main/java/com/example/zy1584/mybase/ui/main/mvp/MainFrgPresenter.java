@@ -24,7 +24,7 @@ public class MainFrgPresenter extends BasePresenter<MainFragment> implements Mai
 
     @Override
     public void getChannelList() {
-        HashMap<String, String> queryMap = NetProtocol.getImpl(getIView().getActivity()).getChannelListQueryMap();
+        HashMap<String, String> queryMap = NetProtocol.getImpl(getIView().getActivity()).getBaseParams2();
         Subscription subscribe = new MainFrgBiz().getChannelList(queryMap).compose(new ScheduleTransformer<ResponseBody>())
                 .subscribe(new Subscriber<ResponseBody>() {
                     @Override
@@ -39,6 +39,7 @@ public class MainFrgPresenter extends BasePresenter<MainFragment> implements Mai
 
                     @Override
                     public void onNext(ResponseBody responseBody) {
+                        if (responseBody == null) return;
                         try {
                             String jsonStr = responseBody.string();
                             JSONObject object = new JSONObject(jsonStr);

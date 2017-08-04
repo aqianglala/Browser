@@ -24,12 +24,12 @@ public class FileCacheUtils {
 	/*
 	 * 图片缓存的相对路径
 	 */
-	private static final String IMG_CACHE_DIR = "/DoovAppstore/imageCache";
+	private static final String IMG_CACHE_DIR = "/Browser/imageCache";
 	
 	/*
 	 * app下载目录
 	 */
-	private static final String APK_DOWNLOAD_DIR = "/DoovAppstore/download";
+	private static final String APK_DOWNLOAD_DIR = "/Browser/download";
 	
 	/*
 	 * 启动页存放的位置

@@ -20,15 +20,14 @@ import android.text.TextUtils;
 import android.util.Log;
 
 import com.example.zy1584.mybase.http.Http;
-import com.example.zy1584.mybase.http.transformer.ScheduleTransformer;
 import com.example.zy1584.mybase.ui.download.DownloadManagerActivity.TasksManager;
 import com.example.zy1584.mybase.ui.download.db.FileItem;
 import com.liulishuo.filedownloader.BaseDownloadTask;
 import com.liulishuo.filedownloader.FileDownloadListener;
 import com.liulishuo.filedownloader.FileDownloadMonitor;
+import com.liulishuo.filedownloader.model.FileDownloadStatus;
 
-import okhttp3.ResponseBody;
-import rx.functions.Action1;
+import rx.schedulers.Schedulers;
 
 
 /**
@@ -83,21 +82,39 @@ public class GlobalMonitor implements FileDownloadMonitor.IMonitor {
             String url = conversionLink.replace("__ACTION_ID__", action_id + "")
                     .replace("__CLICK_ID__", clickId);
             Http.getHttpService().reportConversion(url)
-                    .compose(new ScheduleTransformer<ResponseBody>())
-                    .subscribe(new Action1<ResponseBody>() {
-                        @Override
-                        public void call(ResponseBody responseBody) {
-
-                        }
-                    });
-            //todo 是否需要管理rx生命周期
+                    .subscribeOn(Schedulers.io());
+//                    .compose(new ScheduleTransformer<ResponseBody>())
+//                    .subscribe(new Action1<ResponseBody>() {
+//                        @Override
+//                        public void call(ResponseBody responseBody) {
+//                            if (responseBody != null){
+//                                try {
+//                                    JSONObject jsonObject = new JSONObject(responseBody.string());
+//                                    int ret = jsonObject.optInt("ret");
+//                                    if (ret == 0){
+//                                        Logger.d("转化上报成功");
+//                                    }else{
+//                                        String msg = jsonObject.optString("msg");
+//                                        Logger.d("转化上报失败，msg： "+ msg);
+//                                    }
+//                                } catch (JSONException e) {
+//                                    e.printStackTrace();
+//                                } catch (IOException e) {
+//                                    e.printStackTrace();
+//                                }
+//                            }
+//                        }
+//                    });
         }
     }
 
     @Override
     public void onTaskOver(BaseDownloadTask task) {
         markOver++;
-        reportConversion(task, ACTION_ID_DOWNLOAD_COMPLETE);
+        int status = TasksManager.getImpl().getStatus(task.getId(), task.getPath());
+        if (status == FileDownloadStatus.completed){
+            reportConversion(task, ACTION_ID_DOWNLOAD_COMPLETE);
+        }
     }
 
     public int getMarkStart() {

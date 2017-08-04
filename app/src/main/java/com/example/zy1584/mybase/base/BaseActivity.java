@@ -44,7 +44,7 @@ import butterknife.ButterKnife;
 
 public abstract class BaseActivity<P extends BasePresenter> extends AppCompatActivity implements
         IView, View.OnClickListener {
-    protected View view;
+    protected View mContentView;
     protected P mPresenter;
 
     protected String TAG;
@@ -58,7 +58,7 @@ public abstract class BaseActivity<P extends BasePresenter> extends AppCompatAct
             getWindow().setFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN,
                     WindowManager.LayoutParams.FLAG_FULLSCREEN);
         }
-        setContentView(getView());
+        setContentView(getContentView());
         initMembers();
 
         mPresenter = loadPresenter();
@@ -88,9 +88,9 @@ public abstract class BaseActivity<P extends BasePresenter> extends AppCompatAct
     /**
      * @return 显示的内容
      */
-    private View getView() {
-        view = View.inflate(this, getLayoutId(), null);
-        return view;
+    private View getContentView() {
+        mContentView = View.inflate(this, getLayoutId(), null);
+        return mContentView;
     }
 
     @Override

@@ -18,12 +18,13 @@ import com.example.zy1584.mybase.bean.ADResponseBean;
 import com.example.zy1584.mybase.bean.ADResponseBean.DataBean._$8050018672826551Bean.ListBean;
 import com.example.zy1584.mybase.bean.BaseNewsItem;
 import com.example.zy1584.mybase.bean.ClickLinkResponseBean;
+import com.example.zy1584.mybase.bean.RecommendBean;
+import com.example.zy1584.mybase.bean.RecommendBean.NewslistBean;
 import com.example.zy1584.mybase.preference.PreferenceManager;
 import com.example.zy1584.mybase.ui.download.DownloadHandler;
 import com.example.zy1584.mybase.ui.main.BrowserActivity;
-import com.example.zy1584.mybase.ui.news.RecommendBean.NewslistBean;
 import com.example.zy1584.mybase.ui.news.adapter.recommend.NewsRecommendAdapter;
-import com.example.zy1584.mybase.ui.news.adapter.recommend.NewsRecommendAdapter.onADItemClickListener;
+import com.example.zy1584.mybase.ui.news.interfaces.OnADItemClickListener;
 import com.example.zy1584.mybase.ui.news.mvp.recommend.NewsRecommendContract;
 import com.example.zy1584.mybase.ui.news.mvp.recommend.NewsRecommendPresenter;
 import com.example.zy1584.mybase.utils.UIUtils;
@@ -47,7 +48,7 @@ import static com.example.zy1584.mybase.R.id.recyclerView;
 
 public class NewsRecommendFragment extends BaseFragment<NewsRecommendPresenter> implements NewsRecommendContract.View,
         LoadMoreWrapper.OnLoadMoreListener, SwipeRefreshLayout.OnRefreshListener,
-        MultiItemTypeAdapter.OnItemClickListener, onADItemClickListener {
+        MultiItemTypeAdapter.OnItemClickListener, OnADItemClickListener {
 
     @BindView(R.id.swipe_refresh_layout)
     SwipeRefreshLayout mSwipeRefreshLayout;
@@ -72,6 +73,7 @@ public class NewsRecommendFragment extends BaseFragment<NewsRecommendPresenter> 
             if (msg != null && msg.obj != null){
                 ListBean bean = (ListBean) msg.obj;
                 if (!bean.isHasExpose() && bean.isTiming()){
+                    bean.setTiming(false);
                     removeCallbacksAndMessages(bean);
                     mPresenter.reportADExpose(bean);
                 }
@@ -118,14 +120,13 @@ public class NewsRecommendFragment extends BaseFragment<NewsRecommendPresenter> 
     protected void doBusiness(Bundle savedInstanceState) {
         isLoading = true;
         isRefresh = true;
+        mPreferenceManager = PreferenceManager.getInstance();
         mPresenter.getNewsRecommendList();
-        mPreferenceManager = new PreferenceManager(mActivity);
     }
 
     @Override
     public void onReceiveRecommendList(RecommendBean bean) {
         isLoading = false;
-        if (bean == null) return;
         List<RecommendBean.NewslistBean> newslist = bean.getNewslist();
         if (newslist == null) return;
         if (isRefresh){
@@ -150,11 +151,14 @@ public class NewsRecommendFragment extends BaseFragment<NewsRecommendPresenter> 
 
     @Override
     public void onReceiveADList(ADResponseBean bean) {
-        ListBean listBean = bean.getData().get_$8050018672826551().getList().get(0);
-        Random random = new Random();
-        int index = mData.size() - 7 + random.nextInt(5);
-        Logger.t("index").e("data size :" + mData.size() + "    index:" + index);
-        mData.add(index, listBean);
+        List<ListBean> list = bean.getData().get_$8050018672826551().getList();
+        if (list != null){
+            ListBean listBean = list.get(0);
+            Random random = new Random();
+            int index = mData.size() - 7 + random.nextInt(5);
+            Logger.t("index").e("data size :" + mData.size() + "    index:" + index);
+            mData.add(index, listBean);
+        }
         notifyDataSetChanged();
     }
 
@@ -165,7 +169,6 @@ public class NewsRecommendFragment extends BaseFragment<NewsRecommendPresenter> 
 
     @Override
     public void onReceiveReportClick(final ClickLinkResponseBean responseBean, ListBean listBean) {
-        if (responseBean.getRet() != 0) return;
         final String clickid = responseBean.getData().getClickid();
         final String dstlink = responseBean.getData().getDstlink();
         final String conversion_link = listBean.getConversion_link();
@@ -227,7 +230,6 @@ public class NewsRecommendFragment extends BaseFragment<NewsRecommendPresenter> 
                 .replace("__DOWN_Y__", String.valueOf(downY))
                 .replace("__UP_X__", String.valueOf(upX))
                 .replace("__UP_Y__", String.valueOf(upY));
-
         int interact_type = item.getInteract_type();
         if (interact_type == 0){
             BrowserActivity browserAct = (BrowserActivity) mActivity;

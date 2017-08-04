@@ -2,7 +2,7 @@ package com.example.zy1584.mybase.ui.news.mvp.recommend;
 
 import com.example.zy1584.mybase.bean.ADResponseBean;
 import com.example.zy1584.mybase.bean.ClickLinkResponseBean;
-import com.example.zy1584.mybase.ui.news.RecommendBean;
+import com.example.zy1584.mybase.bean.RecommendBean;
 import com.example.zy1584.mybase.bean.ADResponseBean.DataBean._$8050018672826551Bean.ListBean;
 
 /**

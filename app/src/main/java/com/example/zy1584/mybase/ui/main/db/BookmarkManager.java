@@ -8,7 +8,9 @@ import android.support.annotation.Nullable;
 import android.util.Log;
 
 import com.example.zy1584.mybase.R;
+import com.example.zy1584.mybase.base.BaseApplication;
 import com.example.zy1584.mybase.utils.Constants;
+import com.example.zy1584.mybase.utils.UIUtils;
 import com.example.zy1584.mybase.utils.Utils;
 
 import org.json.JSONException;
@@ -57,10 +59,16 @@ public class BookmarkManager {
     private final ExecutorService mExecutor;
     private File mFilesDir;
 
-    public BookmarkManager(@NonNull Context context) {
+    private static final BookmarkManager instance = new BookmarkManager();
+
+    private BookmarkManager(){
         mExecutor = Executors.newSingleThreadExecutor();
-        DEFAULT_BOOKMARK_TITLE = context.getString(R.string.untitled);
-        mExecutor.execute(new BookmarkInitializer(context));
+        DEFAULT_BOOKMARK_TITLE = UIUtils.getString(R.string.untitled);
+        mExecutor.execute(new BookmarkInitializer(BaseApplication.getContext()));
+    }
+
+    public static BookmarkManager getInstance(){
+        return instance;
     }
 
     /**
@@ -113,7 +121,7 @@ public class BookmarkManager {
                             item.setUrl(url);
                             item.setFolder(object.getString(FOLDER));
                             item.setOrder(object.getInt(ORDER));
-                            item.setImageId(R.drawable.ic_bookmark);
+                            item.setImageId(R.drawable.ic_bookmark_black);
                             bookmarks.put(url, item);
                         } catch (JSONException e) {
                             Log.e(TAG, "Can't parse line " + line, e);

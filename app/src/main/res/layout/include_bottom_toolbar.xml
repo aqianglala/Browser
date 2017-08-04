@@ -3,7 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="50dp"
     android:id="@+id/ll_toolbar_container"
-    android:background="@android:color/white"
+    android:background="@drawable/bg_bottom_toolbar"
     android:orientation="horizontal">
 
     <ImageButton
@@ -12,7 +12,7 @@
         android:layout_height="50dp"
         android:layout_weight="1"
         android:background="?android:attr/selectableItemBackground"
-        android:src="@drawable/ic_back" />
+        android:src="@drawable/ic_back_gray" />
 
     <ImageButton
         android:id="@+id/ib_forward"
@@ -22,17 +22,13 @@
         android:background="?android:attr/selectableItemBackground"
         android:src="@drawable/ic_forward" />
 
-    <LinearLayout
+    <ImageButton
+        android:id="@+id/ib_menu"
         android:layout_width="0dp"
+        android:layout_height="50dp"
         android:layout_weight="1"
-        android:gravity="center"
-        android:layout_height="match_parent">
-        <ImageButton
-            android:id="@+id/ib_menu"
-            android:layout_width="17.5dp"
-            android:layout_height="17.5dp"
-            android:background="@drawable/ic_menu" />
-    </LinearLayout>
+        android:background="?android:attr/selectableItemBackground"
+        android:src="@drawable/ic_menu" />
 
     <ImageButton
         android:id="@+id/ib_tab"
@@ -40,7 +36,7 @@
         android:layout_height="50dp"
         android:layout_weight="1"
         android:background="?android:attr/selectableItemBackground"
-        android:src="@drawable/ic_home" />
+        android:src="@drawable/ic_window" />
 
     <ImageButton
         android:id="@+id/ib_home"

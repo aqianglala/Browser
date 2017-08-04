@@ -192,10 +192,10 @@ public class LightningChromeClient extends WebChromeClient {
     }
 
     /**
-     * Inflate a view to send to a LightningView when it needs to display a video and has to
-     * show a loading dialog. Inflates a progress view and returns it.
+     * Inflate a mContentView to send to a LightningView when it needs to display a video and has to
+     * show a loading dialog. Inflates a progress mContentView and returns it.
      *
-     * @return A view that should be used to display the state
+     * @return A mContentView that should be used to display the state
      * of a video's loading progress.
      */
     @Override

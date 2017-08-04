@@ -1,6 +1,5 @@
-package com.example.zy1584.mybase.ui.news;
+package com.example.zy1584.mybase.bean;
 
-import com.example.zy1584.mybase.bean.BaseNewsItem;
 import com.google.gson.annotations.SerializedName;
 
 import java.util.List;

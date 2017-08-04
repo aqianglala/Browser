@@ -42,7 +42,7 @@ public class ViewOffsetHelper {
         ViewCompat.offsetTopAndBottom(mView, mOffsetTop - (mView.getTop() - mLayoutTop));
         ViewCompat.offsetLeftAndRight(mView, mOffsetLeft - (mView.getLeft() - mLayoutLeft));
 
-        // Manually invalidate the view and parent to make sure we get drawn pre-M
+        // Manually invalidate the mContentView and parent to make sure we get drawn pre-M
         if (Build.VERSION.SDK_INT < 23) {
             tickleInvalidationFlag(mView);
             final ViewParent vp = mView.getParent();
@@ -59,7 +59,7 @@ public class ViewOffsetHelper {
     }
 
     /**
-     * Set the top and bottom offset for this {@link ViewOffsetHelper}'s view.
+     * Set the top and bottom offset for this {@link ViewOffsetHelper}'s mContentView.
      *
      * @param offset the offset in px.
      * @return true if the offset has changed
@@ -74,7 +74,7 @@ public class ViewOffsetHelper {
     }
 
     /**
-     * Set the left and right offset for this {@link ViewOffsetHelper}'s view.
+     * Set the left and right offset for this {@link ViewOffsetHelper}'s mContentView.
      *
      * @param offset the offset in px.
      * @return true if the offset has changed

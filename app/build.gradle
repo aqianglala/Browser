@@ -50,6 +50,8 @@ dependencies {
     //    debugCompile 'com.squareup.leakcanary:leakcanary-android:1.5'
     //    releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5'
     //    testCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5'
+    compile files('libs/BaiduLBS_Android.jar')
+
     compile 'com.android.support:appcompat-v7:25.1.0'
     compile 'com.android.support:design:25.1.0'
     compile 'com.android.support.constraint:constraint-layout:1.0.2'
@@ -66,8 +68,9 @@ dependencies {
     compile 'com.github.bumptech.glide:glide:3.7.0'
     compile 'com.anthonycr.grant:permissions:1.1.2'
     compile 'com.liulishuo.filedownloader:library:1.6.2'
+    compile 'com.zhy:base-rvadapter:3.0.3'
     testCompile 'junit:junit:4.12'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.5.1'
-    compile 'com.zhy:base-rvadapter:3.0.3'
-    compile files('libs/BaiduLBS_Android.jar')
+    debugCompile 'cn.dreamtobe.threaddebugger:threaddebugger:1.3.3'
+    releaseCompile 'cn.dreamtobe.threaddebugger:threaddebugger-no-op:1.3.3'
 }

@@ -60,7 +60,7 @@ public class LightningWebClient extends WebViewClient {
     AdBlock mAdBlock;
 
     public LightningWebClient(@NonNull Activity activity, @NonNull BrowserFragment fragment) {
-        mAdBlock = new AdBlock(activity);
+        mAdBlock = AdBlock.getInstance();
         Preconditions.checkNonNull(activity);
         Preconditions.checkNonNull(fragment);
         mActivity = activity;

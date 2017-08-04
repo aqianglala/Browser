@@ -3,12 +3,13 @@ package com.example.zy1584.mybase.http;
 
 import com.example.zy1584.mybase.bean.ADResponseBean;
 import com.example.zy1584.mybase.bean.ClickLinkResponseBean;
-import com.example.zy1584.mybase.ui.news.RecommendBean;
+import com.example.zy1584.mybase.bean.RecommendBean;
 import com.example.zy1584.mybase.ui.news.bean.NewsChannelBean;
 
 import java.util.Map;
 
 import okhttp3.ResponseBody;
+import retrofit2.Call;
 import retrofit2.http.FieldMap;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
@@ -23,27 +24,25 @@ import rx.Observable;
 
 public interface HttpService {
 
-    //登录接口
-//    @FormUrlEncoded
-//    @POST("demo/login")
-//    Observable<BaseHttpResult<LoginBean>> login(@Field("userName") String username, @Field
-//            ("passWord") String pwd);
+//    @GET("http://openapi.inews.qq.com/getQQNewsUnreadList")
+    @GET
+    Observable<RecommendBean> getRecommendNewsList(@Url String url, @QueryMap Map<String, String> params);
 
-    @GET("http://openapi.inews.qq.com/getQQNewsUnreadList")
-    Observable<RecommendBean> getRecommendNewsList(@QueryMap Map<String, String> parmas);
+//    @GET("http://op.inews.qq.com/mcms/h5/info/navigation")
+    @GET
+    Observable<ResponseBody> getChannelList(@Url String url, @QueryMap Map<String, String> params);
 
-    @GET("http://op.inews.qq.com/mcms/h5/info/navigation")
-    Observable<ResponseBody> getChannelList(@QueryMap Map<String, String> parmas);
-
-    @GET("http://op.inews.qq.com/mcms/h5/info/channel_data")
-    Observable<NewsChannelBean> getChannelNewsList(@QueryMap Map<String, String> parmas);
+//    @GET("http://op.inews.qq.com/mcms/h5/info/channel_data")
+    @GET
+    Observable<NewsChannelBean> getChannelNewsList(@Url String url, @QueryMap Map<String, String> params);
 
     @FormUrlEncoded
     @POST("http://openapi.kuaibao.qq.com/reportActionType")
     Observable<ResponseBody> reportActionType(@FieldMap Map<String, String> params);
 
-    @GET("http://mi.gdt.qq.com/api/v3")
-    Observable<ADResponseBean> getADList(@QueryMap(encoded = true) Map<String, String> parmas);
+//    @GET("http://mi.gdt.qq.com/api/v3")
+    @GET
+    Observable<ADResponseBean> getADList(@Url String url, @QueryMap Map<String, String> params);
 
     @GET
     Observable<ClickLinkResponseBean> reportClick(@Url String url);
@@ -53,5 +52,8 @@ public interface HttpService {
 
     @GET
     Observable<ResponseBody> reportADExposed(@Url String url);
+
+    @GET("http://ha.doov.com.cn:9066/address/query")
+    Call<ResponseBody> requestServerAddress(@QueryMap Map<String, String> params);
 
 }

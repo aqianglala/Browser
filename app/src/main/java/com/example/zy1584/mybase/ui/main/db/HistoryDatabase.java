@@ -4,7 +4,6 @@
 package com.example.zy1584.mybase.ui.main.db;
 
 import android.content.ContentValues;
-import android.content.Context;
 import android.database.Cursor;
 import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
@@ -40,9 +39,15 @@ public class HistoryDatabase extends SQLiteOpenHelper {
     @Nullable
     private SQLiteDatabase mDatabase;
 
-    public HistoryDatabase(@NonNull Context context) {
-        super(context.getApplicationContext(), DATABASE_NAME, null, DATABASE_VERSION);
+    private static final HistoryDatabase instance = new HistoryDatabase();
+
+    private HistoryDatabase() {
+        super(BaseApplication.getContext().getApplicationContext(), DATABASE_NAME, null, DATABASE_VERSION);
         initialize();
+    }
+
+    public static HistoryDatabase getInstance(){
+        return instance;
     }
 
     private void initialize() {

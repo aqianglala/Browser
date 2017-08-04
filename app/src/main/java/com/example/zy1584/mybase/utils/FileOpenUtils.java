@@ -2,6 +2,9 @@ package com.example.zy1584.mybase.utils;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.text.TextUtils;
+
+import com.example.zy1584.mybase.R;
 
 import java.io.File;
 
@@ -178,5 +181,38 @@ public class FileOpenUtils {
         Uri uri = Uri.fromFile(new File(param ));
         intent.setDataAndType(uri, "application/pdf");
         return intent;
+    }
+
+    public static int getIconResId(String filePath){
+        if (TextUtils.isEmpty(filePath)) return -1;
+        File file = new File(filePath);
+        /* 取得扩展名 */
+        String end=file.getName().substring(file.getName().lastIndexOf(".") + 1,file.getName().length()).toLowerCase();
+        /* 依扩展名的类型决定MimeType */
+        if(end.equals("m4a")||end.equals("mp3")||end.equals("mid")||
+                end.equals("xmf")||end.equals("ogg")||end.equals("wav")){
+            return R.drawable.ic_default_type;
+        }else if(end.equals("3gp")||end.equals("mp4")){
+            return R.drawable.ic_default_type;
+        }else if(end.equals("jpg")||end.equals("gif")||end.equals("png")||
+                end.equals("jpeg")||end.equals("bmp")){
+            return R.drawable.ic_img;
+        }else if(end.equals("apk")){
+            return R.drawable.ic_apk;
+        }else if(end.equals("ppt")){
+            return R.drawable.ic_default_type;
+        }else if(end.equals("xls")){
+            return R.drawable.ic_default_type;
+        }else if(end.equals("doc")){
+            return R.drawable.ic_default_type;
+        }else if(end.equals("pdf")){
+            return R.drawable.ic_default_type;
+        }else if(end.equals("chm")){
+            return R.drawable.ic_default_type;
+        }else if(end.equals("txt")){
+            return R.drawable.ic_txt;
+        }else{
+            return R.drawable.ic_unknow_type;
+        }
     }
 }

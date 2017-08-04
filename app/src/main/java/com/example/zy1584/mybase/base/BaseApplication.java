@@ -7,17 +7,28 @@ import android.content.IntentFilter;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
+import android.util.Log;
 
 import com.example.zy1584.mybase.receiver.PackageChangeReceiver;
 import com.example.zy1584.mybase.ui.download.GlobalMonitor;
+import com.example.zy1584.mybase.ui.main.db.BookmarkManager;
 import com.example.zy1584.mybase.utils.ForegroundCallbacks;
+import com.example.zy1584.mybase.utils.LocationUtils;
 import com.liulishuo.filedownloader.FileDownloadMonitor;
 import com.liulishuo.filedownloader.FileDownloader;
+import com.liulishuo.filedownloader.connection.FileDownloadUrlConnection;
+import com.liulishuo.filedownloader.util.FileDownloadLog;
+import com.liulishuo.filedownloader.util.FileDownloadUtils;
 import com.orhanobut.logger.AndroidLogAdapter;
 import com.orhanobut.logger.Logger;
 
+import java.net.Proxy;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
+import cn.dreamtobe.threaddebugger.IThreadDebugger;
+import cn.dreamtobe.threaddebugger.ThreadDebugger;
+import cn.dreamtobe.threaddebugger.ThreadDebuggers;
 
 public class BaseApplication extends Application {
 
@@ -28,6 +39,7 @@ public class BaseApplication extends Application {
     private static Looper mainlooper;
     private PackageChangeReceiver mPackageReceiver = null;
     private String TAG = "base_tag";
+    private final static String TAG_DOWNLOAD = "FileDownloadApplication";
 
     private static final Executor mIOThread = Executors.newSingleThreadExecutor();
     private static final Executor mTaskThread = Executors.newCachedThreadPool();
@@ -36,6 +48,8 @@ public class BaseApplication extends Application {
     public void onCreate() {
         super.onCreate();
         context = this;
+
+        new LocationUtils(context).getLocation();
 
         getMainThreadData();
         ForegroundCallbacks.init(this);
@@ -48,10 +62,58 @@ public class BaseApplication extends Application {
                 return true;
             }
         });
-        FileDownloader.setupOnApplicationOnCreate(this);
-        FileDownloadMonitor.setGlobalMonitor(GlobalMonitor.getImpl());
+        initFileDownloader();
+
         //设置包安装，卸载的监听器
         registerPackageChangeReceivier();
+
+        BookmarkManager.getInstance();
+
+    }
+
+    private void initFileDownloader() {
+        // just for open the log in this demo project.
+        FileDownloadLog.NEED_LOG = true;
+        /**
+         * just for cache Application's Context, and ':filedownloader' progress will NOT be launched
+         * by below code, so please do not worry about performance.
+         * @see FileDownloader#init(Context)
+         */
+        FileDownloader.setupOnApplicationOnCreate(this)
+                .connectionCreator(new FileDownloadUrlConnection
+                        .Creator(new FileDownloadUrlConnection.Configuration()
+                        .connectTimeout(15_000) // set connection timeout.
+                        .readTimeout(15_000) // set read timeout.
+                        .proxy(Proxy.NO_PROXY) // set proxy
+                ))
+                .commit();
+        FileDownloadMonitor.setGlobalMonitor(GlobalMonitor.getImpl());
+
+        // below codes just for monitoring thread pools in the FileDownloader:
+        IThreadDebugger debugger = ThreadDebugger.install(
+                ThreadDebuggers.create() /** The ThreadDebugger with known thread Categories **/
+                        // add Thread Category
+                        .add("OkHttp").add("okio").add("Binder")
+                        .add(FileDownloadUtils.getThreadPoolName("Network"), "Network")
+                        .add(FileDownloadUtils.getThreadPoolName("Flow"), "FlowSingle")
+                        .add(FileDownloadUtils.getThreadPoolName("EventPool"), "Event")
+                        .add(FileDownloadUtils.getThreadPoolName("LauncherTask"), "LauncherTask")
+                        .add(FileDownloadUtils.getThreadPoolName("BlockCompleted"), "BlockCompleted"),
+
+                2000, /** The frequent of Updating Thread Activity information **/
+
+                new ThreadDebugger.ThreadChangedCallback() {
+                    /**
+                     * The threads changed callback
+                     **/
+                    @Override
+                    public void onChanged(IThreadDebugger debugger) {
+                        // callback this method when the threads in this application has changed.
+                        Log.d(TAG_DOWNLOAD, debugger.drawUpEachThreadInfoDiff());
+                        Log.d(TAG_DOWNLOAD, debugger.drawUpEachThreadSizeDiff());
+                        Log.d(TAG_DOWNLOAD, debugger.drawUpEachThreadSize());
+                    }
+                });
     }
 
     private void registerPackageChangeReceivier() {
