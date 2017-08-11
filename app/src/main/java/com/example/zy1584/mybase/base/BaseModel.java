@@ -1,6 +1,8 @@
 package com.example.zy1584.mybase.base;
 
 
+import android.text.TextUtils;
+
 import com.example.zy1584.mybase.http.Http;
 import com.example.zy1584.mybase.http.HttpService;
 import com.example.zy1584.mybase.mvp.IModel;
@@ -18,6 +20,12 @@ public class BaseModel implements IModel {
     protected String getUrl(String sub) {
         String newIp = (String) SPUtils.get(GlobalParams.IP, GlobalParams.HOLDER_HOST);
         String newPort = (String) SPUtils.get(GlobalParams.PORT, GlobalParams.HOLDER_PORT + "");
+        if (TextUtils.isEmpty(newIp)){
+            newIp = GlobalParams.HOLDER_HOST;
+        }
+        if (TextUtils.isEmpty(newPort)){
+            newPort = GlobalParams.HOLDER_PORT + "";
+        }
         return "http://" + newIp + ":" + newPort + "/" + sub;
     }
 

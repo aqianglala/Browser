@@ -284,7 +284,8 @@ public abstract class BaseActivity<P extends BasePresenter> extends AppCompatAct
             if (addToBackStack) {
                 transaction.addToBackStack("");
             }
-            transaction.commit();
+//            transaction.commit();
+            transaction.commitAllowingStateLoss();
         }
     }
 

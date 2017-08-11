@@ -9,10 +9,27 @@
         android:layout_width="match_parent"
         android:layout_height="290dip"
         android:background="@drawable/bg_blue_shape"
-        android:paddingTop="80dp"
         app:layout_behavior="@string/behavior_uc_header_pager">
+        
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:paddingTop="80dp"
+            android:orientation="vertical">
 
-        <include layout="@layout/include_search_qr_code"/>
+            <include layout="@layout/include_search_qr_code"/>
+
+            <android.support.v7.widget.RecyclerView
+                android:id="@+id/rv_navigation"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginTop="12.5dp"
+                android:paddingTop="20dp"
+                android:paddingBottom="20dp"
+                android:background="@android:color/white"
+                />
+
+        </LinearLayout>
 
     </FrameLayout>
 

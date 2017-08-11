@@ -1,5 +1,7 @@
 package com.example.zy1584.mybase.ui.main;
 
+import android.app.Activity;
+import android.app.Dialog;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.Rect;
@@ -14,6 +16,7 @@ import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
 import android.support.v4.view.ViewPager;
+import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.Display;
@@ -29,36 +32,51 @@ import android.webkit.WebChromeClient.CustomViewCallback;
 import android.widget.FrameLayout;
 import android.widget.LinearLayout;
 import android.widget.PopupWindow;
+import android.widget.ProgressBar;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.VideoView;
 
 import com.example.zy1584.mybase.R;
 import com.example.zy1584.mybase.base.BaseActivity;
+import com.example.zy1584.mybase.base.BaseApplication;
 import com.example.zy1584.mybase.base.BaseFragment;
+import com.example.zy1584.mybase.bean.EngineBean;
+import com.example.zy1584.mybase.bean.EngineBean.EngineItem;
+import com.example.zy1584.mybase.bean.UpgradeBean;
 import com.example.zy1584.mybase.bus.RXEvent;
+import com.example.zy1584.mybase.db.EngineDatabase;
 import com.example.zy1584.mybase.manager.TabsManager;
 import com.example.zy1584.mybase.preference.PreferenceManager;
+import com.example.zy1584.mybase.service.UpdateService;
+import com.example.zy1584.mybase.service.UpdateService.IAppStoreUpdateReturn;
+import com.example.zy1584.mybase.service.UpdateService.IDetailAppListener;
+import com.example.zy1584.mybase.service.UpdateService.IFileDownloadInfoReturn;
 import com.example.zy1584.mybase.ui.bookmark.BookmarkEditActivity;
 import com.example.zy1584.mybase.ui.bookmark.BookmarkHistoryFragment;
 import com.example.zy1584.mybase.ui.download.DownloadManagerActivity;
 import com.example.zy1584.mybase.ui.main.adapter.MainFragmentAdapter;
 import com.example.zy1584.mybase.ui.main.mvp.BrowserActContract;
 import com.example.zy1584.mybase.ui.main.mvp.BrowserActPresenter;
-import com.example.zy1584.mybase.ui.navigation.NavigationFragment;
+import com.example.zy1584.mybase.ui.navigation.HotBookmarkFragment;
+import com.example.zy1584.mybase.ui.qrcode.SimpleCaptureActivity;
 import com.example.zy1584.mybase.ui.search.SearchFragment;
+import com.example.zy1584.mybase.ui.setting.SettingsActivity;
 import com.example.zy1584.mybase.ui.windowManager.WindowManagerFragment;
 import com.example.zy1584.mybase.utils.ActivityCollector;
 import com.example.zy1584.mybase.utils.CompressImage;
-import com.example.zy1584.mybase.utils.Constants;
+import com.example.zy1584.mybase.utils.FileUtils;
 import com.example.zy1584.mybase.utils.GlobalParams;
 import com.example.zy1584.mybase.utils.RxBus;
 import com.example.zy1584.mybase.utils.UIUtils;
 import com.example.zy1584.mybase.utils.UrlUtils;
 import com.example.zy1584.mybase.utils.Utils;
-import com.liulishuo.filedownloader.FileDownloadMonitor;
+import com.liulishuo.filedownloader.BaseDownloadTask;
 import com.liulishuo.filedownloader.FileDownloader;
+import com.liulishuo.filedownloader.model.FileDownloadStatus;
 
 import java.util.ArrayList;
+import java.util.List;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -71,10 +89,14 @@ import rx.schedulers.Schedulers;
 
 import static com.example.zy1584.mybase.R.id.viewPager;
 
-public class BrowserActivity extends BaseActivity<BrowserActPresenter> implements BrowserActContract.ActView {
+public class BrowserActivity extends BaseActivity<BrowserActPresenter> implements BrowserActContract.ActView,
+        IDetailAppListener, IAppStoreUpdateReturn, IFileDownloadInfoReturn {
+    private static final int REQUEST_QR_CODE = 1;
+    private static final int API = android.os.Build.VERSION.SDK_INT;
+
     private ArrayList<Fragment> fragments = new ArrayList<>();
     private MainFragment mainFragment;
-    private NavigationFragment navigationFragment;
+    private HotBookmarkFragment navigationFragment;
     private PopupWindow mMenuPopupWindow;
     private PopupWindow mBookmarkPopupWindow;
     private int keyCount;
@@ -98,12 +120,54 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
     // Callback
     private CustomViewCallback mCustomViewCallback;
 
+    private Subscription rxSubscription;
+    private ProgressBar downloading_pb_task;
+    private TextView downloading_tv_status;
+    private TextView downloading_tv_speed;
+    private Dialog downloading_dialog;
+
+    private boolean isIgnore = false;
+
+    private EngineDatabase mEngineDatabase;
+    private List<EngineItem> mEngineItems = new ArrayList<>();
+    private EngineItem mDefaultEngine;
+
     @BindView(viewPager)
     ViewPager mViewPager;
 
     @BindView(R.id.ll_toolbar_container)
     LinearLayout ll_toolbar_container;
-    private Subscription rxSubscription;
+
+    @BindView(R.id.rl_update_bar)
+    RelativeLayout rl_update_bar;
+
+    @BindView(R.id.tv_status)
+    TextView tv_status;
+
+    @BindView(R.id.tv_ignore)
+    TextView tv_ignore;
+
+    @BindView(R.id.tv_install)
+    TextView tv_install;
+
+    @BindView(R.id.ll_update_button)
+    LinearLayout ll_update_button;
+
+    @OnClick(R.id.tv_ignore)
+    void ignore(){
+        isIgnore = true;
+        setViewVisible(rl_update_bar, false);
+    }
+
+    @OnClick(R.id.tv_install)
+    void install(){
+        if (!UpdateService.normalInstall(this))
+        {
+            isIgnore = true;
+            setViewVisible(rl_update_bar, false);
+            toast("文件已被删除！");
+        }
+    }
 
     @OnClick(R.id.ib_back)
     void back() {
@@ -154,6 +218,7 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
     protected void doBusiness(Bundle savedInstanceState) {
         mPreferences = PreferenceManager.getInstance();
         mTabsManager = new TabsManager(this);
+        mEngineDatabase = EngineDatabase.getInstance();
         initFragments();
         MainFragmentAdapter adapter = new MainFragmentAdapter(getSupportFragmentManager(), fragments);
         mViewPager.setAdapter(adapter);
@@ -168,29 +233,38 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
         }
         if (intent != null) {
             String url = intent.getDataString();
-            if (!TextUtils.isEmpty(url)){
+            if (!TextUtils.isEmpty(url)) {
                 searchTheWeb(url);
             }
         }
         setIntent(null);
-
         rxSubscription = RxBus.getInstance().toObservable(RXEvent.class)
                 .subscribe(new Action1<RXEvent>() {
                     @Override
                     public void call(RXEvent rxEvent) {
                         String tag = rxEvent.getTag();
-                        if (tag == RXEvent.TAG_BROWSER_MSG){
+                        if (tag == RXEvent.TAG_BROWSER_MSG) {
                             showSnackBar(rxEvent.getMsgId());
-                        }else if (tag == RXEvent.TAG_SEARCH){
+                        } else if (tag == RXEvent.TAG_SEARCH) {
                             searchTheWeb(rxEvent.getMsg());
                         }
+                    }
+                });
+        // 检查更新
+        BaseApplication.startCheckAppStoreUpdate(this, true);
+
+        FileUtils.loadFile(this, FileUtils.HOME_NAVIGATION_FILE_NAME)
+                .subscribe(new Action1<String>() {
+                    @Override
+                    public void call(String s) {
+                        Log.e(TAG, "call: " + s );
                     }
                 });
     }
 
     private void initFragments() {
         mainFragment = new MainFragment();
-        navigationFragment = new NavigationFragment();
+        navigationFragment = new HotBookmarkFragment();
         fragments.add(mainFragment);
         fragments.add(navigationFragment);
     }
@@ -199,8 +273,8 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
             BrowserFragment currentTab = mTabsManager.getCurrentTab();
-            if(currentTab != null){
-                if (currentTab.canGoBack()){
+            if (currentTab != null) {
+                if (currentTab.canGoBack()) {
                     if (!currentTab.isShown()) {
                         onHideCustomView();
                         return true;
@@ -209,10 +283,10 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
                         return true;
                     }
                 }
-            }else if (mCustomView != null || mCustomViewCallback != null) {
+            } else if (mCustomView != null || mCustomViewCallback != null) {
                 onHideCustomView();
                 return true;
-            }else if (getSupportFragmentManager().getBackStackEntryCount() == 0) {
+            } else if (getSupportFragmentManager().getBackStackEntryCount() == 0) {
                 if (mainFragment.onBackPressed()) {
                     return true;
                 } else if (keyCount < 1) {
@@ -294,9 +368,9 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
 //            菜单按钮
             case R.id.ll_add_bookmark:
                 dismissPopupWindow();
-                if (currentTab == null){
+                if (currentTab == null) {
                     toast("首页不可点击");
-                }else{
+                } else {
                     String url = currentTab.getUrl();
                     showAddBookmarkWindow(url);
                     toast("添加书签");
@@ -313,7 +387,7 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
                 break;
             case R.id.ll_setting:
                 dismissPopupWindow();
-                toast("设置");
+                gotoActivity(SettingsActivity.class);
                 break;
             case R.id.ll_download:
                 dismissPopupWindow();
@@ -326,7 +400,7 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
                 break;
 //                书签窗口按钮
             case R.id.ib_edit:
-                if (currentTab != null){
+                if (currentTab != null) {
                     String url = currentTab.getUrl();
                     String title = currentTab.getTitle();
                     Bundle bundle = new Bundle();
@@ -380,7 +454,10 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
         if (query.isEmpty()) {
             return;
         }
-        String searchUrl = mSearchText + UrlUtils.QUERY_PLACE_HOLDER;
+        String searchUrl = null;
+        if (mPreferences.getSearchUrl().equals(mSearchText)){
+            searchUrl = mSearchText + UrlUtils.QUERY_PLACE_HOLDER;
+        }
         query = query.trim();
         String urlFilter = UrlUtils.smartUrlFilter(query, true, searchUrl);
         if (currentTab != null) {
@@ -521,6 +598,35 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
 
     }
 
+    @Override
+    public void receiveSearchEngine(EngineBean bean) {
+        if (bean.getData() != null){
+            // 验证数据是否正确
+            boolean hasDefault = false;
+            for (EngineItem item : bean.getData()){
+                if (item.getIsDefault() == 1){
+                    hasDefault = true;
+                }
+            }
+            if (hasDefault){
+                mEngineItems.clear();
+                mEngineItems.addAll(bean.getData());
+                for (EngineItem item : bean.getData()){
+                    mEngineDatabase.addEngineItem(item);
+                    if (item.getIsDefault() == 1){
+                        mDefaultEngine = item;
+                        mSearchText = mDefaultEngine.getAddrUrl();
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
+    public void onReceiveEngineError(Throwable e) {
+
+    }
+
     /**
      * This method sets whether or not the activity will display
      * in full-screen mode (i.e. the ActionBar will be hidden) and
@@ -597,6 +703,149 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
         }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
     }
 
+    @Override
+    public void receiveAppStoreUpdateInfo(int status) {
+        if (UpdateService.APP_DOWNLOAD_STATUS_DOWNLOADING == status
+                || UpdateService.APP_DOWNLOAD_STATUS_INSTALLING == status) {
+            setViewVisible(rl_update_bar, true);
+            setViewVisible(ll_update_button, false);
+            tv_status.setText("浏览器正在零流量更新中...");
+            isIgnore = false;
+        } else if (UpdateService.APP_DOWNLOAD_STATUS_DOWNLOADED == status) {
+            if (!isIgnore){
+                UpdateService.resetFileDownloadInterface();
+                setViewVisible(rl_update_bar, true);
+                setViewVisible(ll_update_button, true);
+                tv_status.setText("浏览器更新包准备好了");
+            }
+        } else if (UpdateService.APP_DOWNLOAD_STATUS_FAIL == status) {
+            setViewVisible(rl_update_bar, false);
+        } else {
+            setViewVisible(rl_update_bar, false);
+        }
+    }
+
+    private void setViewVisible(View view, boolean isShow)
+    {
+        if (null != view)
+        {
+            view.setVisibility(isShow ? View.VISIBLE : View.GONE);
+        }
+    }
+
+    @Override
+    public void receiveDetailAppInfo(boolean isNewVersion, UpgradeBean bean) {
+        if (!isNewVersion) return;
+        showUpdateDialog(bean);
+    }
+
+    /**
+     * 显示检查更新框
+     * @param bean
+     */
+    private void showUpdateDialog(final UpgradeBean bean) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        View layout = LayoutInflater.from(this).inflate(R.layout.layout_dialog_update, null);
+
+        TextView tv_version = (TextView) layout.findViewById(R.id.tv_version);
+        TextView tv_size = (TextView) layout.findViewById(R.id.tv_size);
+        TextView tv_description = (TextView) layout.findViewById(R.id.tv_description);
+
+        TextView tv_left = (TextView) layout.findViewById(R.id.tv_left);
+        TextView tv_right = (TextView) layout.findViewById(R.id.tv_right);
+
+        UpgradeBean.DataBean info = bean.getData().get(0);
+
+        tv_version.setText(info.getVersionName());
+        tv_size.setText(Utils.formatFileSize(info.getFileSize()) + "M");
+        tv_description.setText(info.getNoticeContent());
+
+        tv_left.setText(info.getIsForce() == 0 ? "下次更新" : "退出");
+        tv_right.setText("立即更新");
+
+        builder.setView(layout);
+        final Dialog dialog = builder.show();
+
+        tv_left.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+                TextView view = (TextView) v;
+                String str = view.getText().toString();
+                if ("退出".equals(str)){
+                    ActivityCollector.finishAll();
+                }
+            }
+        });
+        tv_right.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                dialog.dismiss();
+                UpdateService.setCheckVersionInsterface(BrowserActivity.this, BrowserActivity.this, BrowserActivity.this);
+                UpdateService.startDownloadAppStore(bean);
+            }
+        });
+    }
+
+    @Override
+    public void receiveFileDownloadInfo(BaseDownloadTask task, int soFarBytes, int totalBytes) {
+        if (downloading_dialog == null){
+            showDownloadingDialog(task, soFarBytes, totalBytes);
+        }else {
+            if (downloading_dialog.isShowing()){
+                if (task.getStatus() == FileDownloadStatus.completed){
+                    downloading_dialog.dismiss();
+                    UpdateService.installApp();
+                }else{
+                    updateDownloadingDialog(task, soFarBytes, totalBytes);
+                }
+            }
+        }
+    }
+
+    private void updateDownloadingDialog(BaseDownloadTask task, int soFarBytes, float totalBytes) {
+        final float percent = soFarBytes / totalBytes;
+        downloading_pb_task.setMax(100);
+        downloading_pb_task.setProgress((int) (percent * 100));
+
+        downloading_tv_status.setText("已下载：" +  (int) (percent * 100) + "%");
+        downloading_tv_speed.setText(Utils.formatSpeed(task.getSpeed()));
+    }
+
+    public void showDownloadingDialog(BaseDownloadTask task, int sofar, int total) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+        View layout = LayoutInflater.from(this).inflate(R.layout.layout_dialog_progress, null);
+
+        downloading_pb_task = (ProgressBar) layout.findViewById(R.id.pb_task);
+        downloading_tv_status = (TextView) layout.findViewById(R.id.tv_status);
+        downloading_tv_speed = (TextView) layout.findViewById(R.id.tv_speed);
+
+        updateDownloadingDialog(task, sofar, total);
+
+        builder.setCancelable(false);
+        builder.setView(layout);
+        downloading_dialog = builder.show();
+
+        layout.findViewById(R.id.tv_left).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                downloading_dialog.dismiss();
+                UpdateService.cancelDownloadAppStore();
+            }
+        });
+
+        layout.findViewById(R.id.tv_right).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                downloading_dialog.dismiss();
+                UpdateService.resetFileDownloadInterface();
+            }
+        });
+
+    }
+
     private class VideoCompletionListener implements MediaPlayer.OnCompletionListener,
             MediaPlayer.OnErrorListener {
 
@@ -620,7 +869,7 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
         if (fragment != null) {
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             transaction.show(fragment);
-            transaction.commit();
+            transaction.commitAllowingStateLoss();
         }
     }
 
@@ -628,7 +877,7 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
         if (fragment != null && !fragment.isHidden()) {
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
             transaction.hide(fragment);
-            transaction.commit();
+            transaction.commitAllowingStateLoss();
         }
     }
 
@@ -642,7 +891,7 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
         if (fragment == null) return;
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
         transaction.remove(fragment);
-        transaction.commit();
+        transaction.commitAllowingStateLoss();
     }
 
     @Override
@@ -651,6 +900,7 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
         if (mTabsManager != null) {
             mTabsManager.pauseAll();
         }
+        UpdateService.resetListener();
     }
 
     @Override
@@ -660,16 +910,40 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
         if (mTabsManager != null) {
             mTabsManager.resumeAll();
         }
+        UpdateService.setCheckVersionInsterface(this, this, this);
+        receiveAppStoreUpdateInfo(UpdateService.getAppStoreStatus());
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (!rxSubscription.isUnsubscribed()){
+        if (!rxSubscription.isUnsubscribed()) {
             rxSubscription.unsubscribe();
         }
         FileDownloader.getImpl().unBindServiceIfIdle();
-        FileDownloadMonitor.releaseGlobalMonitor();
+//        FileDownloadMonitor.releaseGlobalMonitor();
+    }
+
+    private Observable<List<EngineItem>> getEngineList() {
+        return Observable.create(new Observable.OnSubscribe<List<EngineItem>>() {
+            @Override
+            public void call(Subscriber<? super List<EngineItem>> subscriber) {
+                List<EngineItem> engineList = mEngineDatabase.getAllEngineItems();
+                subscriber.onNext(engineList);
+                subscriber.onCompleted();
+            }
+        }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
+    }
+
+    private Observable<EngineItem> getDefaultEngine() {
+        return Observable.create(new Observable.OnSubscribe<EngineItem>() {
+            @Override
+            public void call(Subscriber<? super EngineItem> subscriber) {
+                EngineItem item = mEngineDatabase.getDefaultEngine();
+                subscriber.onNext(item);
+                subscriber.onCompleted();
+            }
+        }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
     }
 
     private void initializePreferences() {
@@ -677,29 +951,69 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
 
         setFullscreen(mPreferences.getHideStatusBarEnabled(), false);
 
-        switch (mPreferences.getSearchChoice()) {
-            case 0:
-                mSearchText = mPreferences.getSearchUrl();
-                if (!mSearchText.startsWith(Constants.HTTP)
-                        && !mSearchText.startsWith(Constants.HTTPS)) {
-                    mSearchText = Constants.BAIDU_SEARCH;
+        // 从数据库中获取搜索引擎列表，设置默认搜索引擎
+        getEngineList().subscribe(new Action1<List<EngineItem>>() {
+            @Override
+            public void call(List<EngineItem> engineItems) {
+                if (engineItems != null && engineItems.size() > 0){
+                    mEngineItems.clear();
+                    mEngineItems.addAll(engineItems);
+                }else{
+                    mPresenter.getSearchEngine();
                 }
-                break;
-            case 1:
-                mSearchText = Constants.BAIDU_SEARCH;
-                break;
-            case 2:
-                mSearchText = Constants.GOOGLE_SEARCH;
-                break;
-            case 3:
-                mSearchText = Constants.BING_SEARCH;
-                break;
-            case 4:
-                mSearchText = Constants.YAHOO_SEARCH;
-                break;
-            case 5:
-                mSearchText = Constants.SEARCH_360;
-                break;
+            }
+        });
+
+        getDefaultEngine().subscribe(new Action1<EngineItem>() {
+            @Override
+            public void call(EngineItem engineItem) {
+                mDefaultEngine = engineItem;
+                if (mDefaultEngine == null){
+                    mSearchText = mPreferences.getSearchUrl();
+                }else {
+                    mSearchText = mDefaultEngine.getAddrUrl();
+                }
+            }
+        });
+    }
+
+    public List<EngineItem> getEngineItems() {
+        return mEngineItems;
+    }
+
+    public EngineItem getDefaultEngineItem() {
+        return mDefaultEngine;
+    }
+
+    public void setEngineItems(List<EngineItem> mEngineItems) {
+        this.mEngineItems = mEngineItems;
+    }
+
+    public void setDefaultEngine(EngineItem mDefaultEngine) {
+        this.mDefaultEngine = mDefaultEngine;
+        mSearchText = mDefaultEngine.getAddrUrl();
+    }
+
+    public void updateEngineDB(EngineItem defaultEngine){
+        mEngineDatabase.setDefaultEngine(defaultEngine.getAddrUrl());
+    }
+
+    public void openQrcode() {
+        Intent i = new Intent(BrowserActivity.this, SimpleCaptureActivity.class);
+        BrowserActivity.this.startActivityForResult(i, REQUEST_QR_CODE);
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent intent) {
+        if (requestCode == 1) {
+            if (resultCode == Activity.RESULT_OK) {
+                if (intent != null) {
+                    Bundle extras = intent.getExtras();
+                    String result = extras.getString("result");
+                    searchTheWeb(result);
+                }
+            }
         }
+
     }
 }

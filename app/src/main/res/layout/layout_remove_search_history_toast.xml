@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<TextView xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/tv_remove"
+    android:layout_width="@dimen/remove_window_width"
+    android:layout_height="@dimen/remove_window_height"
+    android:background="@drawable/shape_bg_remove_search_history"
+    android:gravity="center"
+    android:text="@string/remove_record"
+    android:textColor="@color/text_white"
+    android:textSize="12sp">
+
+</TextView>

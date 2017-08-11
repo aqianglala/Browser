@@ -7,6 +7,7 @@ import static com.example.zy1584.mybase.dialog.FileDatabase.KEY_CONVERSION_LINK;
 import static com.example.zy1584.mybase.dialog.FileDatabase.KEY_ID;
 import static com.example.zy1584.mybase.dialog.FileDatabase.KEY_NAME;
 import static com.example.zy1584.mybase.dialog.FileDatabase.KEY_PATH;
+import static com.example.zy1584.mybase.dialog.FileDatabase.KEY_STATUS;
 import static com.example.zy1584.mybase.dialog.FileDatabase.KEY_TYPE;
 import static com.example.zy1584.mybase.dialog.FileDatabase.KEY_URL;
 
@@ -22,6 +23,8 @@ public class FileItem {
     private long mSize;
     private int mType;
     private String mPath;
+    private int mStatus;
+    private String mTimestamp;
     private String mClickId;// 腾讯广告联盟统计
     private String mConversionLink;// 腾讯广告联盟统计
 
@@ -85,6 +88,22 @@ public class FileItem {
         this.mPath = mPath;
     }
 
+    public int getStatus() {
+        return mStatus;
+    }
+
+    public void setStatus(int status) {
+        this.mStatus = status;
+    }
+
+    public String getTimestamp() {
+        return mTimestamp;
+    }
+
+    public void setTimestamp(String timestamp) {
+        this.mTimestamp = timestamp;
+    }
+
     public String getClickId() {
         return mClickId;
     }
@@ -108,6 +127,8 @@ public class FileItem {
         cv.put(KEY_NAME, mName);
         cv.put(KEY_TYPE, mType);
         cv.put(KEY_PATH, mPath);
+        cv.put(KEY_STATUS, mStatus);
+
         cv.put(KEY_CLICK_ID, mClickId);
         cv.put(KEY_CONVERSION_LINK, mConversionLink);
         return cv;

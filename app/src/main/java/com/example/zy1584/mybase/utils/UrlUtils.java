@@ -20,6 +20,8 @@ import android.support.annotation.Nullable;
 import android.util.Patterns;
 import android.webkit.URLUtil;
 
+import com.example.zy1584.mybase.preference.PreferenceManager;
+
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -36,6 +38,8 @@ public class UrlUtils {
                     "|(?:.*:.*@)" +
                     ')' +
                     "(.*)");
+    // 自定义的搜索关键词占位符
+    public static final String KEY_WORD_HOLDER = "__KeyWord__";
     // Google search
     public final static String QUERY_PLACE_HOLDER = "%s";
     // Regular expression to strip http:// and optionally
@@ -101,8 +105,15 @@ public class UrlUtils {
             }
         }
         if (canBeSearch) {
-            return URLUtil.composeSearchUrl(inUrl,
+
+            String s = PreferenceManager.getInstance().getSearchUrl();
+            if (searchUrl.equals(s + UrlUtils.QUERY_PLACE_HOLDER)){
+                return URLUtil.composeSearchUrl(inUrl,
                     searchUrl, QUERY_PLACE_HOLDER);
+            }else{
+                return URLUtil.composeSearchUrl(inUrl,
+                        searchUrl, KEY_WORD_HOLDER);
+            }
         }
         return "";
     }

@@ -1,0 +1,293 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    tools:context="com.example.zy1584.mybase.ui.setting.SettingsActivity">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/id_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@android:color/white"
+        android:minHeight="?attr/actionBarSize">
+
+        <TextView
+            style="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="@string/setting" />
+
+    </android.support.v7.widget.Toolbar>
+
+    <RelativeLayout
+        android:id="@+id/rl_rotate"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/setting_item_height"
+        android:layout_marginTop="10dp"
+        android:background="@drawable/shape_white_ripple_bg"
+        android:clickable="true"
+        android:paddingLeft="12.5dp"
+        android:paddingRight="12.5dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:text="屏幕旋转"
+            android:textColor="@android:color/black"
+            android:textSize="@dimen/setting_item_title_text_size"
+            android:textStyle="normal" />
+
+        <ImageView
+            android:id="@+id/iv_arrow1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_arrow_right_gray" />
+
+        <TextView
+            android:id="@+id/tv_rotate"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="5dp"
+            android:layout_toLeftOf="@id/iv_arrow1"
+            android:textColor="@color/text_gray"
+            android:textSize="@dimen/setting_item_hint_text_size"
+            android:textStyle="normal" />
+
+    </RelativeLayout>
+
+    <include layout="@layout/include_line_horizontal" />
+
+    <RelativeLayout
+        android:id="@+id/rl_engine"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/setting_item_height"
+        android:background="@drawable/shape_white_ripple_bg"
+        android:clickable="true"
+        android:paddingLeft="12.5dp"
+        android:paddingRight="12.5dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:text="@string/set_search_engine"
+            android:textColor="@android:color/black"
+            android:textSize="@dimen/setting_item_title_text_size"
+            android:textStyle="normal" />
+
+        <ImageView
+            android:id="@+id/iv_arrow2"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_arrow_right_gray" />
+
+        <TextView
+            android:id="@+id/tv_engine"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="5dp"
+            android:layout_toLeftOf="@id/iv_arrow2"
+            android:textColor="@color/text_gray"
+            android:textSize="@dimen/setting_item_hint_text_size"
+            android:textStyle="normal" />
+
+
+    </RelativeLayout>
+
+    <include layout="@layout/include_line_horizontal" />
+
+    <RelativeLayout
+        android:id="@+id/rl_path"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/setting_item_height"
+        android:background="@drawable/shape_white_ripple_bg"
+        android:clickable="true"
+        android:paddingLeft="12.5dp"
+        android:paddingRight="12.5dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:text="@string/default_download_path"
+            android:textColor="@android:color/black"
+            android:textSize="@dimen/setting_item_title_text_size"
+            android:textStyle="normal" />
+
+        <ImageView
+            android:id="@+id/iv_arrow3"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_arrow_right_gray" />
+
+        <TextView
+            android:id="@+id/tv_path"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="5dp"
+            android:layout_toLeftOf="@id/iv_arrow3"
+            android:textColor="@color/text_gray"
+            android:textSize="@dimen/setting_item_hint_text_size"
+            android:textStyle="normal" />
+
+
+    </RelativeLayout>
+
+    <include layout="@layout/include_line_horizontal" />
+
+    <RelativeLayout
+        android:id="@+id/rl_check_update"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/setting_item_height"
+        android:background="@drawable/shape_white_ripple_bg"
+        android:clickable="true"
+        android:paddingLeft="12.5dp"
+        android:paddingRight="12.5dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:text="@string/check_new_version"
+            android:textColor="@android:color/black"
+            android:textSize="@dimen/setting_item_title_text_size"
+            android:textStyle="normal" />
+
+        <ImageView
+            android:id="@+id/iv_arrow4"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_arrow_right_gray" />
+
+        <TextView
+            android:id="@+id/tv_version"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginRight="5dp"
+            android:layout_toLeftOf="@id/iv_arrow4"
+            android:textColor="@color/text_gray"
+            android:textSize="@dimen/setting_item_hint_text_size"
+            android:textStyle="normal" />
+
+
+    </RelativeLayout>
+
+    <include layout="@layout/include_line_horizontal" />
+
+    <RelativeLayout
+        android:id="@+id/rl_clear_cache"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/setting_item_height"
+        android:background="@drawable/shape_white_ripple_bg"
+        android:clickable="true"
+        android:paddingLeft="12.5dp"
+        android:paddingRight="12.5dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:text="@string/clear_cache"
+            android:textColor="@android:color/black"
+            android:textSize="@dimen/setting_item_title_text_size"
+            android:textStyle="normal" />
+
+    </RelativeLayout>
+
+    <include layout="@layout/include_line_horizontal" />
+
+    <RelativeLayout
+        android:id="@+id/rl_feedback"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/setting_item_height"
+        android:background="@drawable/shape_white_ripple_bg"
+        android:clickable="true"
+        android:paddingLeft="12.5dp"
+        android:paddingRight="12.5dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:text="@string/feedback"
+            android:textColor="@android:color/black"
+            android:textSize="@dimen/setting_item_title_text_size"
+            android:textStyle="normal" />
+
+        <ImageView
+            android:id="@+id/iv_arrow6"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_arrow_right_gray" />
+    </RelativeLayout>
+
+    <include layout="@layout/include_line_horizontal" />
+
+    <RelativeLayout
+        android:id="@+id/rl_about"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/setting_item_height"
+        android:background="@drawable/shape_white_ripple_bg"
+        android:clickable="true"
+        android:paddingLeft="12.5dp"
+        android:paddingRight="12.5dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:text="@string/about_browser"
+            android:textColor="@android:color/black"
+            android:textSize="@dimen/setting_item_title_text_size"
+            android:textStyle="normal" />
+
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:src="@drawable/ic_arrow_right_gray" />
+    </RelativeLayout>
+
+    <include layout="@layout/include_line_horizontal" />
+
+    <RelativeLayout
+        android:id="@+id/rl_reset"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/setting_item_height"
+        android:background="@drawable/shape_white_ripple_bg"
+        android:clickable="true"
+        android:paddingLeft="12.5dp"
+        android:paddingRight="12.5dp">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerInParent="true"
+            android:text="@string/about_browser"
+            android:textColor="@android:color/black"
+            android:textSize="@dimen/setting_item_title_text_size"
+            android:textStyle="normal" />
+
+    </RelativeLayout>
+</LinearLayout>

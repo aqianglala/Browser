@@ -15,4 +15,14 @@
     <color name="selected_light">#0F000000</color>
 
     <color name="color_blue">#43BBEF</color>
+
+    <!--progressBar-->
+    <color name="progressBar_color_foreground">#00A2E9</color>
+    <color name="progressBar_color_background">#A1A1A1</color>
+
+    <color name="text_black">#3A3332</color>
+    <color name="text_gray">#8b8b8c</color>
+    <color name="text_white">#ffffff</color>
+
+    <color name="remove_history_bg_blue">#4EC1EA</color>
 </resources>

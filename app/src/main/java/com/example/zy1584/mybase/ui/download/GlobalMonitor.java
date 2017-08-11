@@ -19,7 +19,9 @@ package com.example.zy1584.mybase.ui.download;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.example.zy1584.mybase.base.BaseApplication;
 import com.example.zy1584.mybase.http.Http;
+import com.example.zy1584.mybase.service.UpdateService;
 import com.example.zy1584.mybase.ui.download.DownloadManagerActivity.TasksManager;
 import com.example.zy1584.mybase.ui.download.db.FileItem;
 import com.liulishuo.filedownloader.BaseDownloadTask;
@@ -70,7 +72,7 @@ public class GlobalMonitor implements FileDownloadMonitor.IMonitor {
     @Override
     public void onTaskStarted(BaseDownloadTask task) {
         reportConversion(task, ACTION_ID_DOWNLOAD_BEGIN);
-
+        UpdateService.updateStatus(task);
     }
 
     private void reportConversion(BaseDownloadTask task, int action_id ) {
@@ -114,7 +116,13 @@ public class GlobalMonitor implements FileDownloadMonitor.IMonitor {
         int status = TasksManager.getImpl().getStatus(task.getId(), task.getPath());
         if (status == FileDownloadStatus.completed){
             reportConversion(task, ACTION_ID_DOWNLOAD_COMPLETE);
+            TasksManager.getImpl().updateModelSize(task.getId(), task.getSmallFileTotalBytes());
+            boolean isApk = TasksManager.getImpl().isApk(task);
+            if (isApk){
+                TasksManager.getImpl().normalInstall(task.getPath(), BaseApplication.getContext());
+            }
         }
+        UpdateService.updateStatus(task);
     }
 
     public int getMarkStart() {
@@ -124,4 +132,5 @@ public class GlobalMonitor implements FileDownloadMonitor.IMonitor {
     public int getMarkOver() {
         return markOver;
     }
+
 }

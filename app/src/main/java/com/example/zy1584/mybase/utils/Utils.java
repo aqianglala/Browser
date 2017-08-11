@@ -16,6 +16,7 @@ import android.support.annotation.Nullable;
 import android.support.annotation.StringRes;
 import android.support.design.widget.Snackbar;
 import android.support.v7.app.AlertDialog;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
@@ -255,6 +256,15 @@ public class Utils {
         return null;
     }
 
+    public static int getApkVersion(Context context, String apkPath) {
+        PackageManager pm = context.getPackageManager();
+        PackageInfo packInfo = pm.getPackageArchiveInfo(apkPath, PackageManager.GET_ACTIVITIES);
+        if (context.getPackageName().equals(packInfo.packageName)){
+            return packInfo.versionCode;
+        }
+        return -1;
+    }
+
     public static String getPackageName(Context context, String apkPath) {
         PackageManager pm = context.getPackageManager();
         PackageInfo info = pm.getPackageArchiveInfo(apkPath,
@@ -263,6 +273,31 @@ public class Utils {
             return info.packageName;
         }
         return null;
+    }
+
+    public static String getUrl(String sub) {
+        String newIp = (String) SPUtils.get(GlobalParams.IP, GlobalParams.HOLDER_HOST);
+        String newPort = (String) SPUtils.get(GlobalParams.PORT, GlobalParams.HOLDER_PORT + "");
+        if (TextUtils.isEmpty(newIp)){
+            newIp = GlobalParams.HOLDER_HOST;
+        }
+        if (TextUtils.isEmpty(newPort)){
+            newPort = GlobalParams.HOLDER_PORT + "";
+        }
+        return "http://" + newIp + ":" + newPort + "/" + sub;
+    }
+
+    public static boolean isInstallSpecialOS()
+    {
+        String model = android.os.Build.MODEL;
+
+        //发现DOOV A8有该问题
+        if (!TextUtils.isEmpty(model) && (model.equals("DOOV A8")))
+        {
+            return true;
+        }
+
+        return false;
     }
 
 }

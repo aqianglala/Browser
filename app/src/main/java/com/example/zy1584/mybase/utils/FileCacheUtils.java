@@ -10,6 +10,8 @@ import android.os.Environment;
 import android.os.StatFs;
 import android.util.Log;
 
+import com.example.zy1584.mybase.base.BaseApplication;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
@@ -18,6 +20,8 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.util.Arrays;
 import java.util.Comparator;
+
+import static com.example.zy1584.mybase.utils.SPUtils.context;
 
 public class FileCacheUtils {
 
@@ -62,8 +66,8 @@ public class FileCacheUtils {
 	private Object mkdirLock = new Object();
 	private static final String TAG            = "BitmapFileCacheUtils";
 	
-	public FileCacheUtils(Context context) {
-		this.mContext   = context;
+	private FileCacheUtils() {
+		this.mContext   = BaseApplication.getContext();
 		try {
 			DATA_ROOT_PATH = context.getCacheDir().getAbsolutePath();
 			
@@ -71,6 +75,12 @@ public class FileCacheUtils {
 			SD_ROOT_PATH = Environment.getExternalStorageDirectory().getAbsolutePath();
 		} catch (Exception e) {
 		}
+	}
+
+	private static final FileCacheUtils instance = new FileCacheUtils();
+
+	public static FileCacheUtils getInstance(){
+		return instance;
 	}
 	
 	public Bitmap getBitmapFromFile(String key) {

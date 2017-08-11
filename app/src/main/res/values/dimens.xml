@@ -47,4 +47,14 @@
 
     <dimen name="menu_height">150dp</dimen>
     <dimen name="popup_window_padding">16dp</dimen>
+
+    <dimen name="setting_item_height">50dp</dimen>
+    <dimen name="setting_item_title_text_size">14sp</dimen>
+    <dimen name="setting_item_hint_text_size">12sp</dimen>
+
+    <dimen name="update_prompt_text_size">14sp</dimen>
+
+    <dimen name="search_item_height">50dp</dimen>
+    <dimen name="remove_window_width">100dp</dimen>
+    <dimen name="remove_window_height">25dp</dimen>
 </resources>

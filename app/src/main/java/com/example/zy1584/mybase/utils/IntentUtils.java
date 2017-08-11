@@ -110,4 +110,52 @@ public class IntentUtils {
         }
         return false;
     }
+
+    public boolean startActivityForUrl(@NonNull String url) {
+        // 有些手机上的浏览器能处理下载链接，因而会跳转到其他浏览器进行下载，这里需要过滤掉
+        if (url.startsWith("http")) return false;
+        Intent intent;
+        try {
+            intent = Intent.parseUri(url, Intent.URI_INTENT_SCHEME);
+        } catch (URISyntaxException ex) {
+            Log.w("Browser", "Bad URI " + url + ": " + ex.getMessage());
+            return false;
+        }
+
+        intent.addCategory(Intent.CATEGORY_BROWSABLE);
+        intent.setComponent(null);
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.ICE_CREAM_SANDWICH_MR1) {
+            intent.setSelector(null);
+        }
+
+        if (mActivity.getPackageManager().resolveActivity(intent, 0) == null) {
+            String packagename = intent.getPackage();
+            if (packagename != null) {
+                intent = new Intent(Intent.ACTION_VIEW, Uri.parse("market://search?q=pname:"
+                        + packagename));
+                intent.addCategory(Intent.CATEGORY_BROWSABLE);
+                mActivity.startActivity(intent);
+                return true;
+            } else {
+                return false;
+            }
+        }
+//        if (tab != null) {
+//            intent.putExtra(Constants.INTENT_ORIGIN, 1);
+//        }
+        intent.putExtra(Constants.INTENT_ORIGIN, 1);
+
+        Matcher m = ACCEPTED_URI_SCHEMA.matcher(url);
+        if (m.matches() && !isSpecializedHandlerAvailable(intent)) {
+            return false;
+        }
+        try {
+            if (mActivity.startActivityIfNeeded(intent, -1)) {
+                return true;
+            }
+        } catch (ActivityNotFoundException ex) {
+            ex.printStackTrace();
+        }
+        return false;
+    }
 }

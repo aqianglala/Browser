@@ -10,6 +10,7 @@ import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.example.zy1584.mybase.receiver.PackageChangeReceiver;
+import com.example.zy1584.mybase.service.UpdateService;
 import com.example.zy1584.mybase.ui.download.GlobalMonitor;
 import com.example.zy1584.mybase.ui.main.db.BookmarkManager;
 import com.example.zy1584.mybase.utils.ForegroundCallbacks;
@@ -169,6 +170,13 @@ public class BaseApplication extends Application {
     @NonNull
     public static BaseApplication get(@NonNull Context context) {
         return (BaseApplication) context.getApplicationContext();
+    }
+
+    public static void startCheckAppStoreUpdate(Context context, boolean isForce)
+    {
+        Intent intent = new Intent(context, UpdateService.class);
+        intent.putExtra(UpdateService.DOWNLOADED_FORCE, isForce);
+        context.startService(intent);
     }
 
 }

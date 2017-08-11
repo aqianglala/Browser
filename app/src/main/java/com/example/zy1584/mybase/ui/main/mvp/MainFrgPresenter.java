@@ -1,6 +1,7 @@
 package com.example.zy1584.mybase.ui.main.mvp;
 
 import com.example.zy1584.mybase.base.BasePresenter;
+import com.example.zy1584.mybase.bean.HomeNavigationBean;
 import com.example.zy1584.mybase.http.NetProtocol;
 import com.example.zy1584.mybase.http.transformer.ScheduleTransformer;
 import com.example.zy1584.mybase.ui.main.MainFragment;
@@ -22,10 +23,15 @@ import rx.Subscription;
 
 public class MainFrgPresenter extends BasePresenter<MainFragment> implements MainFrgContract.Presenter {
 
+    private MainFrgBiz mBiz;
+    public MainFrgPresenter() {
+        mBiz = new MainFrgBiz();
+    }
+
     @Override
     public void getChannelList() {
         HashMap<String, String> queryMap = NetProtocol.getImpl(getIView().getActivity()).getBaseParams2();
-        Subscription subscribe = new MainFrgBiz().getChannelList(queryMap).compose(new ScheduleTransformer<ResponseBody>())
+        Subscription subscribe = mBiz.getChannelList(queryMap).compose(new ScheduleTransformer<ResponseBody>())
                 .subscribe(new Subscriber<ResponseBody>() {
                     @Override
                     public void onCompleted() {
@@ -72,4 +78,35 @@ public class MainFrgPresenter extends BasePresenter<MainFragment> implements Mai
                 });
         addSubscription(subscribe);
     }
+
+    @Override
+    public void getHomeNavigationList() {
+        HashMap<String, String> queryMap = NetProtocol.getImpl(getIView().getActivity()).getBaseParams2();
+        Subscription subscribe = mBiz.getHomeNavigationList(queryMap)
+                .compose(new ScheduleTransformer<HomeNavigationBean>())
+                .subscribe(new Subscriber<HomeNavigationBean>() {
+                    @Override
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        getIView().onGetHomeNavigationListError(e);
+                    }
+
+                    @Override
+                    public void onNext(HomeNavigationBean homeNavigationBean) {
+                        if (homeNavigationBean == null) return;
+                        if (homeNavigationBean.getRet() == 0){
+                            getIView().onReceiveNavigationList(homeNavigationBean);
+                        }else{
+                            getIView().onGetHomeNavigationListError(new Exception("ret != 0"));
+                        }
+                    }
+                });
+        addSubscription(subscribe);
+    }
+
+
 }

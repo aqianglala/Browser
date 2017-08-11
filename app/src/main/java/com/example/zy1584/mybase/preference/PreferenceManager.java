@@ -5,8 +5,8 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.example.zy1584.mybase.base.BaseApplication;
-import com.example.zy1584.mybase.ui.download.DownloadHandler;
 import com.example.zy1584.mybase.utils.Constants;
+import com.example.zy1584.mybase.utils.FileCacheUtils;
 
 
 public class PreferenceManager {
@@ -151,7 +151,8 @@ public class PreferenceManager {
 
     @NonNull
     public String getDownloadDirectory() {
-        return mPrefs.getString(Name.DOWNLOAD_DIRECTORY, DownloadHandler.DEFAULT_DOWNLOAD_PATH);
+//        return mPrefs.getString(Name.DOWNLOAD_DIRECTORY, DownloadHandler.DEFAULT_DOWNLOAD_PATH);
+        return mPrefs.getString(Name.DOWNLOAD_DIRECTORY, FileCacheUtils.getInstance().getDownloadDirectory());
     }
 
     public int getFlashSupport() {

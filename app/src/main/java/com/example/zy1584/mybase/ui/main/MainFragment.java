@@ -1,31 +1,49 @@
 package com.example.zy1584.mybase.ui.main;
 
+import android.content.Context;
 import android.os.Bundle;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.design.widget.TabLayout;
+import android.support.v7.widget.GridLayoutManager;
+import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
+import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
 import com.example.zy1584.mybase.BuildConfig;
 import com.example.zy1584.mybase.R;
 import com.example.zy1584.mybase.base.BaseFragment;
+import com.example.zy1584.mybase.bean.HomeNavigationBean;
 import com.example.zy1584.mybase.ui.main.adapter.TestFragmentAdapter;
 import com.example.zy1584.mybase.ui.main.bean.ChannelBean;
 import com.example.zy1584.mybase.ui.main.mvp.MainFrgContract;
 import com.example.zy1584.mybase.ui.main.mvp.MainFrgPresenter;
 import com.example.zy1584.mybase.ui.news.NewsChannelFragment;
 import com.example.zy1584.mybase.ui.news.NewsRecommendFragment;
+import com.example.zy1584.mybase.utils.DensityUtils;
+import com.example.zy1584.mybase.utils.FileUtils;
+import com.example.zy1584.mybase.utils.GlobalParams;
 import com.example.zy1584.mybase.utils.LocationUtils;
 import com.example.zy1584.mybase.utils.SPUtils;
+import com.example.zy1584.mybase.widget.GridSpacingItemDecoration;
 import com.example.zy1584.mybase.widget.NewsViewPager;
 import com.example.zy1584.mybase.widget.behavior.uc.UcNewsHeaderPagerBehavior;
+import com.google.gson.Gson;
+import com.zhy.adapter.recyclerview.CommonAdapter;
+import com.zhy.adapter.recyclerview.MultiItemTypeAdapter;
+import com.zhy.adapter.recyclerview.base.ViewHolder;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
+
+import butterknife.BindView;
+import butterknife.OnClick;
+import rx.functions.Action1;
 
 
 /**
@@ -34,11 +52,26 @@ import java.util.Map;
 
 public class MainFragment extends BaseFragment<MainFrgPresenter> implements UcNewsHeaderPagerBehavior.OnPagerStateListener,
         MainFrgContract.View{
+    private static final int REQUEST_QR_CODE = 1;
+
     private NewsViewPager mNewsPager;
     private TabLayout mTableLayout;
     private List<BaseFragment> mFragments = new ArrayList<>();
     private UcNewsHeaderPagerBehavior mPagerBehavior;
     private TestFragmentAdapter mNewsPagerAdapter;
+
+    private List<HomeNavigationBean.DataBean> mNavigationList = new ArrayList<>();
+
+    private NavigationAdapter mNavigationAdapter;
+
+    @BindView(R.id.rv_navigation)
+    RecyclerView rv_navigation;
+
+    @OnClick(R.id.iv_qr_code)
+    void openQrcode(){
+        BrowserActivity browserActivity = (BrowserActivity) mActivity;
+        browserActivity.openQrcode();
+    }
 
     @Override
     protected int getLayoutId() {
@@ -65,6 +98,15 @@ public class MainFragment extends BaseFragment<MainFrgPresenter> implements UcNe
         mNewsPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(mTableLayout));
         mNewsPagerAdapter = new TestFragmentAdapter(mFragments, getFragmentManager());
         mNewsPager.setAdapter(mNewsPagerAdapter);
+
+        initNavigation();
+    }
+
+    private void initNavigation() {
+        GridLayoutManager gridLayoutManager = new GridLayoutManager(mActivity, 6);
+        rv_navigation.setLayoutManager(gridLayoutManager);
+        rv_navigation.setHasFixedSize(true);
+        rv_navigation.addItemDecoration(new GridSpacingItemDecoration(6, DensityUtils.dpToPx(10), true));
     }
 
     @Override
@@ -77,6 +119,13 @@ public class MainFragment extends BaseFragment<MainFrgPresenter> implements UcNe
     @Override
     protected void doBusiness(Bundle savedInstanceState) {
         mPresenter.getChannelList();
+        String data_navigation = (String) SPUtils.get(GlobalParams.DATA_NAVIGATION, "");
+        if (TextUtils.isEmpty(data_navigation)){
+            mPresenter.getHomeNavigationList();
+        }else{
+            HomeNavigationBean bean = new Gson().fromJson(data_navigation, HomeNavigationBean.class);
+            setNavigationData(bean);
+        }
     }
 
     @Override
@@ -145,6 +194,52 @@ public class MainFragment extends BaseFragment<MainFrgPresenter> implements UcNe
 
     }
 
+    @Override
+    public void onReceiveNavigationList(HomeNavigationBean bean) {
+        // 缓存数据
+        String json = new Gson().toJson(bean);
+        SPUtils.put(GlobalParams.DATA_NAVIGATION, json);
+
+        setNavigationData(bean);
+
+    }
+
+    private void setNavigationData(HomeNavigationBean bean) {
+        mNavigationList.clear();
+        mNavigationList.addAll(bean.getData());
+        if (mNavigationAdapter == null){
+            mNavigationAdapter = new NavigationAdapter(mActivity, R.layout.item_list_navigatioin, mNavigationList);
+            rv_navigation.setAdapter(mNavigationAdapter);
+            mNavigationAdapter.setOnItemClickListener(new MultiItemTypeAdapter.OnItemClickListener() {
+                @Override
+                public void onItemClick(View view, RecyclerView.ViewHolder holder, int position) {
+                    HomeNavigationBean.DataBean dataBean = mNavigationList.get(position);
+                    BrowserActivity browserAct = (BrowserActivity) mActivity;
+                    browserAct.searchTheWeb(dataBean.getAddrUrl());
+                }
+
+                @Override
+                public boolean onItemLongClick(View view, RecyclerView.ViewHolder holder, int position) {
+                    return false;
+                }
+            });
+        }else{
+            mNavigationAdapter.notifyDataSetChanged();
+        }
+    }
+
+    @Override
+    public void onGetHomeNavigationListError(Throwable e) {
+        FileUtils.loadFile(mActivity, FileUtils.HOME_NAVIGATION_FILE_NAME)
+                .subscribe(new Action1<String>() {
+                    @Override
+                    public void call(String s) {
+                        HomeNavigationBean bean = new Gson().fromJson(s, HomeNavigationBean.class);
+                        setNavigationData(bean);
+                    }
+                });
+    }
+
     class TabSelectedListener implements TabLayout.OnTabSelectedListener {
 
         @Override
@@ -163,4 +258,17 @@ public class MainFragment extends BaseFragment<MainFrgPresenter> implements UcNe
         }
     }
 
+    class NavigationAdapter extends CommonAdapter<HomeNavigationBean.DataBean>{
+
+        public NavigationAdapter(Context context, int layoutId, List<HomeNavigationBean.DataBean> datas) {
+            super(context, layoutId, datas);
+        }
+
+        @Override
+        protected void convert(ViewHolder holder, HomeNavigationBean.DataBean dataBean, int position) {
+            holder.setText(R.id.tv_name, dataBean.getName());
+            ImageView iv_icon = holder.getView(R.id.iv_icon);
+            Glide.with(mActivity).load(dataBean.getIconUrl()).into(iv_icon);
+        }
+    }
 }

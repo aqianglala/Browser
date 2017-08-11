@@ -23,6 +23,8 @@
                 android:layout_height="match_parent"/>
         </FrameLayout>
 
+        <include layout="@layout/include_update_prompt"/>
+
         <include layout="@layout/include_bottom_toolbar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"

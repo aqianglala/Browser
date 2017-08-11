@@ -7,6 +7,8 @@ import android.support.annotation.StringRes;
 import android.view.View;
 import android.webkit.WebChromeClient.CustomViewCallback;
 
+import com.example.zy1584.mybase.bean.EngineBean;
+
 /**
  * Created by zy1584 on 2017-7-13.
  */
@@ -29,6 +31,10 @@ public interface BrowserActContract {
         void setForwardButtonEnabled(boolean enabled);
 
         void setBackButtonEnabled(boolean enabled);
+
+        void receiveSearchEngine(EngineBean bean);
+
+        void onReceiveEngineError(Throwable e);
     }
 
     interface Presenter{
@@ -36,6 +42,8 @@ public interface BrowserActContract {
         boolean newTab(@Nullable String url, boolean isIncognito, boolean show);
 
         void loadUrlInCurrentView(@NonNull final String url);
+
+        void getSearchEngine();
 
     }
 }

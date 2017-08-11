@@ -3,7 +3,11 @@ package com.example.zy1584.mybase.http;
 
 import com.example.zy1584.mybase.bean.ADResponseBean;
 import com.example.zy1584.mybase.bean.ClickLinkResponseBean;
+import com.example.zy1584.mybase.bean.EngineBean;
+import com.example.zy1584.mybase.bean.HomeNavigationBean;
+import com.example.zy1584.mybase.bean.HotTagBean;
 import com.example.zy1584.mybase.bean.RecommendBean;
+import com.example.zy1584.mybase.bean.UpgradeBean;
 import com.example.zy1584.mybase.ui.news.bean.NewsChannelBean;
 
 import java.util.Map;
@@ -55,5 +59,17 @@ public interface HttpService {
 
     @GET("http://ha.doov.com.cn:9066/address/query")
     Call<ResponseBody> requestServerAddress(@QueryMap Map<String, String> params);
+
+    @GET
+    Observable<HomeNavigationBean> getHomeNavigationList(@Url String url, @QueryMap Map<String, String> params);
+
+    @GET
+    Observable<HotTagBean> getHotBookmarkList(@Url String url, @QueryMap Map<String, String> params);
+
+    @GET
+    Observable<UpgradeBean> checkUpdateInfo(@Url String url, @QueryMap Map<String, String> params);
+
+    @GET
+    Observable<EngineBean> getSearchEngine(@Url String url, @QueryMap Map<String, String> params);
 
 }

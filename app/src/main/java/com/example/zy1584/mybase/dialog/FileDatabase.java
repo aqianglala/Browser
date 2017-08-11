@@ -32,6 +32,8 @@ public class FileDatabase extends SQLiteOpenHelper {
     public static final String KEY_NAME = "name";
     public static final String KEY_TYPE = "type";
     public static final String KEY_PATH = "path";
+    public static final String KEY_STATUS = "status";
+    public static final String KEY_TIME = "timestamp";
     public static final String KEY_CLICK_ID = "click_id"; // 腾讯广告联盟统计使用，丧心病狂
     public static final String KEY_CONVERSION_LINK = "conversion_link"; // 腾讯广告联盟统计使用，丧心病狂
 
@@ -68,6 +70,8 @@ public class FileDatabase extends SQLiteOpenHelper {
                 + KEY_NAME + " TEXT,"
                 + KEY_TYPE + " INTEGER,"
                 + KEY_PATH + " TEXT,"
+                + KEY_STATUS + " INTEGER,"
+                + KEY_TIME + " NOT NULL DEFAULT (datetime('now','localtime')),"
                 + KEY_CLICK_ID + " TEXT,"
                 + KEY_CONVERSION_LINK + " TEXT"+ ')';
         db.execSQL(CREATE_FILE_TABLE);
@@ -110,17 +114,17 @@ public class FileDatabase extends SQLiteOpenHelper {
         mDatabase.insert(TABLE_FILE, null, item.toContentValues());
     }
 
-    public synchronized void deleteFileItem(@NonNull String url) {
+    public synchronized void deleteFileItem(@NonNull int id) {
         mDatabase = openIfNecessary();
-        mDatabase.delete(TABLE_FILE, KEY_URL + " = ?", new String[]{url});
+        mDatabase.delete(TABLE_FILE, KEY_ID + " = ?", new String[]{Integer.toString(id)});
     }
 
     public synchronized void updateFileItem(@NonNull FileItem item) {
         mDatabase = openIfNecessary();
-        Cursor q = mDatabase.query(false, TABLE_FILE, new String[]{KEY_URL},
-                KEY_URL + " = ?", new String[]{item.getUrl()}, null, null, null, "1");
+        Cursor q = mDatabase.query(false, TABLE_FILE, new String[]{KEY_ID},
+                KEY_ID + " = ?", new String[]{Integer.toString(item.getId())}, null, null, null, "1");
         if (q.getCount() > 0) {
-            mDatabase.update(TABLE_FILE, item.toContentValues(), KEY_URL + " = ?", new String[]{item.getUrl()});
+            mDatabase.update(TABLE_FILE, item.toContentValues(), KEY_ID + " = ?", new String[]{Integer.toString(item.getId())});
         } else {
             addFileItem(item);
         }
@@ -144,8 +148,10 @@ public class FileDatabase extends SQLiteOpenHelper {
                 item.setName(cursor.getString(2));
                 item.setType(cursor.getInt(3));
                 item.setPath(cursor.getString(4));
-                item.setClickId(cursor.getString(5));
-                item.setConversionLink(cursor.getString(6));
+                item.setStatus(cursor.getInt(5));
+                item.setTimestamp(cursor.getString(6));
+                item.setClickId(cursor.getString(7));
+                item.setConversionLink(cursor.getString(8));
                 itemList.add(item);
             } while (cursor.moveToNext());
         }
@@ -154,10 +160,10 @@ public class FileDatabase extends SQLiteOpenHelper {
     }
 
     @Nullable
-    public synchronized String getFileItem(@NonNull String url) {
+    public synchronized String getFileItem(@NonNull int id) {
         mDatabase = openIfNecessary();
         Cursor cursor = mDatabase.query(TABLE_FILE, new String[]{KEY_ID, KEY_URL, KEY_NAME},
-                KEY_URL + " = ?", new String[]{url}, null, null, null, null);
+                KEY_ID + " = ?", new String[]{Integer.toString(id)}, null, null, null, null);
         String m = null;
         if (cursor != null) {
             cursor.moveToFirst();

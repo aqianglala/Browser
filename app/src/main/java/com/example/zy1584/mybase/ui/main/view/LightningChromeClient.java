@@ -22,6 +22,7 @@ import com.anthonycr.grant.PermissionsManager;
 import com.anthonycr.grant.PermissionsResultAction;
 import com.example.zy1584.mybase.R;
 import com.example.zy1584.mybase.base.BaseApplication;
+import com.example.zy1584.mybase.db.SearchHistoryDatabase;
 import com.example.zy1584.mybase.ui.main.BrowserFragment;
 import com.example.zy1584.mybase.utils.Preconditions;
 import com.example.zy1584.mybase.ui.main.mvp.BrowserActContract;
@@ -43,8 +44,11 @@ public class LightningChromeClient extends WebChromeClient {
 
     private BrowserFragment mFragment;
 
+    private SearchHistoryDatabase mSearchHistoryDatabase;
+
 
     public LightningChromeClient(@NonNull Activity activity, @NonNull BrowserFragment fragment) {
+        mSearchHistoryDatabase = SearchHistoryDatabase.getInstance();
         Preconditions.checkNonNull(activity);
         Preconditions.checkNonNull(fragment);
         mActivity = activity;
@@ -84,7 +88,7 @@ public class LightningChromeClient extends WebChromeClient {
 
 
     @Override
-    public void onReceivedTitle(@Nullable WebView view, @Nullable String title) {
+    public void onReceivedTitle(@Nullable final WebView view, @Nullable final String title) {
         if (title != null && !title.isEmpty()) {
             mFragment.getTitleInfo().setTitle(title);
         } else {
@@ -94,6 +98,13 @@ public class LightningChromeClient extends WebChromeClient {
         // TODO: 2017-7-13 通知图标发生改变
         if (view != null && view.getUrl() != null) {
             mBrowserView.updateHistory(title, view.getUrl());
+            final String url = view.getUrl();
+            BaseApplication.getIOThread().execute(new Runnable() {
+                @Override
+                public void run() {
+                    mSearchHistoryDatabase.updateTitle(url, title);
+                }
+            });
         }
     }
 

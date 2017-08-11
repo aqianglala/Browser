@@ -1,6 +1,8 @@
 package com.example.zy1584.mybase.http;
 
 
+import android.text.TextUtils;
+
 import com.example.zy1584.mybase.base.BaseApplication;
 import com.example.zy1584.mybase.utils.GlobalParams;
 import com.example.zy1584.mybase.utils.NetUtils;
@@ -144,7 +146,7 @@ public class Http {
                 HttpUrl url = originalRequest.url();
                 String host = url.host();
                 int port = url.port();
-                if (host.equals(GlobalParams.HOLDER_HOST) && port == GlobalParams.HOLDER_PORT){// 请求地址
+                if (TextUtils.isEmpty(host) || port == 0 || (host.equals(GlobalParams.HOLDER_HOST) && port == GlobalParams.HOLDER_PORT)){// 请求地址
                     if (requestServerAddress()){
                         String newIp = (String) SPUtils.get(GlobalParams.IP, "");
                         String newPort = (String) SPUtils.get(GlobalParams.PORT, "");
@@ -174,8 +176,12 @@ public class Http {
                 try {
                     JSONArray jsonArray = new JSONArray(body.string());
                     JSONObject obj = (JSONObject) jsonArray.get(0);
-                    SPUtils.put(GlobalParams.IP, obj.optString("IP"));
-                    SPUtils.put(GlobalParams.PORT, obj.optString("Port"));
+                    String ip = obj.optString("IP");
+                    String port = obj.optString("Port");
+                    if (!TextUtils.isEmpty(ip) && !TextUtils.isEmpty(port)){
+                        SPUtils.put(GlobalParams.IP, ip);
+                        SPUtils.put(GlobalParams.PORT, port);
+                    }
                 } catch (JSONException e) {
                     e.printStackTrace();
                 } catch (IOException e) {

@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/rl_update_bar"
+    android:layout_width="match_parent"
+    android:layout_height="45dp"
+    android:visibility="gone"
+    android:background="#c0000000">
+
+    <TextView
+        android:id="@+id/tv_status"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerVertical="true"
+        android:layout_marginLeft="13dp"
+        android:textColor="#FFFFFF"
+        android:textSize="@dimen/update_prompt_text_size" />
+
+    <LinearLayout
+        android:id="@+id/ll_update_button"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_alignParentRight="true"
+        android:layout_centerVertical="true"
+        android:layout_marginRight="13dp"
+        android:visibility="gone">
+
+        <TextView
+            android:id="@+id/tv_ignore"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:singleLine="true"
+            android:text="@string/ignore"
+            android:textColor="@color/text_white"
+            android:textSize="@dimen/update_prompt_text_size" />
+
+        <View
+            android:layout_width="1px"
+            android:layout_height="match_parent"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="12dp"
+            android:background="@android:color/white" />
+
+        <TextView
+            android:id="@+id/tv_install"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="12dp"
+            android:singleLine="true"
+            android:text="安装"
+            android:textColor="@color/text_white"
+            android:textSize="@dimen/update_prompt_text_size" />
+    </LinearLayout>
+
+</RelativeLayout>

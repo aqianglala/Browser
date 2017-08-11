@@ -55,6 +55,7 @@
     <string name="start">开始</string>
     <string name="pause">暂停</string>
     <string name="delete">删除</string>
+    <string name="open">打开</string>
 
     <string name="dialog_download">确定下载此文件？</string>
     <string name="action_download">下载管理</string>
@@ -69,7 +70,7 @@
 
     <!--rx提示-->
     <string name="prompt_task_exist">任务已在队列中</string>
-    <string name="prompt_same_file_exist">存在同名文件</string>
+    <string name="prompt_same_file_exist">文件已存在</string>
     <string name="menu_add_bookmark">添加书签</string>
     <string name="menu_bookmark_history">书签/历史</string>
     <string name="menu_refresh">刷新</string>
@@ -87,4 +88,25 @@
     <string name="remove">删除</string>
     <string name="download_title">下载</string>
     <!--rx提示-->
+
+    <string name="prompt_file_deleted">文件已被删除，是否重新下载？</string>
+    <string name="setting">设置</string>
+    <string name="follow_system">跟随系统</string>
+    <string name="set_search_engine">设置搜索引擎</string>
+    <string name="default_download_path">默认下载路径</string>
+    <string name="check_new_version">检查新版本</string>
+    <string name="clear_cache">清除缓存</string>
+    <string name="feedback">意见反馈</string>
+    <string name="about_browser">关于浏览器</string>
+    <string name="ignore">忽略</string>
+    <string name="cancel_download">取消下载</string>
+    <string name="download_background">后台下载</string>
+    <string name="updating">版本更新中</string>
+    <string name="update_description">更新说明：</string>
+    <string name="update_next_time">下次更新</string>
+    <string name="update_right_now">立即更新</string>
+
+    <string name="clear_search_history">清空搜索历史</string>
+    <string name="remove_record">清除该条记录</string>
+
 </resources>
