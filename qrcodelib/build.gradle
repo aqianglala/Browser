@@ -7,7 +7,8 @@ android {
     compileSdkVersion 24
     buildToolsVersion "25.0.0"
 
-    resourcePrefix "qr"
+//    表明所有的资源都要以"qr"为前缀，否则报错
+//    resourcePrefix "qr"
 
     defaultConfig {
         minSdkVersion 14

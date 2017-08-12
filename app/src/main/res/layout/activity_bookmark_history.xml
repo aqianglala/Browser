@@ -5,11 +5,11 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="#FAFAFA"
-    tools:context="com.example.zy1584.mybase.ui.bookmark.BookmarkHistoryActivity">
+    tools:context="com.news.browser.ui.bookmark.BookmarkHistoryActivity">
 
     <include layout="@layout/include_bookmark_history_toolbar"/>
 
-    <com.example.zy1584.mybase.widget.CustomViewPager
+    <com.news.browser.widget.CustomViewPager
         android:id="@+id/viewPager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

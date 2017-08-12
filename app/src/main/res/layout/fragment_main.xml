@@ -87,7 +87,7 @@
         app:tabTextColor="@color/colorPrimaryIcons" />
 
 
-    <com.example.zy1584.mybase.widget.NewsViewPager
+    <com.news.browser.widget.NewsViewPager
         android:id="@+id/id_uc_news_content"
         android:layout_width="match_parent"
         android:layout_height="match_parent"

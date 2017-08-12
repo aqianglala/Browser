@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.example.zy1584.mybase.ui.loading.LoadingActivity">
+    tools:context="com.news.browser.ui.loading.LoadingActivity">
 
     <ImageView
         android:id="@+id/iv_loading"

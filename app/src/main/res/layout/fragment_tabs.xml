@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:background="@android:color/white"
-    tools:context=".ui.main.BrowserActivity">
+    tools:context="com.news.browser.ui.main.BrowserActivity">
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recyclerView"

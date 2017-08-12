@@ -1,10 +1,10 @@
 <resources>
-    <string name="app_name">MyBase</string>
+    <string name="app_name">浏览器</string>
 
-    <string name="behavior_contents">com.example.zy1584.mybase.widget.behavior.uc.UcNewsContentBehavior</string>
-    <string name="behavior_uc_header_pager">com.example.zy1584.mybase.widget.behavior.uc.UcNewsHeaderPagerBehavior</string>
-    <string name="behavior_uc_title">com.example.zy1584.mybase.widget.behavior.uc.UcNewsTitleBehavior</string>
-    <string name="behavior_uc_news_tab">com.example.zy1584.mybase.widget.behavior.uc.UcNewsTabBehavior</string>
+    <string name="behavior_contents">com.news.browser.widget.behavior.uc.UcNewsContentBehavior</string>
+    <string name="behavior_uc_header_pager">com.news.browser.widget.behavior.uc.UcNewsHeaderPagerBehavior</string>
+    <string name="behavior_uc_title">com.news.browser.widget.behavior.uc.UcNewsTitleBehavior</string>
+    <string name="behavior_uc_news_tab">com.news.browser.widget.behavior.uc.UcNewsTabBehavior</string>
 
     <string name="exit_app_toast">"再按一次退出程序"</string>
 

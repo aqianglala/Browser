@@ -1,0 +1,881 @@
+{
+    "ret": 0,
+    "msg": "ok",
+    "errorcode": 0,
+    "data": {
+        "0": {
+            "chanId": "0",
+            "chanCode": "news",
+            "chanName": "要闻",
+            "chanName_m": "要闻",
+            "isKB": "0"
+        },
+        "1": {
+            "chanId": "1",
+            "chanCode": "finance",
+            "chanName": "财经",
+            "chanName_m": "财经",
+            "isKB": "0"
+        },
+        "2": {
+            "chanId": "2",
+            "chanCode": "sports",
+            "chanName": "体育",
+            "chanName_m": "体育",
+            "isKB": "0"
+        },
+        "3": {
+            "chanId": "3",
+            "chanCode": "tech",
+            "chanName": "科技",
+            "chanName_m": "科技",
+            "isKB": "0"
+        },
+        "4": {
+            "chanId": "4",
+            "chanCode": "ent",
+            "chanName": "娱乐",
+            "chanName_m": "娱乐",
+            "isKB": "0"
+        },
+        "5": {
+            "chanId": "5",
+            "chanCode": "auto",
+            "chanName": "汽车",
+            "chanName_m": "汽车",
+            "isKB": "0"
+        },
+        "6": {
+            "chanId": "6",
+            "chanCode": "house",
+            "chanName": "房产",
+            "chanName_m": "房产",
+            "isKB": "0"
+        },
+        "7": {
+            "chanId": "7",
+            "chanCode": "lady",
+            "chanName": "女性",
+            "chanName_m": "女性",
+            "isKB": "0"
+        },
+        "8": {
+            "chanId": "8",
+            "chanCode": "newpic",
+            "chanName": "图片",
+            "chanName_m": "图片",
+            "isKB": "0"
+        },
+        "9": {
+            "chanId": "9",
+            "chanCode": "mil",
+            "chanName": "军事",
+            "chanName_m": "军事",
+            "isKB": "0"
+        },
+        "10": {
+            "chanId": "10",
+            "chanCode": "ssh",
+            "chanName": "社会",
+            "chanName_m": "社会",
+            "isKB": "0"
+        },
+        "11": {
+            "chanId": "11",
+            "chanCode": "astro",
+            "chanName": "星座",
+            "chanName_m": "星座",
+            "isKB": "0"
+        },
+        "12": {
+            "chanId": "12",
+            "chanCode": "world",
+            "chanName": "国际",
+            "chanName_m": "国际",
+            "isKB": "0"
+        },
+        "13": {
+            "chanId": "13",
+            "chanCode": "game",
+            "chanName": "游戏",
+            "chanName_m": "游戏",
+            "isKB": "0"
+        },
+        "15": {
+            "chanId": "15",
+            "chanCode": "edu",
+            "chanName": "教育",
+            "chanName_m": "教育",
+            "isKB": "0"
+        },
+        "16": {
+            "chanId": "16",
+            "chanCode": "comic",
+            "chanName": "动漫",
+            "chanName_m": "动漫",
+            "isKB": "0"
+        },
+        "17": {
+            "chanId": "17",
+            "chanCode": "cul",
+            "chanName": "文化",
+            "chanName_m": "文化",
+            "isKB": "0"
+        },
+        "18": {
+            "chanId": "18",
+            "chanCode": "nba",
+            "chanName": "NBA",
+            "chanName_m": "NBA",
+            "isKB": "0"
+        },
+        "20": {
+            "chanId": "20",
+            "chanCode": "licai",
+            "chanName": "理财",
+            "chanName_m": "理财",
+            "isKB": "0"
+        },
+        "21": {
+            "chanId": "21",
+            "chanCode": "jia360",
+            "chanName": "家居",
+            "chanName_m": "家居",
+            "isKB": "0"
+        },
+        "22": {
+            "chanId": "22",
+            "chanCode": "esports",
+            "chanName": "电竞",
+            "chanName_m": "电竞",
+            "isKB": "0"
+        },
+        "23": {
+            "chanId": "23",
+            "chanCode": "health",
+            "chanName": "健康",
+            "chanName_m": "健康",
+            "isKB": "0"
+        },
+        "24": {
+            "chanId": "24",
+            "chanCode": "lifes",
+            "chanName": "生活",
+            "chanName_m": "生活",
+            "isKB": "0"
+        },
+        "25": {
+            "chanId": "25",
+            "chanCode": "visit",
+            "chanName": "旅游",
+            "chanName_m": "旅游",
+            "isKB": "0"
+        },
+        "26": {
+            "chanId": "26",
+            "chanCode": "music",
+            "chanName": "音乐",
+            "chanName_m": "音乐",
+            "isKB": "0"
+        },
+        "27": {
+            "chanId": "27",
+            "chanCode": "digi",
+            "chanName": "数码",
+            "chanName_m": "数码",
+            "isKB": "0"
+        },
+        "28": {
+            "chanId": "28",
+            "chanCode": "chongqing",
+            "chanName": "重庆",
+            "chanName_m": "重庆",
+            "isKB": "0"
+        },
+        "29": {
+            "chanId": "29",
+            "chanCode": "guangdong",
+            "chanName": "广东",
+            "chanName_m": "广东",
+            "isKB": "0"
+        },
+        "30": {
+            "chanId": "30",
+            "chanCode": "hubei",
+            "chanName": "湖北",
+            "chanName_m": "湖北",
+            "isKB": "0"
+        },
+        "31": {
+            "chanId": "31",
+            "chanCode": "fujian",
+            "chanName": "福建",
+            "chanName_m": "福建",
+            "isKB": "0"
+        },
+        "32": {
+            "chanId": "32",
+            "chanCode": "henan",
+            "chanName": "河南",
+            "chanName_m": "河南",
+            "isKB": "0"
+        },
+        "33": {
+            "chanId": "33",
+            "chanCode": "sichuan",
+            "chanName": "四川",
+            "chanName_m": "四川",
+            "isKB": "0"
+        },
+        "35": {
+            "chanId": "35",
+            "chanCode": "hunan",
+            "chanName": "湖南",
+            "chanName_m": "湖南",
+            "isKB": "0"
+        },
+        "36": {
+            "chanId": "36",
+            "chanCode": "shanghai",
+            "chanName": "上海",
+            "chanName_m": "上海",
+            "isKB": "0"
+        },
+        "37": {
+            "chanId": "37",
+            "chanCode": "shaanxi",
+            "chanName": "陕西",
+            "chanName_m": "陕西",
+            "isKB": "0"
+        },
+        "38": {
+            "chanId": "38",
+            "chanCode": "zhejiang",
+            "chanName": "浙江",
+            "chanName_m": "浙江",
+            "isKB": "0"
+        },
+        "39": {
+            "chanId": "39",
+            "chanCode": "jiangsu",
+            "chanName": "江苏",
+            "chanName_m": "江苏",
+            "isKB": "0"
+        },
+        "40": {
+            "chanId": "40",
+            "chanCode": "liaoning",
+            "chanName": "辽宁",
+            "chanName_m": "辽宁",
+            "isKB": "0"
+        },
+        "41": {
+            "chanId": "41",
+            "chanCode": "hebei",
+            "chanName": "河北",
+            "chanName_m": "河北",
+            "isKB": "0"
+        },
+        "42": {
+            "chanId": "42",
+            "chanCode": "tianjin",
+            "chanName": "天津",
+            "chanName_m": "天津",
+            "isKB": "0"
+        },
+        "43": {
+            "chanId": "43",
+            "chanCode": "beijing",
+            "chanName": "北京",
+            "chanName_m": "北京",
+            "isKB": "0"
+        },
+        "44": {
+            "chanId": "44",
+            "chanCode": "shenzhen",
+            "chanName": "深圳",
+            "chanName_m": "深圳",
+            "isKB": "0"
+        },
+        "45": {
+            "chanId": "45",
+            "chanCode": "guangzhou",
+            "chanName": "广州",
+            "chanName_m": "广州",
+            "isKB": "0"
+        },
+        "46": {
+            "chanId": "46",
+            "chanCode": "hangzhou",
+            "chanName": "杭州",
+            "chanName_m": "杭州",
+            "isKB": "0"
+        },
+        "47": {
+            "chanId": "47",
+            "chanCode": "wenzhou",
+            "chanName": "温州",
+            "chanName_m": "温州",
+            "isKB": "0"
+        },
+        "48": {
+            "chanId": "48",
+            "chanCode": "ningbo",
+            "chanName": "宁波",
+            "chanName_m": "宁波",
+            "isKB": "0"
+        },
+        "49": {
+            "chanId": "49",
+            "chanCode": "nanjing",
+            "chanName": "南京",
+            "chanName_m": "南京",
+            "isKB": "0"
+        },
+        "50": {
+            "chanId": "50",
+            "chanCode": "suzhou",
+            "chanName": "苏州",
+            "chanName_m": "苏州",
+            "isKB": "0"
+        },
+        "51": {
+            "chanId": "51",
+            "chanCode": "dalian",
+            "chanName": "大连",
+            "chanName_m": "大连",
+            "isKB": "0"
+        },
+        "52": {
+            "chanId": "52",
+            "chanCode": "yunnan",
+            "chanName": "云南",
+            "chanName_m": "云南",
+            "isKB": "0"
+        },
+        "53": {
+            "chanId": "53",
+            "chanCode": "shandong",
+            "chanName": "山东",
+            "chanName_m": "山东",
+            "isKB": "0"
+        },
+        "99": {
+            "chanId": "99",
+            "chanCode": "iapp",
+            "chanName": "爱应用",
+            "chanName_m": "爱应用"
+        },
+        "163": {
+            "chanId": "163",
+            "chanCode": "24hour",
+            "chanName": "24hour",
+            "chanName_m": "24hour",
+            "isKB": "0"
+        },
+        "427": {
+            "chanId": "427",
+            "chanCode": "cclad",
+            "chanName": "时尚",
+            "chanName_m": "时尚",
+            "isKB": "0"
+        },
+        "428": {
+            "chanId": "428",
+            "chanCode": "ccmovie",
+            "chanName": "电影",
+            "chanName_m": "电影",
+            "isKB": "0"
+        },
+        "429": {
+            "chanId": "429",
+            "chanCode": "ccmeirong",
+            "chanName": "美容",
+            "chanName_m": "美容",
+            "isKB": "0"
+        },
+        "430": {
+            "chanId": "430",
+            "chanCode": "cczongyi",
+            "chanName": "综艺",
+            "chanName_m": "综艺",
+            "isKB": "0"
+        },
+        "431": {
+            "chanId": "431",
+            "chanCode": "cchanliu",
+            "chanName": "韩流",
+            "chanName_m": "韩流",
+            "isKB": "0"
+        },
+        "432": {
+            "chanId": "432",
+            "chanCode": "ccmsh",
+            "chanName": "政务",
+            "chanName_m": "政务",
+            "isKB": "0"
+        },
+        "433": {
+            "chanId": "433",
+            "chanCode": "ccdoco",
+            "chanName": "纪录片",
+            "chanName_m": "纪录片",
+            "isKB": "0"
+        },
+        "434": {
+            "chanId": "434",
+            "chanCode": "ccfx",
+            "chanName": "佛学",
+            "chanName_m": "佛学",
+            "isKB": "0"
+        },
+        "435": {
+            "chanId": "435",
+            "chanCode": "ccistock",
+            "chanName": "股票",
+            "chanName_m": "股票",
+            "isKB": "0"
+        },
+        "436": {
+            "chanId": "436",
+            "chanCode": "cctv",
+            "chanName": "电视剧",
+            "chanName_m": "电视剧",
+            "isKB": "0"
+        },
+        "437": {
+            "chanId": "437",
+            "chanCode": "ccstrike",
+            "chanName": "搏击",
+            "chanName_m": "搏击",
+            "isKB": "0"
+        },
+        "438": {
+            "chanId": "438",
+            "chanCode": "ccsheying",
+            "chanName": "摄影",
+            "chanName_m": "摄影",
+            "isKB": "0"
+        },
+        "439": {
+            "chanId": "439",
+            "chanCode": "ccfood",
+            "chanName": "美食",
+            "chanName_m": "美食",
+            "isKB": "0"
+        },
+        "440": {
+            "chanId": "440",
+            "chanCode": "ccbaby",
+            "chanName": "育儿",
+            "chanName_m": "育儿",
+            "isKB": "0"
+        },
+        "441": {
+            "chanId": "441",
+            "chanCode": "ccpet",
+            "chanName": "宠物",
+            "chanName_m": "宠物",
+            "isKB": "0"
+        },
+        "442": {
+            "chanId": "442",
+            "chanCode": "cchistory",
+            "chanName": "历史",
+            "chanName_m": "历史",
+            "isKB": "0"
+        },
+        "443": {
+            "chanId": "443",
+            "chanCode": "ccmedia",
+            "chanName": "传媒",
+            "chanName_m": "传媒",
+            "isKB": "0"
+        },
+        "444": {
+            "chanId": "444",
+            "chanCode": "cckepu",
+            "chanName": "科普",
+            "chanName_m": "科普",
+            "isKB": "0"
+        },
+        "445": {
+            "chanId": "445",
+            "chanCode": "ccfootball",
+            "chanName": "足球",
+            "chanName_m": "足球",
+            "isKB": "0"
+        },
+        "446": {
+            "chanId": "446",
+            "chanCode": "ccschoolyard",
+            "chanName": "校园",
+            "chanName_m": "校园",
+            "isKB": "0"
+        },
+        "447": {
+            "chanId": "447",
+            "chanCode": "ccdg",
+            "chanName": "东莞",
+            "chanName_m": "东莞",
+            "isKB": "0"
+        },
+        "448": {
+            "chanId": "448",
+            "chanCode": "ccfoshan",
+            "chanName": "佛山",
+            "chanName_m": "佛山",
+            "isKB": "0"
+        },
+        "449": {
+            "chanId": "449",
+            "chanCode": "ccjm",
+            "chanName": "江门",
+            "chanName_m": "江门",
+            "isKB": "0"
+        },
+        "450": {
+            "chanId": "450",
+            "chanCode": "cchuizhou",
+            "chanName": "惠州",
+            "chanName_m": "惠州",
+            "isKB": "0"
+        },
+        "451": {
+            "chanId": "451",
+            "chanCode": "cczhongshan",
+            "chanName": "中山",
+            "chanName_m": "中山",
+            "isKB": "0"
+        },
+        "452": {
+            "chanId": "452",
+            "chanCode": "ccchengdu",
+            "chanName": "成都",
+            "chanName_m": "成都",
+            "isKB": "0"
+        },
+        "453": {
+            "chanId": "453",
+            "chanCode": "ccyulin",
+            "chanName": "榆林",
+            "chanName_m": "榆林",
+            "isKB": "0"
+        },
+        "454": {
+            "chanId": "454",
+            "chanCode": "ccxianyang",
+            "chanName": "咸阳",
+            "chanName_m": "咸阳",
+            "isKB": "0"
+        },
+        "455": {
+            "chanId": "455",
+            "chanCode": "cczjjh",
+            "chanName": "金华",
+            "chanName_m": "金华",
+            "isKB": "0"
+        },
+        "456": {
+            "chanId": "456",
+            "chanCode": "cczjhz",
+            "chanName": "湖州",
+            "chanName_m": "湖州",
+            "isKB": "0"
+        },
+        "457": {
+            "chanId": "457",
+            "chanCode": "cczjsx",
+            "chanName": "绍兴",
+            "chanName_m": "绍兴",
+            "isKB": "0"
+        },
+        "458": {
+            "chanId": "458",
+            "chanCode": "cczjjx",
+            "chanName": "嘉兴",
+            "chanName_m": "嘉兴",
+            "isKB": "0"
+        },
+        "459": {
+            "chanId": "459",
+            "chanCode": "cczjzhs",
+            "chanName": "舟山",
+            "chanName_m": "舟山",
+            "isKB": "0"
+        },
+        "460": {
+            "chanId": "460",
+            "chanCode": "cczjqz",
+            "chanName": "衢州",
+            "chanName_m": "衢州",
+            "isKB": "0"
+        },
+        "461": {
+            "chanId": "461",
+            "chanCode": "cczjtz",
+            "chanName": "台州",
+            "chanName_m": "台州",
+            "isKB": "0"
+        },
+        "462": {
+            "chanId": "462",
+            "chanCode": "cclishui",
+            "chanName": "丽水",
+            "chanName_m": "丽水",
+            "isKB": "0"
+        },
+        "463": {
+            "chanId": "463",
+            "chanCode": "ccwuhan",
+            "chanName": "武汉",
+            "chanName_m": "武汉",
+            "isKB": "0"
+        },
+        "464": {
+            "chanId": "464",
+            "chanCode": "ccyichang",
+            "chanName": "宜昌",
+            "chanName_m": "宜昌",
+            "isKB": "0"
+        },
+        "465": {
+            "chanId": "465",
+            "chanCode": "ccxiangyang",
+            "chanName": "襄阳",
+            "chanName_m": "襄阳",
+            "isKB": "0"
+        },
+        "466": {
+            "chanId": "466",
+            "chanCode": "cczhengzhou",
+            "chanName": "郑州",
+            "chanName_m": "郑州",
+            "isKB": "0"
+        },
+        "467": {
+            "chanId": "467",
+            "chanCode": "ccluoyang",
+            "chanName": "洛阳",
+            "chanName_m": "洛阳",
+            "isKB": "0"
+        },
+        "468": {
+            "chanId": "468",
+            "chanCode": "ccnanyang",
+            "chanName": "南阳",
+            "chanName_m": "南阳",
+            "isKB": "0"
+        },
+        "469": {
+            "chanId": "469",
+            "chanCode": "ccshangqiu",
+            "chanName": "商丘",
+            "chanName_m": "商丘",
+            "isKB": "0"
+        },
+        "470": {
+            "chanId": "470",
+            "chanCode": "ccchenzhou",
+            "chanName": "郴州",
+            "chanName_m": "郴州",
+            "isKB": "0"
+        },
+        "471": {
+            "chanId": "471",
+            "chanCode": "cchengyang",
+            "chanName": "衡阳",
+            "chanName_m": "衡阳",
+            "isKB": "0"
+        },
+        "472": {
+            "chanId": "472",
+            "chanCode": "cchuaihua",
+            "chanName": "怀化",
+            "chanName_m": "怀化",
+            "isKB": "0"
+        },
+        "473": {
+            "chanId": "473",
+            "chanCode": "ccxiangtan",
+            "chanName": "湘潭",
+            "chanName_m": "湘潭",
+            "isKB": "0"
+        },
+        "474": {
+            "chanId": "474",
+            "chanCode": "ccshaoyang",
+            "chanName": "邵阳",
+            "chanName_m": "邵阳",
+            "isKB": "0"
+        },
+        "475": {
+            "chanId": "475",
+            "chanCode": "ccld",
+            "chanName": "娄底",
+            "chanName_m": "娄底",
+            "isKB": "0"
+        },
+        "476": {
+            "chanId": "476",
+            "chanCode": "ccfuzhou",
+            "chanName": "福州",
+            "chanName_m": "福州",
+            "isKB": "0"
+        },
+        "477": {
+            "chanId": "477",
+            "chanCode": "ccchangzhou",
+            "chanName": "常州",
+            "chanName_m": "常州",
+            "isKB": "0"
+        },
+        "478": {
+            "chanId": "478",
+            "chanCode": "ccjswx",
+            "chanName": "无锡",
+            "chanName_m": "无锡",
+            "isKB": "0"
+        },
+        "479": {
+            "chanId": "479",
+            "chanCode": "ccshenyang",
+            "chanName": "沈阳",
+            "chanName_m": "沈阳",
+            "isKB": "0"
+        },
+        "480": {
+            "chanId": "480",
+            "chanCode": "ccanshan",
+            "chanName": "鞍山",
+            "chanName_m": "鞍山",
+            "isKB": "0"
+        },
+        "481": {
+            "chanId": "481",
+            "chanCode": "ccbd",
+            "chanName": "保定",
+            "chanName_m": "保定",
+            "isKB": "0"
+        },
+        "482": {
+            "chanId": "482",
+            "chanCode": "ccts",
+            "chanName": "唐山",
+            "chanName_m": "唐山",
+            "isKB": "0"
+        },
+        "483": {
+            "chanId": "483",
+            "chanCode": "cchd",
+            "chanName": "邯郸 ",
+            "chanName_m": "邯郸 ",
+            "isKB": "0"
+        },
+        "484": {
+            "chanId": "484",
+            "chanCode": "cclf",
+            "chanName": "廊坊",
+            "chanName_m": "廊坊",
+            "isKB": "0"
+        },
+        "485": {
+            "chanId": "485",
+            "chanCode": "cchs",
+            "chanName": "衡水",
+            "chanName_m": "衡水",
+            "isKB": "0"
+        },
+        "486": {
+            "chanId": "486",
+            "chanCode": "ccchengde",
+            "chanName": "承德",
+            "chanName_m": "承德",
+            "isKB": "0"
+        },
+        "487": {
+            "chanId": "487",
+            "chanCode": "ccshanxi",
+            "chanName": "山西",
+            "chanName_m": "山西",
+            "isKB": "0"
+        },
+        "488": {
+            "chanId": "488",
+            "chanCode": "ccjilin",
+            "chanName": "吉林",
+            "chanName_m": "吉林",
+            "isKB": "0"
+        },
+        "489": {
+            "chanId": "489",
+            "chanCode": "ccguizhou",
+            "chanName": "贵州",
+            "chanName_m": "贵州",
+            "isKB": "0"
+        },
+        "490": {
+            "chanId": "490",
+            "chanCode": "ccjiangxi",
+            "chanName": "江西",
+            "chanName_m": "江西",
+            "isKB": "0"
+        },
+        "491": {
+            "chanId": "491",
+            "chanCode": "ccanhui",
+            "chanName": "安徽",
+            "chanName_m": "安徽",
+            "isKB": "0"
+        },
+        "492": {
+            "chanId": "492",
+            "chanCode": "ccguangxi",
+            "chanName": "广西",
+            "chanName_m": "广西",
+            "isKB": "0"
+        },
+        "493": {
+            "chanId": "493",
+            "chanCode": "ccqinghai",
+            "chanName": "青海",
+            "chanName_m": "青海",
+            "isKB": "0"
+        },
+        "494": {
+            "chanId": "494",
+            "chanCode": "ccgansu",
+            "chanName": "甘肃",
+            "chanName_m": "甘肃",
+            "isKB": "0"
+        },
+        "495": {
+            "chanId": "495",
+            "chanCode": "ccneimenggu",
+            "chanName": "内蒙古",
+            "chanName_m": "内蒙古",
+            "isKB": "0"
+        },
+        "496": {
+            "chanId": "496",
+            "chanCode": "ccheilongjiang",
+            "chanName": "黑龙江",
+            "chanName_m": "黑龙江",
+            "isKB": "0"
+        },
+        "497": {
+            "chanId": "497",
+            "chanCode": "ccningxia",
+            "chanName": "宁夏",
+            "chanName_m": "宁夏",
+            "isKB": "0"
+        },
+        "498": {
+            "chanId": "498",
+            "chanCode": "cnwes_hainan",
+            "chanName": "海南",
+            "chanName_m": "海南",
+            "isKB": "0"
+        }
+    }
+}

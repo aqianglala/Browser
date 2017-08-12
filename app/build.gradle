@@ -8,7 +8,7 @@ android {
     compileSdkVersion 25
     buildToolsVersion "25.0.0"
     defaultConfig {
-        applicationId "com.example.zy1584.mybase"
+        applicationId "com.news.browser"
         minSdkVersion 15
         targetSdkVersion 23
         versionCode 1
@@ -37,6 +37,11 @@ android {
         main {
             jniLibs.srcDirs = ['libs']
         }
+    }
+
+//    禁用字符串资源被翻译，解决MissingTranslation错误
+    lintOptions {
+        disable 'MissingTranslation'
     }
 }
 
