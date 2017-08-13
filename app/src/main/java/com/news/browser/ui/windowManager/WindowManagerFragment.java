@@ -73,6 +73,9 @@ public class WindowManagerFragment extends BaseFragment implements WindowSwipeAd
 
     private void initData() {
         ArrayList<BrowserFragment> tabsList = mTabsManager.getmTabList();
+        if (tabsList.size() == 0){
+            tabsList.add(null);
+        }
         for (BrowserFragment tab : tabsList){
             if (tab == null){
                 mData.add(mTabsManager.getmHomeTitleInfo());
@@ -85,6 +88,9 @@ public class WindowManagerFragment extends BaseFragment implements WindowSwipeAd
     @Override
     public void onDismiss(int position) {
         mTabsManager.deleteTab(position);
+        if (mTabsManager.getmTabList().size() == 0){
+            mBrowserAct.getSupportFragmentManager().popBackStack();
+        }
     }
 
     @Override

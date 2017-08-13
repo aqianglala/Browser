@@ -55,8 +55,12 @@ public class TabsManager {
     public synchronized void deleteTab(int position){
         BrowserFragment remove = mTabList.remove(position);
         mActivity.remove(remove);
-        if (mCurrentIndex == position && position > 0){
-            switchToTab(position - 1);
+        if (mCurrentIndex == position){
+            if (position == 0 && mTabList.size() > 0){
+                switchToTab(position);
+            }else if (position > 0){
+                switchToTab(position - 1);
+            }
         }
     }
 
