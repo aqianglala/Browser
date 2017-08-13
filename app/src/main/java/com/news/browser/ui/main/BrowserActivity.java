@@ -58,14 +58,15 @@ import com.news.browser.service.UpdateService.IFileDownloadInfoReturn;
 import com.news.browser.ui.bookmark.BookmarkEditActivity;
 import com.news.browser.ui.bookmark.BookmarkHistoryFragment;
 import com.news.browser.ui.download.DownloadManagerActivity;
+import com.news.browser.ui.hotSite.HotSiteFragment;
 import com.news.browser.ui.main.adapter.MainFragmentAdapter;
 import com.news.browser.ui.main.mvp.BrowserActContract;
 import com.news.browser.ui.main.mvp.BrowserActPresenter;
-import com.news.browser.ui.navigation.HotBookmarkFragment;
+import com.news.browser.ui.navigation.HotTagFragment;
 import com.news.browser.ui.qrcode.SimpleCaptureActivity;
 import com.news.browser.ui.search.SearchFragment;
 import com.news.browser.ui.setting.SettingsActivity;
-import com.news.browser.ui.windowManager.WindowManagerFragment;
+import com.news.browser.ui.windowManager.WindowManagerFragmentNew;
 import com.news.browser.utils.ActivityCollector;
 import com.news.browser.utils.CompressImage;
 import com.news.browser.utils.FileUtils;
@@ -95,7 +96,7 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
 
     private ArrayList<Fragment> fragments = new ArrayList<>();
     private MainFragment mainFragment;
-    private HotBookmarkFragment navigationFragment;
+    private HotTagFragment hotTagFragment;
     private PopupWindow mMenuPopupWindow;
     private PopupWindow mBookmarkPopupWindow;
     private int keyCount;
@@ -152,6 +153,17 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
     @BindView(R.id.ll_update_button)
     LinearLayout ll_update_button;
 
+    @BindView(R.id.tv_complete)
+    TextView tv_complete;
+
+    @OnClick(R.id.tv_complete)
+    void onEditComplete(){
+        if (hotTagFragment != null){
+            showCompleteButton(false);
+            hotTagFragment.onEditComplete();
+        }
+    }
+
     @OnClick(R.id.tv_ignore)
     void ignore(){
         isIgnore = true;
@@ -192,7 +204,7 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
             public void call(Bitmap bitmap) {
                 mTabsManager.setShot(bitmap);
                 // TODO: 2017-7-17 这里可以优化成全局的fragment
-                WindowManagerFragment windowManagerFragment = new WindowManagerFragment();
+                WindowManagerFragmentNew windowManagerFragment = new WindowManagerFragmentNew();
                 addFragment(windowManagerFragment, R.id.fl_container_full, true);
             }
         });
@@ -263,9 +275,9 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
 
     private void initFragments() {
         mainFragment = new MainFragment();
-        navigationFragment = new HotBookmarkFragment();
+        hotTagFragment = new HotTagFragment();
         fragments.add(mainFragment);
-        fragments.add(navigationFragment);
+        fragments.add(hotTagFragment);
     }
 
     @Override
@@ -681,7 +693,7 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
 
         // 去掉状态栏
         Bitmap bmp = Bitmap.createBitmap(view.getDrawingCache(), 0,
-                statusBarHeights, widths, heights / 2 - statusBarHeights);
+                statusBarHeights, widths, heights - statusBarHeights);
 
         // 销毁缓存信息
         view.destroyDrawingCache();
@@ -886,6 +898,14 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
         }
     }
 
+    public void showHotSiteFragment() {
+        HotSiteFragment fragment = new HotSiteFragment();
+//        if (fragment != null) {
+//            addFragment(fragment, R.id.fl_container_full, true);
+//        }
+        add(fragment);
+    }
+
     public void remove(BaseFragment fragment) {
         if (fragment == null) return;
         FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
@@ -1014,5 +1034,9 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
             }
         }
 
+    }
+
+    public void showCompleteButton(boolean isShow){
+        tv_complete.setVisibility(isShow ? View.VISIBLE : View.GONE);
     }
 }

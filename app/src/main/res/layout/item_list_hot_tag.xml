@@ -1,13 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="vertical" android:layout_width="match_parent"
+    android:orientation="vertical"
+    android:layout_width="55dp"
     android:gravity="center"
     android:layout_height="wrap_content">
 
-    <ImageView
-        android:id="@+id/iv_icon"
-        android:layout_width="40dp"
-        android:layout_height="40dp" />
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="55dp">
+
+        <ImageView
+            android:id="@+id/iv_icon"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:layout_centerInParent="true" />
+
+        <ImageView
+            android:id="@+id/iv_delete"
+            android:layout_width="15dp"
+            android:layout_height="15dp"
+            android:visibility="gone"
+            android:layout_alignParentRight="true"
+            android:src="@drawable/ic_hot_site_delete"
+            />
+    </RelativeLayout>
 
     <TextView
         android:id="@+id/tv_name"

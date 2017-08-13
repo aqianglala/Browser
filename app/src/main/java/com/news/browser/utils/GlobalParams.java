@@ -32,6 +32,7 @@ public class GlobalParams {
     public static final String ADVERTISING = "browser/advertising";
     public static final String NAVIGATION = "browser/home/navigation"; // 首页导航
     public static final String HOME_TAG = "browser/home/tag"; // 主页标签
+    public static final String HOT_SITE = "browser/hotsite/list"; // 热门网站
     public static final String UPGRADE_INFO = "browser/upgrade/info"; // loading图
     public static final String SEARCH_ENGINE = "browser/search/engine"; // 搜索引擎
 

@@ -1,5 +1,9 @@
 package com.news.browser.bean;
 
+import android.content.ContentValues;
+
+import com.news.browser.db.HotTagDatabase;
+
 import java.util.List;
 
 /**
@@ -50,10 +54,19 @@ public class HotTagBean {
          * iconUrl : http://119.29.185.237:9629/tmp.jpg
          */
 
+        private int id;
         private int isErase;
         private String name;
         private String addrUrl;
         private String iconUrl;
+
+        public int getId() {
+            return id;
+        }
+
+        public void setId(int id) {
+            this.id = id;
+        }
 
         public int getIsErase() {
             return isErase;
@@ -85,6 +98,15 @@ public class HotTagBean {
 
         public void setIconUrl(String iconUrl) {
             this.iconUrl = iconUrl;
+        }
+
+        public ContentValues toContentValues() {
+            ContentValues cv = new ContentValues();
+            cv.put(HotTagDatabase.KEY_IS_ERASE, isErase);
+            cv.put(HotTagDatabase.KEY_NAME, name);
+            cv.put(HotTagDatabase.KEY_ADDRESS_URL, addrUrl);
+            cv.put(HotTagDatabase.KEY_ICON_URL, iconUrl);
+            return cv;
         }
     }
 }

@@ -25,4 +25,6 @@
     <color name="text_white">#ffffff</color>
 
     <color name="remove_history_bg_blue">#4EC1EA</color>
+
+    <color name="bg_gray">#F0F0F0</color>
 </resources>

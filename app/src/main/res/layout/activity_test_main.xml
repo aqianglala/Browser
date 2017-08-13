@@ -25,10 +25,26 @@
 
         <include layout="@layout/include_update_prompt"/>
 
-        <include layout="@layout/include_bottom_toolbar"
+        <FrameLayout
             android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:layout_gravity="bottom"/>
+            android:layout_height="wrap_content">
+
+            <include layout="@layout/include_bottom_toolbar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_gravity="bottom"/>
+
+            <TextView
+                android:id="@+id/tv_complete"
+                android:layout_width="match_parent"
+                android:layout_height="50dp"
+                android:textColor="@color/color_blue"
+                android:textSize="14sp"
+                android:gravity="center"
+                android:visibility="gone"
+                android:background="@android:color/white"
+                android:text="@string/complete"/>
+        </FrameLayout>
 
     </LinearLayout>
 </FrameLayout>

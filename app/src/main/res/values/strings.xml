@@ -108,5 +108,10 @@
 
     <string name="clear_search_history">清空搜索历史</string>
     <string name="remove_record">清除该条记录</string>
+    <string name="remove_all_tab">关闭全部</string>
+    <string name="new_create">新建</string>
+    <string name="window_complete">完成</string>
+    <string name="complete">完成</string>
+    <string name="hot_site">热门网站</string>
 
 </resources>

@@ -64,6 +64,15 @@ public class TabsManager {
         }
     }
 
+    public synchronized void clearAllTab(){
+        for (BrowserFragment f: mTabList){
+            mActivity.remove(f);
+        }
+        mTabList.clear();
+        mCurrentIndex = 0;
+        mCurrentTab = null;
+    }
+
     public synchronized void switchToTab(int position){
         BrowserFragment fragment = mTabList.get(position);
         if (mCurrentIndex == position) return;

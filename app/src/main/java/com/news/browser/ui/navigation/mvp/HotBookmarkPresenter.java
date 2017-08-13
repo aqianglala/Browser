@@ -3,7 +3,7 @@ package com.news.browser.ui.navigation.mvp;
 import com.news.browser.bean.HotTagBean;
 import com.news.browser.http.NetProtocol;
 import com.news.browser.http.transformer.ScheduleTransformer;
-import com.news.browser.ui.navigation.HotBookmarkFragment;
+import com.news.browser.ui.navigation.HotTagFragment;
 import com.news.browser.base.BasePresenter;
 
 import java.util.HashMap;
@@ -15,7 +15,7 @@ import rx.Subscription;
  * Created by zy1584 on 2017-7-26.
  */
 
-public class HotBookmarkPresenter extends BasePresenter<HotBookmarkFragment> implements HotBookmarkContract.Presenter {
+public class HotBookmarkPresenter extends BasePresenter<HotTagFragment> implements HotBookmarkContract.Presenter {
 
     private HotBookmarkBiz mBiz;
     public HotBookmarkPresenter() {

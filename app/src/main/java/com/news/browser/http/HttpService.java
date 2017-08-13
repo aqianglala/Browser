@@ -2,6 +2,7 @@ package com.news.browser.http;
 
 
 import com.news.browser.bean.ClickLinkResponseBean;
+import com.news.browser.bean.HotSiteBean;
 import com.news.browser.bean.HotTagBean;
 import com.news.browser.bean.RecommendBean;
 import com.news.browser.bean.UpgradeBean;
@@ -71,5 +72,8 @@ public interface HttpService {
 
     @GET
     Observable<EngineBean> getSearchEngine(@Url String url, @QueryMap Map<String, String> params);
+
+    @GET
+    Observable<HotSiteBean> getHotSite(@Url String url, @QueryMap Map<String, String> params);
 
 }

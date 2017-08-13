@@ -3,7 +3,6 @@
  */
 package com.news.browser.db;
 
-import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
@@ -11,27 +10,27 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 
 import com.news.browser.base.BaseApplication;
-import com.news.browser.bean.EngineBean.EngineItem;
+import com.news.browser.bean.HotTagBean.DataBean;
 
 import java.util.ArrayList;
 import java.util.List;
 
 
-public class EngineDatabase extends SQLiteOpenHelper {
+public class HotTagDatabase extends SQLiteOpenHelper {
 
     // All Static variables
     // Database Version
     private static final int DATABASE_VERSION = 1;
 
     // Database Name
-    private static final String DATABASE_NAME = "engineManager";
+    private static final String DATABASE_NAME = "hotTagManager";
 
-    // EngineItems table name
-    private static final String TABLE_ENGINE = "engine";
+    // HotTagItems table name
+    private static final String TABLE_HOT_TAG = "hotTag";
 
-    // EngineItems Table Columns names
+    // HotTagItems Table Columns names
     public static final String KEY_ID = "id";
-    public static final String KEY_IS_DEFAULT = "isDefault";
+    public static final String KEY_IS_ERASE = "isErase";
     public static final String KEY_NAME = "name";
     public static final String KEY_ADDRESS_URL = "addrUrl";
     public static final String KEY_ICON_URL = "iconUrl";
@@ -39,14 +38,14 @@ public class EngineDatabase extends SQLiteOpenHelper {
     @Nullable
     private SQLiteDatabase mDatabase;
 
-    private static final EngineDatabase instance = new EngineDatabase();
+    private static final HotTagDatabase instance = new HotTagDatabase();
 
-    private EngineDatabase() {
+    private HotTagDatabase() {
         super(BaseApplication.getContext().getApplicationContext(), DATABASE_NAME, null, DATABASE_VERSION);
         initialize();
     }
 
-    public static EngineDatabase getInstance() {
+    public static HotTagDatabase getInstance() {
         return instance;
     }
 
@@ -54,8 +53,8 @@ public class EngineDatabase extends SQLiteOpenHelper {
         BaseApplication.getTaskThread().execute(new Runnable() {
             @Override
             public void run() {
-                synchronized (EngineDatabase.this) {
-                    mDatabase = EngineDatabase.this.getWritableDatabase();
+                synchronized (HotTagDatabase.this) {
+                    mDatabase = HotTagDatabase.this.getWritableDatabase();
                 }
             }
         });
@@ -64,27 +63,27 @@ public class EngineDatabase extends SQLiteOpenHelper {
     // Creating Tables
     @Override
     public void onCreate(@NonNull SQLiteDatabase db) {
-        String CREATE_ENGINE_TABLE = "CREATE TABLE " + TABLE_ENGINE + '('
+        String CREATE_HOT_SITE_TABLE = "CREATE TABLE " + TABLE_HOT_TAG + '('
                 + KEY_ID + " INTEGER PRIMARY KEY,"
-                + KEY_IS_DEFAULT + " INTEGER,"
+                + KEY_IS_ERASE + " INTEGER,"
                 + KEY_NAME + " TEXT,"
                 + KEY_ADDRESS_URL + " TEXT,"
                 + KEY_ICON_URL + " TEXT" + ')';
-        db.execSQL(CREATE_ENGINE_TABLE);
+        db.execSQL(CREATE_HOT_SITE_TABLE);
     }
 
     // Upgrading database
     @Override
     public void onUpgrade(@NonNull SQLiteDatabase db, int oldVersion, int newVersion) {
         // Drop older table if it exists
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_ENGINE);
+        db.execSQL("DROP TABLE IF EXISTS " + TABLE_HOT_TAG);
         // Create tables again
         onCreate(db);
     }
 
-    public synchronized void deleteEngine() {
+    public synchronized void deleteHotTag() {
         mDatabase = openIfNecessary();
-        mDatabase.delete(TABLE_ENGINE, null, null);
+        mDatabase.delete(TABLE_HOT_TAG, null, null);
         mDatabase.close();
         mDatabase = this.getWritableDatabase();
     }
@@ -106,35 +105,42 @@ public class EngineDatabase extends SQLiteOpenHelper {
         return mDatabase;
     }
 
-    public synchronized void setDefaultEngine(@NonNull String addressUrl) {
+    public synchronized void addHotTagItem(@NonNull DataBean item) {
         mDatabase = openIfNecessary();
-        ContentValues values = new ContentValues();
-        values.put(KEY_IS_DEFAULT, 0);
-        mDatabase.update(TABLE_ENGINE, values, KEY_ADDRESS_URL + " != ?", new String[]{addressUrl});
-
-        values.clear();
-        values.put(KEY_IS_DEFAULT, 1);
-        mDatabase.update(TABLE_ENGINE, values, KEY_ADDRESS_URL + " = ?", new String[]{addressUrl});
+        mDatabase.insert(TABLE_HOT_TAG, null, item.toContentValues());
     }
 
-    public synchronized void addEngineItem(@NonNull EngineItem item) {
+    public synchronized void deleteSiteItem(int id) {
         mDatabase = openIfNecessary();
-        mDatabase.insert(TABLE_ENGINE, null, item.toContentValues());
+        mDatabase.delete(TABLE_HOT_TAG, KEY_ID + " = ?", new String[]{Integer.toString(id)});
+    }
+
+    public synchronized boolean isContain(String name, String url) {
+        mDatabase = openIfNecessary();
+        Cursor cursor = mDatabase.query(TABLE_HOT_TAG, null,
+                KEY_ADDRESS_URL + " = ? and " + KEY_NAME + " = ?", new String[]{url, name}, null, null, null, null);
+        boolean isContain = false;
+        if (cursor != null && cursor.getCount() > 0) {
+            isContain = true;
+            cursor.close();
+        }
+        return isContain;
     }
 
     @NonNull
-    public synchronized List<EngineItem> getAllEngineItems() {
+    public synchronized List<DataBean> getAllHotTag() {
         mDatabase = openIfNecessary();
-        List<EngineItem> itemList = new ArrayList<>();
-        String selectQuery = "SELECT  * FROM " + TABLE_ENGINE + " ORDER BY " + KEY_ID
+        List<DataBean> itemList = new ArrayList<>();
+        String selectQuery = "SELECT  * FROM " + TABLE_HOT_TAG + " ORDER BY " + KEY_ID
                 + " ASC";
 
         Cursor cursor = mDatabase.rawQuery(selectQuery, null);
 
         if (cursor.moveToFirst()) {
             do {
-                EngineItem item = new EngineItem();
-                item.setIsDefault(cursor.getInt(1));
+                DataBean item = new DataBean();
+                item.setId(cursor.getInt(0));
+                item.setIsErase(cursor.getInt(1));
                 item.setName(cursor.getString(2));
                 item.setAddrUrl(cursor.getString(3));
                 item.setIconUrl(cursor.getString(4));
@@ -145,21 +151,7 @@ public class EngineDatabase extends SQLiteOpenHelper {
         return itemList;
     }
 
-    @NonNull
-    public synchronized EngineItem getDefaultEngine() {
-        mDatabase = openIfNecessary();
-        Cursor cursor = mDatabase.query(TABLE_ENGINE, null,
-                KEY_IS_DEFAULT + " = ?", new String[]{Integer.toString(1)}, null, null, null, null);
-        EngineItem item = null;
-        if (cursor.moveToFirst()) {
-            item = new EngineItem();
-            item.setIsDefault(cursor.getInt(1));
-            item.setName(cursor.getString(2));
-            item.setAddrUrl(cursor.getString(3));
-            item.setIconUrl(cursor.getString(4));
-        }
-        cursor.close();
-        return item;
-    }
+
+
 
 }

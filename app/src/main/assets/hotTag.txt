@@ -1,0 +1,54 @@
+{
+    "ret": 0,
+    "msg": "",
+    "data": [
+        {
+            "isErase": 0,
+            "name": "新浪",
+            "addrUrl": "http://www.sina.com.cn/",
+            "iconUrl": "http://ds-browser.oss-cn-shenzhen.aliyuncs.com/picture/icon_1502363499.png"
+        },
+        {
+            "isErase": 0,
+            "name": "爱淘宝",
+            "addrUrl": "http://www.taobao.com/",
+            "iconUrl": "http://ds-browser.oss-cn-shenzhen.aliyuncs.com/picture/icon_1502367606.png"
+        },
+        {
+            "isErase": 0,
+            "name": "天猫",
+            "addrUrl": "https://www.tmall.com",
+            "iconUrl": "http://ds-browser.oss-cn-shenzhen.aliyuncs.com/picture/icon_1502363790.png"
+        },
+        {
+            "isErase": 0,
+            "name": "携程",
+            "addrUrl": "http://www.ctrip.com/",
+            "iconUrl": "http://ds-browser.oss-cn-shenzhen.aliyuncs.com/picture/icon_1502363864.png"
+        },
+        {
+            "isErase": 1,
+            "name": "百度",
+            "addrUrl": "https://www.baidu.com/",
+            "iconUrl": "http://ds-browser.oss-cn-shenzhen.aliyuncs.com/picture/icon_1502363904.png"
+        },
+        {
+            "isErase": 1,
+            "name": "苏宁",
+            "addrUrl": "https://www.suning.com/",
+            "iconUrl": "http://ds-browser.oss-cn-shenzhen.aliyuncs.com/picture/icon_1502365962.png"
+        },
+        {
+            "isErase": 1,
+            "name": "知乎",
+            "addrUrl": "https://www.zhihu.com",
+            "iconUrl": "http://ds-browser.oss-cn-shenzhen.aliyuncs.com/picture/icon_1502364062.png"
+        },
+        {
+            "isErase": 1,
+            "name": "爱奇艺",
+            "addrUrl": "http://www.iqiyi.com/",
+            "iconUrl": "http://ds-browser.oss-cn-shenzhen.aliyuncs.com/picture/icon_1502367555.png"
+        }
+    ]
+}

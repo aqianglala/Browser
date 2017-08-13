@@ -2,7 +2,8 @@ package com.news.browser.bus;
 
 public class RXEvent {
     public static final String TAG_BROWSER_MSG = "tag_browser_msg";
-    public static final String TAG_SEARCH = "TAG_SEARCH";
+    public static final String TAG_SEARCH = "tag_search";
+    public static final String TAG_NOTIFY_DATA = "tag_notify_data";
 
     private String tag;
     private String msg;

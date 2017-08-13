@@ -79,5 +79,5 @@
         android:text="打开"
         android:gravity="center"
         android:textSize="12sp"
-        android:background="@drawable/install_btn_bg"/>
+        android:background="@drawable/shape_btn_bg_blue"/>
 </LinearLayout>

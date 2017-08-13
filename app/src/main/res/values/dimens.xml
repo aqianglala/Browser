@@ -57,4 +57,7 @@
     <dimen name="search_item_height">50dp</dimen>
     <dimen name="remove_window_width">100dp</dimen>
     <dimen name="remove_window_height">25dp</dimen>
+
+    <dimen name="window_shot_width">144dp</dimen>
+    <dimen name="window_shot_height">233.5dp</dimen>
 </resources>
