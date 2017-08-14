@@ -112,6 +112,8 @@ public class WindowManagerFragmentNew extends BaseFragment implements WindowSwip
 
     @Override
     public void onItemRemove(View view, int position) {
+        mData.remove(position);
+        mAdapter.notifyItemRemoved(position);
         mTabsManager.deleteTab(position);
         if (mTabsManager.getmTabList().size() == 0){
             mBrowserAct.getSupportFragmentManager().popBackStack();

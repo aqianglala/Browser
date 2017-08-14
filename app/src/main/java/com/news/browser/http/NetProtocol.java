@@ -6,11 +6,13 @@ import android.content.pm.PackageManager;
 import android.content.res.Configuration;
 import android.os.Build;
 import android.provider.Settings;
+import android.support.annotation.NonNull;
 import android.telephony.TelephonyManager;
+import android.text.TextUtils;
 
-import com.news.browser.utils.SPUtils;
 import com.news.browser.utils.LocationUtils;
 import com.news.browser.utils.NetUtils;
+import com.news.browser.utils.SPUtils;
 
 import java.net.Inet4Address;
 import java.net.InetAddress;
@@ -298,6 +300,13 @@ public class NetProtocol {
     }
 
     /**
+     * 获取系统android版本号
+     */
+    private String getSystemVersionCode() {
+        return "" + android.os.Build.VERSION.RELEASE;
+    }
+
+    /**
      * 获取系统的versioncode
      */
     private String getAppEnvSdkIntVersion() {
@@ -549,6 +558,57 @@ public class NetProtocol {
         params.put(LONGITUDE, longitude);
         params.put(LATITUDE, latitude);
         return params;
+    }
+
+    private String getModelAbb() {
+        String model = Build.PRODUCT;
+        String result = model.replaceAll("[Dd][Oo][Oo][Vv]", "");
+        result = result.replaceAll(" ", "");
+
+        if(TextUtils.isEmpty(result)) {
+            return model.replace(" ", "");
+        }
+
+        //Log.v("model", "model: " + Build.DEVICE + " display: " + Build.DISPLAY + " FINGERPRINT: " + Build.FINGERPRINT + " product: " + Build.PRODUCT);
+
+        return result;
+    }
+
+    public HashMap<String, String> getFeedbackStrParam(String contact, String content, int type) {
+        HashMap<String, String> paramMap = getBaseFeedbackMap();
+
+        //检查一下参数
+        if(TextUtils.isEmpty(contact)) {
+            contact = "13800000000";
+        }
+
+        if(TextUtils.isEmpty(content)) {
+            content = "no suggets";
+        }
+
+        paramMap.put("ContactMobile", contact);
+        paramMap.put("Content", content);
+        paramMap.put("Type", type + "");
+
+        return paramMap;
+    }
+
+    @NonNull
+    public HashMap<String, String> getBaseFeedbackMap() {
+        HashMap<String, String> paramMap = new HashMap<>();
+
+        paramMap.put("businessType", "2");
+        paramMap.put("Machine", getModelAbb());
+        paramMap.put("IMEI", mQueryIMEI);
+        paramMap.put("OS", getSystemVersionCode());
+        paramMap.put("ClientVersion", mClientVersion);
+
+        paramMap.put("AppName", mAppID);
+        paramMap.put("AppPackage", mPackageName);
+
+        paramMap.put("AppVersion", mClientVersion);
+        paramMap.put("BugMachine", mQueryMobileType);
+        return paramMap;
     }
 
 }

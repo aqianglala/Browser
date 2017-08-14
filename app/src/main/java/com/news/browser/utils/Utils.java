@@ -29,6 +29,8 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.text.DecimalFormat;
 import java.util.Date;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import static com.bumptech.glide.gifdecoder.GifHeaderParser.TAG;
 
@@ -298,6 +300,39 @@ public class Utils {
         }
 
         return false;
+    }
+
+    /**
+     * yhw
+     * 手机号匹配规则
+     *   1:13号段(130 131 .....)
+     *   2:15号段(150 158  151.....)
+     *   3:18号段(180 185 189....)
+     * @param mobiles
+     * @return
+     */
+    public static boolean isTelephoneNum(String mobiles) {
+        Pattern p = Pattern
+                .compile("^(13[0,1,2,3,4,5,6,7,8,9]|15[0,8,9,1,7]|18[0,5,6,7,8,9])\\d{8}$");
+        Matcher m = p.matcher(mobiles);
+        return m.matches();
+    }
+    /**yhw
+     * 邮箱匹配规则
+     *   1:必须包含一个并且只有一个符号@
+     *   2:第一个字符不允许是@或者.
+     *   3:不允许出现@.或者.@
+     *   4:结尾不得是字符@或者.
+     *   5:不允许@前出现字符+
+     *   6:不允许+在最前面或者 +@
+     * @param email
+     * @return
+     */
+    public static boolean isEmail(String email) {
+        String emailStr = "^([a-z0-9A-Z]+[-|\\.]?)+[a-z0-9A-Z]@([a-z0-9A-Z]+(-[a-z0-9A-Z]+)?\\.)+[a-zA-Z]{2,}$";
+        Pattern p = Pattern.compile(emailStr);
+        Matcher m = p.matcher(email);
+        return m.matches();
     }
 
 }

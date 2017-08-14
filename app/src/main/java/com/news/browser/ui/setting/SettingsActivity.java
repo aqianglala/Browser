@@ -9,6 +9,7 @@ import com.news.browser.R;
 import com.news.browser.base.BaseActivity;
 import com.news.browser.base.BasePresenter;
 import com.news.browser.preference.PreferenceManager;
+import com.news.browser.ui.feedback.FeedbackActivity;
 
 import net.rdrei.android.dirchooser.DirectoryChooserActivity;
 import net.rdrei.android.dirchooser.DirectoryChooserConfig;
@@ -63,7 +64,7 @@ public class SettingsActivity extends BaseActivity {
     }
     @OnClick(R.id.rl_feedback)
     void feedback(){
-
+        gotoActivity(FeedbackActivity.class);
     }
     @OnClick(R.id.rl_about)
     void about(){

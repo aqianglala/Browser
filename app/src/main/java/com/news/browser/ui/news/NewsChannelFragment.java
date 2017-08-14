@@ -232,6 +232,7 @@ public class NewsChannelFragment extends BaseFragment<NewsChannelPresenter> impl
 
     @Override
     public void onReceiveADList(ADResponseBean bean) {
+        isLoading = false;
         List<ADResponseBean.DataBean._$8050018672826551Bean.ListBean> list = bean.getData().get_$8050018672826551().getList();
         if (list != null && list.size() > 0){
             // 缓存广告

@@ -114,4 +114,9 @@
     <string name="complete">完成</string>
     <string name="hot_site">热门网站</string>
 
+    <string name="pic_remove">确定删除附图吗？</string>
+    <string name="sure">确定</string>
+    <string name="cancel">取消</string>
+    <string name="same_pic_message">您选择了重复图片。</string>
+
 </resources>

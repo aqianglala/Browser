@@ -76,7 +76,7 @@
     <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
 
     <application
-        android:name="com.news.browser.base.BaseApplication"
+        android:name=".base.BaseApplication"
         android:allowBackup="true"
         android:icon="@drawable/ic_app"
         android:label="@string/app_name"
@@ -87,19 +87,18 @@
             android:name="com.baidu.lbsapi.API_KEY"
             android:value="9mMy3Git90UMHvxNFk4yZ5kpcMv6myp7" />
 
-        <receiver android:name="com.news.browser.receiver.NetChangeReceiver">
+        <receiver android:name=".receiver.NetChangeReceiver">
             <intent-filter>
                 <action android:name="android.net.conn.CONNECTIVITY_CHANGE" />
             </intent-filter>
         </receiver>
-
-        <receiver android:name="com.news.browser.receiver.BootReceiver">
+        <receiver android:name=".receiver.BootReceiver">
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
             </intent-filter>
         </receiver>
 
-        <activity android:name="com.news.browser.ui.loading.LoadingActivity">
+        <activity android:name=".ui.loading.LoadingActivity">
 
             <!-- <intent-filter> -->
             <!-- <action android:name="android.intent.action.MAIN" /> -->
@@ -109,7 +108,7 @@
             <!-- </intent-filter> -->
         </activity>
         <activity
-            android:name="com.news.browser.ui.main.BrowserActivity"
+            android:name=".ui.main.BrowserActivity"
             android:alwaysRetainTaskState="true"
             android:configChanges="orientation|screenSize|keyboardHidden|keyboard"
             android:label="@string/app_name"
@@ -191,15 +190,14 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
-        <activity android:name="com.news.browser.ui.download.DownloadManagerActivity" />
+        <activity android:name=".ui.download.DownloadManagerActivity" />
 
         <service
             android:name="com.baidu.location.f"
             android:enabled="true"
             android:process=":remote" />
-
         <service
-            android:name="com.news.browser.service.UpdateService"
+            android:name=".service.UpdateService"
             android:exported="false">
             <intent-filter>
                 <action android:name="com.doov.appstore.action.UpdateService" />
@@ -207,20 +205,21 @@
         </service>
 
         <activity
-            android:name="com.news.browser.ui.bookmark.BookmarkEditActivity"
+            android:name=".ui.bookmark.BookmarkEditActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.news.browser.ui.bookmark.BookmarkHistoryActivity"
+            android:name=".ui.bookmark.BookmarkHistoryActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name="com.news.browser.ui.qrcode.SimpleCaptureActivity"
+            android:name=".ui.qrcode.SimpleCaptureActivity"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
         <activity
-            android:name="com.news.browser.ui.setting.SettingsActivity"
+            android:name=".ui.setting.SettingsActivity"
             android:screenOrientation="portrait" />
-
         <activity android:name="net.rdrei.android.dirchooser.DirectoryChooserActivity" />
+        <activity android:name=".ui.feedback.FeedbackActivity" />
+        <activity android:name=".ui.about.AboutActivity"></activity>
     </application>
 
 </manifest>

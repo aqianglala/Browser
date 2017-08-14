@@ -11,7 +11,7 @@ import android.view.View;
  */
 
 public class OutsideViewPager extends ViewPager {
-    private boolean isPagingEnabled = false;
+    private boolean isPagingEnabled = true;
 
     public void setPagingEnabled(boolean b) {
         this.isPagingEnabled = b;
@@ -23,6 +23,16 @@ public class OutsideViewPager extends ViewPager {
 
     public OutsideViewPager(Context context, AttributeSet attrs) {
         super(context, attrs);
+    }
+
+    @Override
+    public boolean onTouchEvent(MotionEvent event) {
+        return this.isPagingEnabled && super.onTouchEvent(event);
+    }
+
+    @Override
+    public boolean onInterceptTouchEvent(MotionEvent event) {
+        return this.isPagingEnabled && super.onInterceptTouchEvent(event);
     }
 //    float x = 0;
 //    float y = 0;
@@ -58,39 +68,39 @@ public class OutsideViewPager extends ViewPager {
 //    }
 
 
-    @Override
-    public boolean dispatchTouchEvent(MotionEvent ev) {
-        int childCount = getChildCount();
-        NewsViewPager newsViewPager = null;
-        for (int i = 0; i< childCount; i++){
-            View child = getChildAt(i);
-            if (child instanceof NewsViewPager){
-                newsViewPager = (NewsViewPager) child;
-                break;
-            }
-        }
-        if (newsViewPager != null && newsViewPager.isPagingEnabled()){
-            return true;
-        }
-        return super.dispatchTouchEvent(ev);
-    }
-
-    @Override
-    public boolean onInterceptTouchEvent(MotionEvent ev) {
-        int childCount = getChildCount();
-        NewsViewPager newsViewPager = null;
-        for (int i = 0; i< childCount; i++){
-            View child = getChildAt(i);
-            if (child instanceof NewsViewPager){
-                newsViewPager = (NewsViewPager) child;
-                break;
-            }
-        }
-        if (newsViewPager != null && newsViewPager.isPagingEnabled()){
-            return false;
-        }
-        return super.onInterceptTouchEvent(ev);
-    }
+//    @Override
+//    public boolean dispatchTouchEvent(MotionEvent ev) {
+//        int childCount = getChildCount();
+//        NewsViewPager newsViewPager = null;
+//        for (int i = 0; i< childCount; i++){
+//            View child = getChildAt(i);
+//            if (child instanceof NewsViewPager){
+//                newsViewPager = (NewsViewPager) child;
+//                break;
+//            }
+//        }
+//        if (newsViewPager != null && newsViewPager.isPagingEnabled()){
+//            return true;
+//        }
+//        return super.dispatchTouchEvent(ev);
+//    }
+//
+//    @Override
+//    public boolean onInterceptTouchEvent(MotionEvent ev) {
+//        int childCount = getChildCount();
+//        NewsViewPager newsViewPager = null;
+//        for (int i = 0; i< childCount; i++){
+//            View child = getChildAt(i);
+//            if (child instanceof NewsViewPager){
+//                newsViewPager = (NewsViewPager) child;
+//                break;
+//            }
+//        }
+//        if (newsViewPager != null && newsViewPager.isPagingEnabled()){
+//            return false;
+//        }
+//        return super.onInterceptTouchEvent(ev);
+//    }
 
     @Override
     protected boolean canScroll(View v, boolean checkV, int dx, int x, int y) {

@@ -111,6 +111,11 @@ public class BrowserFragment extends BaseFragment implements BrowserFrgContract.
     @BindView(R.id.iv_right)
     ImageView iv_right;
 
+    @OnClick(R.id.tv_search)
+    void jumpToSearch(){
+        ((BrowserActivity)mActivity).jumpToSearch();
+    }
+
     public static BrowserFragment newInstance(String url, boolean isIncognito) {
         BrowserFragment f = new BrowserFragment();
         final Bundle bundle = new Bundle();

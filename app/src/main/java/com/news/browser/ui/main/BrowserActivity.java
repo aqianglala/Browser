@@ -15,7 +15,6 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
-import android.support.v4.view.ViewPager;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.util.Log;
@@ -69,12 +68,12 @@ import com.news.browser.ui.setting.SettingsActivity;
 import com.news.browser.ui.windowManager.WindowManagerFragmentNew;
 import com.news.browser.utils.ActivityCollector;
 import com.news.browser.utils.CompressImage;
-import com.news.browser.utils.FileUtils;
 import com.news.browser.utils.GlobalParams;
 import com.news.browser.utils.RxBus;
 import com.news.browser.utils.UIUtils;
 import com.news.browser.utils.UrlUtils;
 import com.news.browser.utils.Utils;
+import com.news.browser.widget.OutsideViewPager;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -133,7 +132,7 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
     private EngineItem mDefaultEngine;
 
     @BindView(R.id.viewPager)
-    ViewPager mViewPager;
+    OutsideViewPager mViewPager;
 
     @BindView(R.id.ll_toolbar_container)
     LinearLayout ll_toolbar_container;
@@ -154,13 +153,17 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
     LinearLayout ll_update_button;
 
     @BindView(R.id.tv_complete)
-    TextView tv_complete;
+    TextView tv_complete;;
+
+    @BindView(R.id.tv_tab_num)
+    TextView tv_tab_num;
 
     @OnClick(R.id.tv_complete)
     void onEditComplete(){
         if (hotTagFragment != null){
             showCompleteButton(false);
             hotTagFragment.onEditComplete();
+            setPagingEnabled(true);
         }
     }
 
@@ -212,7 +215,10 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
 
     @OnClick(R.id.ib_home)
     void home() {
-        toast("点击主页");
+        if (!mainFragment.home()){
+            int currentItem = mViewPager.getCurrentItem();
+            mViewPager.setCurrentItem(currentItem == 0 ? 1 : 0);
+        }
     }
 
     @Override
@@ -263,14 +269,6 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
                 });
         // 检查更新
         BaseApplication.startCheckAppStoreUpdate(this, true);
-
-        FileUtils.loadFile(this, FileUtils.HOME_NAVIGATION_FILE_NAME)
-                .subscribe(new Action1<String>() {
-                    @Override
-                    public void call(String s) {
-                        Log.e(TAG, "call: " + s );
-                    }
-                });
     }
 
     private void initFragments() {
@@ -1038,5 +1036,13 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
 
     public void showCompleteButton(boolean isShow){
         tv_complete.setVisibility(isShow ? View.VISIBLE : View.GONE);
+    }
+
+    public void setTabNum(int position){
+        tv_tab_num.setText(String.valueOf(position + 1));
+    }
+
+    public void setPagingEnabled(boolean isPagingEnable){
+        mViewPager.setPagingEnabled(isPagingEnable);
     }
 }

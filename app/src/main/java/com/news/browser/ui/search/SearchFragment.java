@@ -82,6 +82,11 @@ public class SearchFragment extends BaseFragment {
     private int anchorX;
     private int offsetY;
 
+    @OnClick(R.id.iv_right)
+    void deleteInpute(){
+        et_search.setText("");
+    }
+
     @OnClick(R.id.tv_cancel)
     void searchOrCancel(){
         String query = et_search.getText().toString().trim();
@@ -172,6 +177,7 @@ public class SearchFragment extends BaseFragment {
         if (currentTab != null){
             String url = currentTab.getUrl();
             et_search.setText(url);
+            et_search.selectAll();
             showDeleteButton(url);
         }
         et_search.addTextChangedListener(mTextWatcher);

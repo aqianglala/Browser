@@ -359,4 +359,10 @@ public class NewsRecommendFragment extends BaseFragment<NewsRecommendPresenter> 
             }
         }
     }
+
+    public void scrollToTop(){
+        if (mRecyclerView != null){
+            mLayoutManager.scrollToPosition(0);
+        }
+    }
 }

@@ -87,6 +87,7 @@ public class TabsManager {
             mActivity.setBackButtonEnabled(fragment.canGoBack());
             mActivity.setForwardButtonEnabled(fragment.canGoForward());
         }
+        mActivity.setTabNum(position);
         mCurrentTab = mTabList.get(position);
         mCurrentIndex = position;
     }

@@ -1,20 +1,23 @@
 package com.news.browser.http;
 
 
+import com.news.browser.bean.ADResponseBean;
 import com.news.browser.bean.ClickLinkResponseBean;
+import com.news.browser.bean.EngineBean;
+import com.news.browser.bean.FeedbackTypeBean;
+import com.news.browser.bean.HomeNavigationBean;
 import com.news.browser.bean.HotSiteBean;
 import com.news.browser.bean.HotTagBean;
 import com.news.browser.bean.RecommendBean;
 import com.news.browser.bean.UpgradeBean;
 import com.news.browser.ui.news.bean.NewsChannelBean;
-import com.news.browser.bean.ADResponseBean;
-import com.news.browser.bean.EngineBean;
-import com.news.browser.bean.HomeNavigationBean;
 
 import java.util.Map;
 
+import okhttp3.RequestBody;
 import okhttp3.ResponseBody;
 import retrofit2.Call;
+import retrofit2.http.Body;
 import retrofit2.http.FieldMap;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
@@ -75,5 +78,11 @@ public interface HttpService {
 
     @GET
     Observable<HotSiteBean> getHotSite(@Url String url, @QueryMap Map<String, String> params);
+
+    @GET("http://ufb.doov.cn:8888/UserFeedBack/BrowserTypeSelect.do")
+    Observable<FeedbackTypeBean> getFeedbackType(@QueryMap Map<String, String> params);
+
+    @POST("http://ufb.doov.cn:8888/UserFeedBack/BugListSubmit.do")
+    Observable<ResponseBody> sendFeedback(@Body RequestBody Body);
 
 }

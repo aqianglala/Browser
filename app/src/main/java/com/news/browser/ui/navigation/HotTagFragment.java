@@ -142,6 +142,7 @@ public class HotTagFragment extends BaseFragment<HotBookmarkPresenter> implement
         mHotTagAdapter.setEditable(true);
         mHotTagAdapter.notifyDataSetChanged();
         BrowserActivity browserActivity = (BrowserActivity) mActivity;
+        browserActivity.setPagingEnabled(false);
         browserActivity.showCompleteButton(true);
         return false;
     }

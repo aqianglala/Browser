@@ -70,6 +70,7 @@ public class MainFragment extends BaseFragment<MainFrgPresenter> implements UcNe
 
     @BindView(R.id.rv_navigation)
     RecyclerView rv_navigation;
+    private NewsRecommendFragment mRecommendFragment;
 
     @OnClick(R.id.iv_qr_code)
     void openQrcode(){
@@ -95,7 +96,8 @@ public class MainFragment extends BaseFragment<MainFrgPresenter> implements UcNe
         mNewsPager = (NewsViewPager) mContentView.findViewById(R.id.id_uc_news_content);
         mTableLayout = (TabLayout) mContentView.findViewById(R.id.id_uc_news_tab);
 
-        mFragments.add(new NewsRecommendFragment());
+        mRecommendFragment = new NewsRecommendFragment();
+        mFragments.add(mRecommendFragment);
         mTableLayout.addTab(mTableLayout.newTab().setText("推荐"));
         mTableLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
         mTableLayout.addOnTabSelectedListener(new TabSelectedListener());
@@ -178,7 +180,6 @@ public class MainFragment extends BaseFragment<MainFrgPresenter> implements UcNe
             case R.id.iv_search:
             case R.id.tv_hint:
                 ((BrowserActivity)mActivity).jumpToSearch();
-                toast("进入搜索页！");
                 break;
         }
     }
@@ -194,6 +195,10 @@ public class MainFragment extends BaseFragment<MainFrgPresenter> implements UcNe
     @Override
     public void onPagerOpened() {
         mNewsPager.setPagingEnabled(false);
+        mNewsPager.setCurrentItem(0);
+        if (mRecommendFragment != null){
+            mRecommendFragment.scrollToTop();
+        }
     }
 
     public boolean onBackPressed() {
@@ -327,5 +332,13 @@ public class MainFragment extends BaseFragment<MainFrgPresenter> implements UcNe
             ImageView iv_icon = holder.getView(R.id.iv_icon);
             Glide.with(mActivity).load(dataBean.getIconUrl()).into(iv_icon);
         }
+    }
+
+    public boolean home(){
+        if (mPagerBehavior.isClosed()){
+            mPagerBehavior.openPager();
+            return true;
+        }
+        return false;
     }
 }

@@ -17,4 +17,22 @@
         <item>3</item>  <!--<item>科技</item>-->
         <item>18</item> <!--<item>NBA</item>-->
     </string-array>
+
+    <string-array name="languages">
+        <item>c语言</item>
+        <item>java </item>
+        <item>php</item>
+        <item>xml</item>
+        <item>html</item>
+        <item>c语言</item>
+        <item>java </item>
+        <item>php</item>
+        <item>xml</item>
+        <item>html</item>
+        <item>c语言</item>
+        <item>java </item>
+        <item>php</item>
+        <item>xml</item>
+        <item>html</item>
+    </string-array>
 </resources>
