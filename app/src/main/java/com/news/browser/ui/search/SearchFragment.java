@@ -29,6 +29,7 @@ import com.news.browser.base.BaseFragment;
 import com.news.browser.base.BasePresenter;
 import com.news.browser.bean.EngineBean.EngineItem;
 import com.news.browser.bean.SearchHistoryItem;
+import com.news.browser.data.AccessRecordTool;
 import com.news.browser.db.SearchHistoryDatabase;
 import com.news.browser.manager.TabsManager;
 import com.news.browser.ui.main.BrowserActivity;
@@ -83,28 +84,28 @@ public class SearchFragment extends BaseFragment {
     private int offsetY;
 
     @OnClick(R.id.iv_right)
-    void deleteInpute(){
+    void deleteInpute() {
         et_search.setText("");
     }
 
     @OnClick(R.id.tv_cancel)
-    void searchOrCancel(){
+    void searchOrCancel() {
         String query = et_search.getText().toString().trim();
-        if (!TextUtils.isEmpty(query)){
+        if (!TextUtils.isEmpty(query)) {
             searchTheWeb(query);
-        }else{
+        } else {
             hideSoftInputFromWindow();
             mBrowserAct.getSupportFragmentManager().popBackStack();
         }
     }
 
     @OnClick(R.id.iv_left)
-    void showEngines(){
+    void showEngines() {
         mEngineItems = mBrowserAct.getEngineItems();
-        if (mEngineItems != null && mEngineItems.size() > 0){
+        if (mEngineItems != null && mEngineItems.size() > 0) {
             rv_engines.setVisibility(rv_engines.getVisibility() == View.VISIBLE ? View.GONE : View.VISIBLE);
             rv_history.setVisibility(rv_history.getVisibility() == View.VISIBLE ? View.GONE : View.VISIBLE);
-            if (mEnginesAdapter == null){
+            if (mEnginesAdapter == null) {
                 mEnginesAdapter = new EnginesAdapter(mActivity, R.layout.item_list_engine, mEngineItems);
                 rv_engines.setLayoutManager(new LinearLayoutManager(mActivity));
                 rv_engines.setHasFixedSize(true);
@@ -120,6 +121,9 @@ public class SearchFragment extends BaseFragment {
                 .subscribe(new Action1<String>() {
                     @Override
                     public void call(String s) {
+                        // 统计搜索：搜索关键字 + 搜索引擎
+                        AccessRecordTool.getInstance().recordSearch(s, mDefaultEngine);
+
                         hideSoftInputFromWindow();
                         mBrowserAct.getSupportFragmentManager().popBackStack();
                         mBrowserAct.searchTheWeb(query);
@@ -132,9 +136,9 @@ public class SearchFragment extends BaseFragment {
             @Override
             public void call(Subscriber<? super String> subscriber) {
                 String s = UrlUtils.smartUrlFilter(query, false, null);
-                if (!TextUtils.isEmpty(s)){// 是有效的url
+                if (!TextUtils.isEmpty(s)) {// 是有效的url
                     mSearchHistoryDatabase.visitSearchHistoryItem(s, query);
-                }else{// 无效的url
+                } else {// 无效的url
                     mSearchHistoryDatabase.visitSearchHistoryItem("", query);
                 }
                 subscriber.onNext(query);
@@ -166,15 +170,15 @@ public class SearchFragment extends BaseFragment {
     }
 
     private void updateDefaultEngineIcon() {
-        if (mDefaultEngine != null){
+        if (mDefaultEngine != null) {
             Glide.with(mActivity).load(mDefaultEngine.getIconUrl()).into(iv_left);
         }
     }
 
     @Override
     protected void doBusiness(Bundle savedInstanceState) {
-        BrowserFragment currentTab = mTabsManager.getCurrentTab();
-        if (currentTab != null){
+        BrowserFragment currentTab = mTabsManager.getCurrentFragment();
+        if (currentTab != null) {
             String url = currentTab.getUrl();
             et_search.setText(url);
             et_search.selectAll();
@@ -191,11 +195,12 @@ public class SearchFragment extends BaseFragment {
                 .subscribe(new Action1<List<SearchHistoryItem>>() {
                     @Override
                     public void call(List<SearchHistoryItem> searchHistoryItems) {
-                        if (searchHistoryItems != null){
+                        if (searchHistoryItems != null && searchHistoryItems.size() > 0) {
                             mSearchHistoryItems.clear();
                             mSearchHistoryItems.addAll(searchHistoryItems);
+                            mSearchHistoryItems.add(null);
 
-                            if (mSearchHistoryAdapter == null){
+                            if (mSearchHistoryAdapter == null) {
                                 mSearchHistoryAdapter = new SearchHistoryAdapter(mActivity, mSearchHistoryItems);
                                 rv_history.setLayoutManager(new LinearLayoutManager(mActivity));
                                 rv_history.setHasFixedSize(true);
@@ -210,10 +215,10 @@ public class SearchFragment extends BaseFragment {
     }
 
     private void showDeleteButton(CharSequence s) {
-        if (s == null || s.length() == 0){
+        if (s == null || s.length() == 0) {
             iv_right.setVisibility(View.GONE);
             tv_cancel.setText("取消");
-        }else{
+        } else {
             iv_right.setVisibility(View.VISIBLE);
             iv_right.setImageResource(R.drawable.ic_action_delete);
             tv_cancel.setText("搜索");
@@ -247,7 +252,7 @@ public class SearchFragment extends BaseFragment {
             switch (keyCode) {
                 case KeyEvent.KEYCODE_ENTER:
                     searchTheWeb(et_search.getText().toString());
-                    final BrowserFragment currentView = mTabsManager.getCurrentTab();
+                    final BrowserFragment currentView = mTabsManager.getCurrentFragment();
                     if (currentView != null) {
                         currentView.requestFocus();
                     }
@@ -266,7 +271,7 @@ public class SearchFragment extends BaseFragment {
                     || actionId == EditorInfo.IME_ACTION_SEARCH
                     || (arg2.getAction() == KeyEvent.KEYCODE_ENTER)) {
                 searchTheWeb(et_search.getText().toString());
-                final BrowserFragment currentView = mTabsManager.getCurrentTab();
+                final BrowserFragment currentView = mTabsManager.getCurrentFragment();
                 if (currentView != null) {
                     currentView.requestFocus();
                 }
@@ -277,7 +282,7 @@ public class SearchFragment extends BaseFragment {
 
         @Override
         public void onFocusChange(final View v, final boolean hasFocus) {
-            final BrowserFragment currentView = mTabsManager.getCurrentTab();
+            final BrowserFragment currentView = mTabsManager.getCurrentFragment();
             if (hasFocus && currentView != null) {
                 et_search.selectAll();
             }
@@ -314,9 +319,9 @@ public class SearchFragment extends BaseFragment {
             ImageView iv_choose = holder.getView(R.id.iv_choose);
             Glide.with(context).load(item.getIconUrl()).into(iv_icon);
             holder.setText(R.id.tv_name, item.getName());
-            if (item.getIsDefault() == 1){
+            if (item.getIsDefault() == 1) {
                 iv_choose.setVisibility(View.VISIBLE);
-            }else{
+            } else {
                 iv_choose.setVisibility(View.GONE);
             }
             holder.getConvertView().setOnClickListener(new View.OnClickListener() {
@@ -342,13 +347,13 @@ public class SearchFragment extends BaseFragment {
         return Observable.create(new Observable.OnSubscribe<EngineItem>() {
             @Override
             public void call(Subscriber<? super EngineItem> subscriber) {
-                for (int i = 0; i< mEngineItems.size(); i++){
+                for (int i = 0; i < mEngineItems.size(); i++) {
                     EngineItem engineItem = mEngineItems.get(i);
-                    if (i == layoutPosition){
+                    if (i == layoutPosition) {
                         engineItem.setIsDefault(1);
                         mDefaultEngine = engineItem;
                         mBrowserAct.setDefaultEngine(engineItem);
-                    }else{
+                    } else {
                         engineItem.setIsDefault(0);
                     }
                 }
@@ -371,25 +376,35 @@ public class SearchFragment extends BaseFragment {
         }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
     }
 
-    class OnSearchItemClickListener implements MultiItemTypeAdapter.OnItemClickListener{
+    class OnSearchItemClickListener implements MultiItemTypeAdapter.OnItemClickListener {
 
         @Override
         public void onItemClick(View view, RecyclerView.ViewHolder holder, int position) {
             SearchHistoryItem searchHistoryItem = mSearchHistoryItems.get(position);
-            searchTheWeb(searchHistoryItem.getTitle());
+            if (searchHistoryItem != null) {
+                searchTheWeb(searchHistoryItem.getTitle());
+            } else if (position == (mSearchHistoryItems.size() - 1)) {// 清空历史记录
+                mSearchHistoryItems.clear();
+                mSearchHistoryDatabase.deleteSearchHistory();
+                mSearchHistoryAdapter.notifyDataSetChanged();
+            }
         }
 
         @Override
         public boolean onItemLongClick(View view, RecyclerView.ViewHolder holder, int position) {
-            int height = view.getHeight();
-            mCurrentLongClickPosition = position;
-            showRemoveWindow(view, height);
+            SearchHistoryItem searchHistoryItem = mSearchHistoryItems.get(position);
+            if (searchHistoryItem != null) {
+                int height = view.getHeight();
+                mCurrentLongClickPosition = position;
+                showRemoveWindow(view, height);
+            }
             return false;
         }
     }
 
     private int mCurrentLongClickPosition;
     private PopupWindow mRemovePopupWindow;
+
     private void showRemoveWindow(View anchorView, int height) {
         if (mRemovePopupWindow == null) {
             int screenWidth = ScreenUtils.getScreenWidth(mActivity);
@@ -424,7 +439,7 @@ public class SearchFragment extends BaseFragment {
 
         } else {
             if (!mRemovePopupWindow.isShowing()) {
-                mRemovePopupWindow.showAsDropDown(anchorView,  anchorX, -offsetY);
+                mRemovePopupWindow.showAsDropDown(anchorView, anchorX, -offsetY);
             }
         }
     }

@@ -10,6 +10,7 @@ import com.news.browser.R;
 import com.news.browser.base.BaseFragment;
 import com.news.browser.bean.HotTagBean;
 import com.news.browser.bus.RXEvent;
+import com.news.browser.data.AccessRecordTool;
 import com.news.browser.db.HotTagDatabase;
 import com.news.browser.ui.main.BrowserActivity;
 import com.news.browser.ui.navigation.Adapter.HotTagAdapter;
@@ -26,6 +27,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
+import butterknife.OnClick;
 import rx.Subscription;
 import rx.functions.Action1;
 
@@ -43,6 +45,14 @@ public class HotTagFragment extends BaseFragment<HotBookmarkPresenter> implement
     private HotTagAdapter mHotTagAdapter;
     private HotTagDatabase mHotTagDatabase;
     private Subscription rxSubscription;
+
+    @OnClick(R.id.iv_qr_code)
+    void openQrcode(){
+        if (!mHotTagAdapter.isEditable()){
+            BrowserActivity browserActivity = (BrowserActivity) mActivity;
+            browserActivity.openQrcode();
+        }
+    }
 
     @Override
     protected int getLayoutId() {
@@ -62,8 +72,14 @@ public class HotTagFragment extends BaseFragment<HotBookmarkPresenter> implement
 
         rv_tag.setLayoutManager(new GridLayoutManager(mActivity, 4));
         rv_tag.setHasFixedSize(true);
-        rv_tag.addItemDecoration(new SpacesItemDecoration(DensityUtils.dpToPx(18)));
+        rv_tag.addItemDecoration(new SpacesItemDecoration(DensityUtils.dpToPx(15)));
         rv_tag.setAdapter(mHotTagAdapter);
+    }
+
+    @Override
+    protected void setListener() {
+        super.setListener();
+        mContentView.findViewById(R.id.tv_hint).setOnClickListener(this);
     }
 
     @Override
@@ -134,6 +150,8 @@ public class HotTagFragment extends BaseFragment<HotBookmarkPresenter> implement
             browserAct.showHotSiteFragment();
         }else{
             browserAct.searchTheWeb(mData.get(position).getAddrUrl());
+            // 自营数据统计：热门标签
+            AccessRecordTool.getInstance().clickHotTag();
         }
     }
 
@@ -164,6 +182,18 @@ public class HotTagFragment extends BaseFragment<HotBookmarkPresenter> implement
         super.onDestroy();
         if (!rxSubscription.isUnsubscribed()) {
             rxSubscription.unsubscribe();
+        }
+    }
+
+    @Override
+    public void onClick(View v) {
+        super.onClick(v);
+        switch (v.getId()){
+            case R.id.tv_hint:
+                if (!mHotTagAdapter.isEditable()){
+                    ((BrowserActivity)mActivity).jumpToSearch();
+                }
+                break;
         }
     }
 }

@@ -43,6 +43,19 @@ android {
     lintOptions {
         disable 'MissingTranslation'
     }
+
+    // 多渠道打包
+    productFlavors {
+        xiaomi {}
+        _360 {}
+        baidu {}
+        wandoujia {}
+        doov {}
+    }
+
+    productFlavors.all {
+        flavor -> flavor.manifestPlaceholders = [UMENG_CHANNEL_VALUE: name]
+    }
 }
 
 dependencies {
@@ -51,13 +64,9 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     //    使用26.0.0的v7和design包时，首页的滑动动画没有26以下的包流畅
-
     //    第三方
-
     //    debugCompile 'com.squareup.leakcanary:leakcanary-android:1.5'
-
     //    releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5'
-
     //    testCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5'
     compile files('libs/BaiduLBS_Android.jar')
     compile project(':qrcodelib')

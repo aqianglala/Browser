@@ -45,7 +45,7 @@ public class BrowserActPresenter extends BasePresenter<BrowserActivity> implemen
 
     @Override
     public void loadUrlInCurrentView(@NonNull String url) {
-        final BrowserFragment currentTab = mTabsModel.getCurrentTab();
+        final BrowserFragment currentTab = mTabsModel.getCurrentFragment();
         if (currentTab == null) {
             getIView().loadUrlInNewFragment(url);
             return;

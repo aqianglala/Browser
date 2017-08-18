@@ -20,7 +20,7 @@ public class ItemEmptyDelegate implements ItemViewDelegate<BaseNewsItem> {
 
     @Override
     public boolean isForViewType(BaseNewsItem item, int position) {
-        if (item instanceof EmptyNewsBean){
+        if (item instanceof EmptyNewsBean) {
             return true;
         }
         return false;

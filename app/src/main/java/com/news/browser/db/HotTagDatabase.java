@@ -127,6 +127,40 @@ public class HotTagDatabase extends SQLiteOpenHelper {
         return isContain;
     }
 
+    public synchronized DataBean findHotTag(String name, String url) {
+        mDatabase = openIfNecessary();
+        Cursor cursor = mDatabase.query(TABLE_HOT_TAG, null,
+                KEY_ADDRESS_URL + " = ? and " + KEY_NAME + " = ?", new String[]{url, name}, null, null, null, null);
+        DataBean item = null;
+        if (cursor != null && cursor.getCount() > 0) {
+            cursor.moveToFirst();
+            item = new DataBean();
+            item.setId(cursor.getInt(0));
+            item.setIsErase(cursor.getInt(1));
+            item.setName(cursor.getString(2));
+            item.setAddrUrl(cursor.getString(3));
+            item.setIconUrl(cursor.getString(4));
+            cursor.close();
+        }
+        return item;
+    }
+
+    public synchronized DataBean editHotTag(DataBean oldTag, DataBean newTag) {
+        mDatabase = openIfNecessary();
+        Cursor cursor = mDatabase.query(TABLE_HOT_TAG, null,
+                KEY_ADDRESS_URL + " = ? and " + KEY_NAME + " = ?", new String[]{oldTag.getAddrUrl(),
+                        oldTag.getName()}, null, null, null, null);
+        DataBean item = null;
+        if (cursor.getCount() > 0) {
+            mDatabase.update(TABLE_HOT_TAG, newTag.toContentValues(), KEY_ADDRESS_URL + " = ? and " + KEY_NAME + " = ?",
+                    new String[]{oldTag.getAddrUrl(), oldTag.getName()});
+        } else {
+            addHotTagItem(oldTag);
+        }
+        cursor.close();
+        return item;
+    }
+
     @NonNull
     public synchronized List<DataBean> getAllHotTag() {
         mDatabase = openIfNecessary();
@@ -150,8 +184,5 @@ public class HotTagDatabase extends SQLiteOpenHelper {
         cursor.close();
         return itemList;
     }
-
-
-
 
 }

@@ -8,6 +8,7 @@ import com.baidu.location.BDLocationListener;
 import com.baidu.location.LocationClient;
 import com.baidu.location.LocationClientOption;
 import com.baidu.location.Poi;
+import com.news.browser.base.BaseApplication;
 
 import java.util.List;
 
@@ -26,8 +27,8 @@ public class LocationUtils {
     private LocationClient mLocationClient = null;
     private BDLocationListener myListener = new MyLocationListener();
 
-    public LocationUtils(Context context) {
-        mContext = context;
+    public LocationUtils() {
+        mContext = BaseApplication.getContext();
     }
 
     public void getLocation(){

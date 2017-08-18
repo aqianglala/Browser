@@ -1,33 +1,36 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:orientation="horizontal" android:layout_width="match_parent"
-    android:layout_height="40dp"
-    android:background="@drawable/shape_searchbar_bg"
+    android:layout_width="match_parent"
+    android:layout_height="35dp"
+    android:layout_marginLeft="12.5dp"
+    android:layout_marginRight="12.5dp"
+    android:background="@drawable/shape_search_bar_bg"
     android:gravity="center_vertical"
-    android:layout_marginLeft="16dp"
-    android:layout_marginRight="16dp"
-    android:paddingLeft="13dp"
-    android:paddingRight="13dp">
+    android:orientation="horizontal"
+    android:paddingLeft="12.5dp"
+    android:paddingRight="12.5dp">
 
     <ImageView
-        android:layout_width="25dp"
-        android:layout_height="25dp"
-        android:src="@drawable/ic_search_black"/>
+        android:layout_width="15dp"
+        android:layout_height="15dp"
+        android:src="@drawable/ic_search_gray" />
 
     <TextView
         android:id="@+id/tv_hint"
         android:layout_width="0dp"
         android:layout_height="match_parent"
+        android:layout_marginLeft="7.5dp"
         android:layout_weight="1"
         android:clickable="true"
         android:gravity="center_vertical"
-        android:layout_marginLeft="13dp"
-        android:text="搜索或输入网址" />
+        android:text="搜索或输入网址"
+        android:textColor="@color/text_gray"
+        android:textSize="12sp" />
 
     <ImageView
         android:id="@+id/iv_qr_code"
-        android:layout_width="25dp"
-        android:layout_height="25dp"
-        android:src="@drawable/ic_qr_code"/>
+        android:layout_width="15dp"
+        android:layout_height="15dp"
+        android:src="@drawable/ic_qr_code" />
 
 </LinearLayout>

@@ -28,6 +28,7 @@ import com.liulishuo.filedownloader.BaseDownloadTask;
 import com.liulishuo.filedownloader.FileDownloadListener;
 import com.liulishuo.filedownloader.FileDownloadMonitor;
 import com.liulishuo.filedownloader.model.FileDownloadStatus;
+import com.news.browser.utils.ForegroundCallbacks;
 
 import rx.schedulers.Schedulers;
 
@@ -118,7 +119,7 @@ public class GlobalMonitor implements FileDownloadMonitor.IMonitor {
             reportConversion(task, ACTION_ID_DOWNLOAD_COMPLETE);
             TasksManager.getImpl().updateModelSize(task.getId(), task.getSmallFileTotalBytes());
             boolean isApk = TasksManager.getImpl().isApk(task);
-            if (isApk){
+            if (isApk && ForegroundCallbacks.get().isForeground() && task.getId() != UpdateService.taskId){
                 TasksManager.getImpl().normalInstall(task.getPath(), BaseApplication.getContext());
             }
         }

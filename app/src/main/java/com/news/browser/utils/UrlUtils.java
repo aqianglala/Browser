@@ -17,10 +17,9 @@ package com.news.browser.utils;
 
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.text.TextUtils;
 import android.util.Patterns;
 import android.webkit.URLUtil;
-
-import com.news.browser.preference.PreferenceManager;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -105,14 +104,14 @@ public class UrlUtils {
             }
         }
         if (canBeSearch) {
-
-            String s = PreferenceManager.getInstance().getSearchUrl();
-            if (searchUrl.equals(s + UrlUtils.QUERY_PLACE_HOLDER)){
-                return URLUtil.composeSearchUrl(inUrl,
-                    searchUrl, QUERY_PLACE_HOLDER);
-            }else{
-                return URLUtil.composeSearchUrl(inUrl,
-                        searchUrl, KEY_WORD_HOLDER);
+            if (!TextUtils.isEmpty(searchUrl)){
+                if (searchUrl.equals(Constants.BAIDU_SEARCH + UrlUtils.QUERY_PLACE_HOLDER)){
+                    return URLUtil.composeSearchUrl(inUrl,
+                            searchUrl, QUERY_PLACE_HOLDER);
+                }else{
+                    return URLUtil.composeSearchUrl(inUrl,
+                            searchUrl, KEY_WORD_HOLDER);
+                }
             }
         }
         return "";

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:orientation="vertical"
-    android:layout_width="55dp"
+    android:layout_width="60dp"
     android:gravity="center"
     android:layout_height="wrap_content">
 
@@ -13,6 +13,7 @@
             android:id="@+id/iv_icon"
             android:layout_width="40dp"
             android:layout_height="40dp"
+            android:scaleType="centerCrop"
             android:layout_centerInParent="true" />
 
         <ImageView
@@ -30,8 +31,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textSize="12sp"
-        android:textColor="#8b8b8c"
-        android:layout_marginTop="7.5dp"
+        android:textColor="@color/text_black"
+        android:maxLines="1"
         android:ellipsize="end"
         />
 </LinearLayout>

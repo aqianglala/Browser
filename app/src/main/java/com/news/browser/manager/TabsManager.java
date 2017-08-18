@@ -18,7 +18,7 @@ public class TabsManager {
     private ArrayList<BrowserFragment> mTabList = new ArrayList<>();
     private TabNumberChangedListener mTabNumberListener;
     private BrowserActivity mActivity;
-    private BrowserFragment mCurrentTab;
+    private BrowserFragment mCurrentFragment;
     private int mCurrentIndex;
     private LightningViewTitle mHomeTitleInfo;
 
@@ -70,7 +70,7 @@ public class TabsManager {
         }
         mTabList.clear();
         mCurrentIndex = 0;
-        mCurrentTab = null;
+        mCurrentFragment = null;
     }
 
     public synchronized void switchToTab(int position){
@@ -87,35 +87,49 @@ public class TabsManager {
             mActivity.setBackButtonEnabled(fragment.canGoBack());
             mActivity.setForwardButtonEnabled(fragment.canGoForward());
         }
-        mActivity.setTabNum(position);
-        mCurrentTab = mTabList.get(position);
+        mCurrentFragment = mTabList.get(position);
         mCurrentIndex = position;
+        if (mTabNumberListener != null){
+            mTabNumberListener.tabNumberChanged(position + 1);
+        }
     }
 
+    /**
+     * 当前窗口中浏览
+     * @param fragment
+     */
     public synchronized void updateCurrentTab(BrowserFragment fragment){
         if (fragment == null) return;
         mTabList.set(mCurrentIndex, fragment);
-        mCurrentTab = fragment;
+        mCurrentFragment = fragment;
     }
 
-    public synchronized void updateTabList(BrowserFragment fragment){
+    /**
+     * 回到主页，将当前tab置为null
+     * @param fragment
+     */
+    public synchronized void backToHome(BrowserFragment fragment){
         if (fragment == null) return;
         int index = mTabList.indexOf(fragment);
         if (index != -1){
             mTabList.set(index, null);
             if (index == mCurrentIndex){
-                mCurrentTab = null;
+                mCurrentFragment = null;
             }
         }
     }
 
     @Nullable
-    public synchronized BrowserFragment getCurrentTab() {
-        return mCurrentTab;
+    public synchronized BrowserFragment getCurrentFragment() {
+        return mCurrentFragment;
+    }
+
+    public synchronized int getCurrentIndex() {
+        return mCurrentIndex;
     }
 
     public synchronized int indexOfCurrentTab() {
-        return mTabList.indexOf(mCurrentTab);
+        return mTabList.indexOf(mCurrentFragment);
     }
 
     public void setTabNumberChangedListener(@Nullable TabNumberChangedListener listener) {
@@ -130,7 +144,7 @@ public class TabsManager {
         return mTabList.size();
     }
 
-    public ArrayList<BrowserFragment> getmTabList() {
+    public ArrayList<BrowserFragment> getTabList() {
         return mTabList;
     }
 
@@ -157,14 +171,14 @@ public class TabsManager {
     }
 
     public void setShot(Bitmap bitmap){
-        if (mCurrentTab == null){
+        if (mCurrentFragment == null){
             mHomeTitleInfo.setmShot(bitmap);
         }else{
-            mCurrentTab.getTitleInfo().setmShot(bitmap);
+            mCurrentFragment.getTitleInfo().setmShot(bitmap);
         }
     }
 
-    public LightningViewTitle getmHomeTitleInfo() {
+    public LightningViewTitle getHomeTitleInfo() {
         return mHomeTitleInfo;
     }
 }

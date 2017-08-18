@@ -18,6 +18,7 @@ import com.news.browser.base.BaseFragment;
 import com.news.browser.bean.ADResponseBean;
 import com.news.browser.bean.BaseNewsItem;
 import com.news.browser.bean.ClickLinkResponseBean;
+import com.news.browser.data.AccessRecordTool;
 import com.news.browser.preference.PreferenceManager;
 import com.news.browser.ui.download.DownloadHandler;
 import com.news.browser.ui.main.BrowserActivity;
@@ -86,6 +87,9 @@ public class NewsChannelFragment extends BaseFragment<NewsChannelPresenter> impl
                 if (!bean.isHasExpose() && bean.isTiming()){
                     bean.setTiming(false);
                     removeCallbacksAndMessages(bean);
+                    // 自营统计数据：广告
+                    AccessRecordTool.getInstance().reportExpose();
+
                     mPresenter.reportADExpose(bean);
                 }
             }

@@ -83,9 +83,17 @@
         android:supportsRtl="true"
         android:theme="@style/AppTheme"
         tools:replace="android:theme">
+
+        <meta-data
+            android:name="UMENG_CHANNEL"
+            android:value="${UMENG_CHANNEL_VALUE}" />
+
         <meta-data
             android:name="com.baidu.lbsapi.API_KEY"
             android:value="9mMy3Git90UMHvxNFk4yZ5kpcMv6myp7" />
+        <meta-data
+            android:name="com.news.browser.config.GlideConfiguration"
+            android:value="GlideModule" />
 
         <receiver android:name=".receiver.NetChangeReceiver">
             <intent-filter>
@@ -98,14 +106,13 @@
             </intent-filter>
         </receiver>
 
-        <activity android:name=".ui.loading.LoadingActivity">
+        <activity android:name=".ui.loading.LoadingActivity"
+            android:theme="@style/AppTheme.Launcher">
 
-            <!-- <intent-filter> -->
-            <!-- <action android:name="android.intent.action.MAIN" /> -->
-
-
-            <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
-            <!-- </intent-filter> -->
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN" />
+                <category android:name="android.intent.category.LAUNCHER" />
+            </intent-filter>
         </activity>
         <activity
             android:name=".ui.main.BrowserActivity"
@@ -115,10 +122,10 @@
             android:launchMode="singleTask"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
-                <action android:name="android.intent.action.MAIN" />
+                <!--<action android:name="android.intent.action.MAIN" />-->
 
                 <category android:name="android.intent.category.DEFAULT" />
-                <category android:name="android.intent.category.LAUNCHER" />
+                <!--<category android:name="android.intent.category.LAUNCHER" />-->
                 <category android:name="android.intent.category.BROWSABLE" />
                 <category android:name="android.intent.category.APP_BROWSER" />
             </intent-filter>
@@ -208,9 +215,6 @@
             android:name=".ui.bookmark.BookmarkEditActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".ui.bookmark.BookmarkHistoryActivity"
-            android:screenOrientation="portrait" />
-        <activity
             android:name=".ui.qrcode.SimpleCaptureActivity"
             android:screenOrientation="portrait"
             android:theme="@style/Theme.AppCompat.Light.NoActionBar" />
@@ -219,7 +223,8 @@
             android:screenOrientation="portrait" />
         <activity android:name="net.rdrei.android.dirchooser.DirectoryChooserActivity" />
         <activity android:name=".ui.feedback.FeedbackActivity" />
-        <activity android:name=".ui.about.AboutActivity"></activity>
+        <activity android:name=".ui.about.AboutActivity" />
+        <activity android:name=".ui.setting.SetEngineActivity"></activity>
     </application>
 
 </manifest>

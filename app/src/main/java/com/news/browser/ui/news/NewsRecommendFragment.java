@@ -20,6 +20,7 @@ import com.news.browser.bean.ADResponseBean.DataBean._$8050018672826551Bean.List
 import com.news.browser.bean.BaseNewsItem;
 import com.news.browser.bean.ClickLinkResponseBean;
 import com.news.browser.bean.RecommendBean;
+import com.news.browser.data.AccessRecordTool;
 import com.news.browser.preference.PreferenceManager;
 import com.news.browser.ui.download.DownloadHandler;
 import com.news.browser.ui.main.BrowserActivity;
@@ -77,6 +78,9 @@ public class NewsRecommendFragment extends BaseFragment<NewsRecommendPresenter> 
                 if (!bean.isHasExpose() && bean.isTiming()){
                     bean.setTiming(false);
                     removeCallbacksAndMessages(bean);
+                    // 自营统计上报数据：广告
+                    AccessRecordTool.getInstance().reportExpose();
+
                     mPresenter.reportADExpose(bean);
                 }
             }
@@ -176,7 +180,9 @@ public class NewsRecommendFragment extends BaseFragment<NewsRecommendPresenter> 
                 ListBean listBean = list.get(0);
                 Random random = new Random();
                 int index = mData.size() - 7 + random.nextInt(5);// 随机位置
-                mData.add(index, listBean);
+                if (index >= 0 && index <= mData.size()){
+                    mData.add(index, listBean);
+                }
             }
         }
         if (TextUtils.isEmpty(json_news) && TextUtils.isEmpty(json_ad)){

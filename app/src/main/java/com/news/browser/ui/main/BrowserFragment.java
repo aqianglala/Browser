@@ -166,8 +166,8 @@ public class BrowserFragment extends BaseFragment implements BrowserFrgContract.
         mHistoryDatabase = HistoryDatabase.getInstance();
         mBookmarkManager = BookmarkManager.getInstance();
         mUntitledTitle = getString(R.string.untitled);
-        mDeleteIcon = UIUtils.getDrawable(R.drawable.ic_action_delete);
-        mRefreshIcon = UIUtils.getDrawable(R.drawable.ic_action_refresh);
+        mDeleteIcon = UIUtils.getDrawable(R.drawable.ic_remove_input);
+        mRefreshIcon = UIUtils.getDrawable(R.drawable.ic_reload_gray);
         iv_right.setVisibility(View.VISIBLE);
         iv_right.setImageDrawable(mRefreshIcon);
 
@@ -919,7 +919,7 @@ public class BrowserFragment extends BaseFragment implements BrowserFrgContract.
         }
         BrowserActivity browserAct = (BrowserActivity) mActivity;
         TabsManager tabModel = browserAct.getTabModel();
-        tabModel.updateTabList(this);
+        tabModel.backToHome(this);
     }
 
     @Override

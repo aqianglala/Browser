@@ -39,7 +39,7 @@
     <string name="import_bookmark_error">无法从文件导入书签</string>
     <string name="action_ok">确认</string>
     <string name="max_tabs">达到最大标签数</string>
-    <string name="search_hint">搜索</string>
+    <string name="search_hint">搜索或输入网址</string>
 
     <string name="tasks_manager_demo_status_loading">加载中...</string>
     <string name="tasks_manager_demo_status_pending">队列中</string>
@@ -58,7 +58,9 @@
     <string name="open">打开</string>
 
     <string name="dialog_download">确定下载此文件？</string>
-    <string name="action_download">下载管理</string>
+    <string name="action_download">下载</string>
+    <string name="prompt_download">下载提示</string>
+    <string name="prompt_confirm">确认提示</string>
 
     <string name="download_sdcard_busy_dlg_msg">存储设备正忙，为确保正常下载此文件，请关闭USB大容量存储。</string>
     <string name="download_sdcard_busy_dlg_title">USB 存储不可用</string>
@@ -76,7 +78,8 @@
     <string name="menu_refresh">刷新</string>
     <string name="menu_setting">设置</string>
     <string name="menu_download">下载</string>
-    <string name="menu_exit">退出</string>
+    <string name="exit">退出</string>
+    <string name="enter">进入</string>
     <string name="bookmark_add_to">添加至</string>
     <string name="bookmark">书签</string>
     <string name="bookmark_home">主页书签</string>
@@ -90,6 +93,7 @@
     <!--rx提示-->
 
     <string name="prompt_file_deleted">文件已被删除，是否重新下载？</string>
+    <string name="prompt_deleted">删除该任务及文件？</string>
     <string name="setting">设置</string>
     <string name="follow_system">跟随系统</string>
     <string name="set_search_engine">设置搜索引擎</string>
@@ -118,5 +122,28 @@
     <string name="sure">确定</string>
     <string name="cancel">取消</string>
     <string name="same_pic_message">您选择了重复图片。</string>
+
+    <string name="declaration">
+        (1) 本软件为用户提供包括但不限于以下服务：浏览网页、网址及搜索联想推荐、网址导航、常用站点图标获取、安全服务、书签等。除非另有明确规定，基于目前服务所新增的任何功能均无条件地适用本服务条款。\n\n
+        (2) 本软件完全免费，您可以在遵循本协议的基础上自由的使用和传播它，您一旦使用本软件，则表示您已同意本协议条款。\n\n
+        (3) 在使用本软件提供的服务过程中，可能会产生网络流量费用，该费用由无线运营商收取，与本软件无关，产生费用参照具体运营商收费标准，请用户自主选择是否使用。\n\n
+        (4) 本软件不承诺所提供的服务一定能满足用户的需求，亦不担保网络服务不会中断，对网络服务的及时性、安全性、准确性不做任何担保。\n\n
+        (5) 本软件将严格保护用户隐私，除法律法规规定的情形外，未经许可不会向第三方公开、透露用户个人信息。我们对相关信息采用专业加密存储与传输方式，保障用户个人信息的安全。\n\n
+        深圳市朵盛科技有限公司 2017年8月
+    </string>
+
+    <string name="send_message_title">发送中...</string>
+    <string name="send_message">正在采集模块信息，以便帮助工程师尽快解决该问题</string>
+    <string name="send_failure_title">发送失败</string>
+    <string name="send_failure_message">服务器错误，请稍后重试</string>
+    <string name="send_succeed_title">发送成功</string>
+    <string name="send_succeed_message">感谢您的支持</string>
+    <string name="reset">恢复默认设置</string>
+
+    <string name="show_net_allow_title">欢迎使用浏览器</string>
+    <string name="show_net_allow_message">本软件使用完全免费，在使用过程中需要连接网络，定位位置信息</string>
+    <string name="edit_bookmark_name">名称</string>
+    <string name="edit_bookmark_url">网址</string>
+    <string name="download_right_now">立即下载</string>
 
 </resources>

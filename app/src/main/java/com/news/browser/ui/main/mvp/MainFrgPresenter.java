@@ -1,5 +1,6 @@
 package com.news.browser.ui.main.mvp;
 
+import com.google.gson.Gson;
 import com.news.browser.base.BasePresenter;
 import com.news.browser.bean.HomeNavigationBean;
 import com.news.browser.http.NetProtocol;
@@ -102,6 +103,7 @@ public class MainFrgPresenter extends BasePresenter<MainFragment> implements Mai
                     public void onNext(HomeNavigationBean homeNavigationBean) {
                         if (homeNavigationBean == null) return;
                         if (homeNavigationBean.getRet() == 0){
+                            SPUtils.put(GlobalParams.DATA_NAVIGATION, new Gson().toJson(homeNavigationBean));
                             getIView().onReceiveNavigationList(homeNavigationBean);
                         }else{
                             getIView().onGetHomeNavigationListError(new Exception("ret != 0"));

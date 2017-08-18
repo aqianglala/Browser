@@ -17,6 +17,7 @@ import com.news.browser.BuildConfig;
 import com.news.browser.R;
 import com.news.browser.base.BaseFragment;
 import com.news.browser.bean.HomeNavigationBean;
+import com.news.browser.data.AccessRecordTool;
 import com.news.browser.ui.main.adapter.TestFragmentAdapter;
 import com.news.browser.ui.main.bean.ChannelBean;
 import com.news.browser.ui.main.mvp.MainFrgContract;
@@ -28,8 +29,8 @@ import com.news.browser.utils.FileUtils;
 import com.news.browser.utils.GlobalParams;
 import com.news.browser.utils.LocationUtils;
 import com.news.browser.utils.SPUtils;
-import com.news.browser.widget.GridSpacingItemDecoration;
 import com.news.browser.widget.NewsViewPager;
+import com.news.browser.widget.SpacesItemDecoration;
 import com.news.browser.widget.behavior.uc.UcNewsHeaderPagerBehavior;
 import com.zhy.adapter.recyclerview.CommonAdapter;
 import com.zhy.adapter.recyclerview.MultiItemTypeAdapter;
@@ -48,6 +49,8 @@ import java.util.Map;
 import butterknife.BindView;
 import butterknife.OnClick;
 import rx.functions.Action1;
+
+import static com.news.browser.utils.SPUtils.get;
 
 
 /**
@@ -112,7 +115,7 @@ public class MainFragment extends BaseFragment<MainFrgPresenter> implements UcNe
         GridLayoutManager gridLayoutManager = new GridLayoutManager(mActivity, 6);
         rv_navigation.setLayoutManager(gridLayoutManager);
         rv_navigation.setHasFixedSize(true);
-        rv_navigation.addItemDecoration(new GridSpacingItemDecoration(6, DensityUtils.dpToPx(10), true));
+        rv_navigation.addItemDecoration(new SpacesItemDecoration(DensityUtils.dpToPx(12.5f), DensityUtils.dpToPx(20)));
     }
 
     @Override
@@ -132,6 +135,20 @@ public class MainFragment extends BaseFragment<MainFrgPresenter> implements UcNe
      * 网络--本地
      */
     private void getNavigation() {
+        String json_Navigation = (String) SPUtils.get(GlobalParams.DATA_NAVIGATION, "");
+        if (!TextUtils.isEmpty(json_Navigation)){
+            HomeNavigationBean homeNavigationBean = new Gson().fromJson(json_Navigation, HomeNavigationBean.class);
+            setNavigationData(homeNavigationBean);
+        }else{
+            FileUtils.loadFile(mActivity, FileUtils.HOME_NAVIGATION_FILE_NAME)
+                    .subscribe(new Action1<String>() {
+                        @Override
+                        public void call(String s) {
+                            HomeNavigationBean bean = new Gson().fromJson(s, HomeNavigationBean.class);
+                            setNavigationData(bean);
+                        }
+                    });
+        }
         mPresenter.getHomeNavigationList();
     }
 
@@ -139,8 +156,16 @@ public class MainFragment extends BaseFragment<MainFrgPresenter> implements UcNe
      * 缓存--网络--本地文件
      */
     private void getChannelList() {
-        String jsonStr = (String) SPUtils.get(GlobalParams.DATA_CHANNEL, "");
+        String jsonStr = (String) get(GlobalParams.DATA_CHANNEL, "");
         if (TextUtils.isEmpty(jsonStr)){
+            FileUtils.loadFile(mActivity, FileUtils.CHANNEL_LIST_FILE_NAME)
+                    .subscribe(new Action1<String>() {
+                        @Override
+                        public void call(String s) {
+                            Map<String, ChannelBean> beanMap = parseChannelListJson(s);
+                            setChannelList(beanMap);
+                        }
+                    });
             mPresenter.getChannelList();
         }else{
             Map<String, ChannelBean> beanMap = parseChannelListJson(jsonStr);
@@ -219,8 +244,8 @@ public class MainFragment extends BaseFragment<MainFrgPresenter> implements UcNe
         if (channelMap.size() == 0) return;
         String[] defaultChannels = getResources().getStringArray(R.array.default_channel);
         List<String> channels = new LinkedList(Arrays.asList(defaultChannels));
-        String province = (String) SPUtils.get(LocationUtils.PROVINCE, "");
-        String city = (String) SPUtils.get(LocationUtils.CITY, "");
+        String province = (String) get(LocationUtils.PROVINCE, "");
+        String city = (String) get(LocationUtils.CITY, "");
         if (!TextUtils.isEmpty(province)){
             for (ChannelBean bean : channelMap.values()){
                 if (bean == null) continue;
@@ -247,14 +272,7 @@ public class MainFragment extends BaseFragment<MainFrgPresenter> implements UcNe
      */
     @Override
     public void onGetChannelListError(Throwable e) {
-        FileUtils.loadFile(mActivity, FileUtils.CHANNEL_LIST_FILE_NAME)
-                .subscribe(new Action1<String>() {
-                    @Override
-                    public void call(String s) {
-                        Map<String, ChannelBean> beanMap = parseChannelListJson(s);
-                        setChannelList(beanMap);
-                    }
-                });
+
     }
 
     @Override
@@ -274,6 +292,8 @@ public class MainFragment extends BaseFragment<MainFrgPresenter> implements UcNe
                     HomeNavigationBean.DataBean dataBean = mNavigationList.get(position);
                     BrowserActivity browserAct = (BrowserActivity) mActivity;
                     browserAct.searchTheWeb(dataBean.getAddrUrl());
+                    // 自营数据统计：首页导航
+                    AccessRecordTool.getInstance().clickNavigation();
                 }
 
                 @Override
@@ -292,14 +312,7 @@ public class MainFragment extends BaseFragment<MainFrgPresenter> implements UcNe
      */
     @Override
     public void onGetHomeNavigationListError(Throwable e) {
-        FileUtils.loadFile(mActivity, FileUtils.HOME_NAVIGATION_FILE_NAME)
-                .subscribe(new Action1<String>() {
-                    @Override
-                    public void call(String s) {
-                        HomeNavigationBean bean = new Gson().fromJson(s, HomeNavigationBean.class);
-                        setNavigationData(bean);
-                    }
-                });
+
     }
 
     class TabSelectedListener implements TabLayout.OnTabSelectedListener {

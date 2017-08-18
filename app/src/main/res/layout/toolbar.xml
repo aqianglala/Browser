@@ -32,7 +32,7 @@
             android:layout_height="2dp"
             android:background="@android:color/transparent"
             custom:bidirectionalAnimate="false"
-            custom:progressColor="@color/colorAccent"/>
+            custom:progressColor="@android:color/white"/>
     </LinearLayout>
 
 </LinearLayout>

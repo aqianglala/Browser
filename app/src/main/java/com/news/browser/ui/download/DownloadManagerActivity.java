@@ -1,12 +1,10 @@
 package com.news.browser.ui.download;
 
-import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
-import android.support.v7.app.ActionBar;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
@@ -50,6 +48,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import butterknife.BindView;
+import butterknife.OnClick;
 
 
 public class DownloadManagerActivity extends BaseActivity {
@@ -57,10 +56,18 @@ public class DownloadManagerActivity extends BaseActivity {
     private static Context mContext;
     private TaskItemAdapter adapter;
 
+    @BindView(R.id.tv_title)
+    TextView tv_title;
+
     @BindView(R.id.id_toolbar)
     Toolbar mToolbar;
     @BindView(R.id.ll_empty)
     LinearLayout ll_empty;
+
+    @OnClick(R.id.iv_back)
+    void back(){
+        finish();
+    }
 
     @Override
     protected int getLayoutId() {
@@ -77,14 +84,6 @@ public class DownloadManagerActivity extends BaseActivity {
         super.initView();
         mContext = this;
 
-        setSupportActionBar(mToolbar);
-        ActionBar actionBar = getSupportActionBar();
-        if (actionBar != null) {
-            actionBar.setDisplayHomeAsUpEnabled(true);
-            actionBar.setHomeAsUpIndicator(R.drawable.ic_back_black);
-            actionBar.setDisplayShowTitleEnabled(false);
-        }
-
         final RecyclerViewEmptySupport recyclerView = (RecyclerViewEmptySupport) findViewById(R.id.recycler_view);
 
         recyclerView.setEmptyView(ll_empty);
@@ -98,7 +97,7 @@ public class DownloadManagerActivity extends BaseActivity {
 
     @Override
     protected void doBusiness(Bundle savedInstanceState) {
-
+        tv_title.setText(R.string.download_title);
     }
 
     @Override
@@ -391,12 +390,13 @@ public class DownloadManagerActivity extends BaseActivity {
                 } else if (action.equals(v.getResources().getString(R.string.open))) {
                     // to open
                     final FileItem model = TasksManager.getImpl().get(holder.getLayoutPosition());
-                    BaseDownloadTask task = TasksManager.getImpl().getTaskById(model.getId());
-                    if (task != null && task.getStatus() != FileDownloadStatus.completed) return;
-                    Intent intent = FileOpenUtils.openFile(model.getPath());
-                    if (intent != null) {
-                        BaseApplication.getContext().startActivity(intent);
-                    }
+//                    BaseDownloadTask task = TasksManager.getImpl().getTaskById(model.getId());
+//                    if (task != null && task.getStatus() != FileDownloadStatus.completed) return;
+//                    Intent intent = FileOpenUtils.openFile(model.getPath());
+//                    if (intent != null) {
+//                        BaseApplication.getContext().startActivity(intent);
+//                    }
+                    openTask(v, model, holder);
                 }
             }
         };
@@ -424,6 +424,7 @@ public class DownloadManagerActivity extends BaseActivity {
             TasksManager.getImpl()
                     .updateViewHolder(holder.id, holder);
             holder.btn_action.setEnabled(true);
+            holder.iv_delete.setEnabled(true);
 
             if (TasksManager.getImpl().isReady()) {
                 final int status = TasksManager.getImpl().getStatus(model.getId(), model.getPath());
@@ -459,61 +460,74 @@ public class DownloadManagerActivity extends BaseActivity {
                 holder.tv_status.setVisibility(View.VISIBLE);
                 holder.tv_status.setText(R.string.tasks_manager_demo_status_loading);
                 holder.btn_action.setEnabled(false);
+                holder.iv_delete.setEnabled(false);
             }
             holder.itemView.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    BaseDownloadTask task = TasksManager.getImpl().getTaskById(model.getId());
-                    if (task != null && task.getStatus() != FileDownloadStatus.completed) return;
-                    String path = model.getPath();
-                    if (!TextUtils.isEmpty(path)) {
-                        if (new File(path).exists()) {
-                            Intent intent = FileOpenUtils.openFile(model.getPath());
-                            if (intent != null) {
-                                BaseApplication.getContext().startActivity(intent);
-                            }
-                        } else {
-                            BrowserDialog.show((Activity)mContext, R.string.prompt_file_deleted,
-                                    new BrowserDialog.Item(R.string.action_ok) {
-                                        @Override
-                                        public void onClick() {
-                                            final FileItem model = TasksManager.getImpl().get(holder.getLayoutPosition());
-                                            final BaseDownloadTask task = FileDownloader.getImpl().create(model.getUrl())
-                                                    .setPath(model.getPath())
-                                                    .setCallbackProgressTimes(100)
-                                                    .setAutoRetryTimes(5)
-                                                    .setListener(taskDownloadListener);
-
-                                            TasksManager.getImpl()
-                                                    .addTaskForViewHolder(task);
-
-                                            TasksManager.getImpl()
-                                                    .updateViewHolder(holder.id, holder);
-
-                                            task.start();
-                                        }
-                                    });
-
-                        }
-                    }
+                    openTask(v, model, holder);
 
                 }
             });
             holder.iv_delete.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    int pos = holder.getLayoutPosition();
-                    FileDownloader.getImpl().clear(model.getId(), model.getPath());
+                    BrowserDialog.showConfirm(mContext, R.string.prompt_confirm, R.string.prompt_deleted, null,
+                            new BrowserDialog.Item(R.string.sure) {
+                                @Override
+                                public void onClick() {
+                                    int pos = holder.getLayoutPosition();
+                                    FileDownloader.getImpl().clear(model.getId(), model.getPath());
 
-                    TasksManager.getImpl().removeTaskForViewHolder(model.getId());
-                    TasksManager.getImpl().removeTaskFromDB(model.getId());
-                    TasksManager.getImpl().removeItem(pos);
+                                    TasksManager.getImpl().removeTaskForViewHolder(model.getId());
+                                    TasksManager.getImpl().removeTaskFromDB(model.getId());
+                                    TasksManager.getImpl().removeItem(pos);
 
 //                    notifyItemRemoved(pos);
-                    notifyDataSetChanged();
+                                    notifyDataSetChanged();
+                                }
+                            });
                 }
             });
 
+        }
+
+        private void openTask(View v, FileItem model, final TaskItemViewHolder holder) {
+            BaseDownloadTask task = TasksManager.getImpl().getTaskById(model.getId());
+            if (task != null && task.getStatus() != FileDownloadStatus.completed) return;
+            String path = model.getPath();
+            if (!TextUtils.isEmpty(path)) {
+                if (new File(path).exists()) {
+                    Intent intent = FileOpenUtils.openFile(model.getPath());
+                    if (intent != null) {
+                        BaseApplication.getContext().startActivity(intent);
+                    }
+                } else {
+                    String action = holder.btn_action.getText().toString();
+                    if (action.equals(v.getResources().getString(R.string.open))) {
+                        BrowserDialog.showConfirm(mContext, R.string.prompt_confirm, R.string.prompt_file_deleted, null,
+                                new BrowserDialog.Item(R.string.action_ok) {
+                                    @Override
+                                    public void onClick() {
+                                        final FileItem model = TasksManager.getImpl().get(holder.getLayoutPosition());
+                                        final BaseDownloadTask task = FileDownloader.getImpl().create(model.getUrl())
+                                                .setPath(model.getPath())
+                                                .setCallbackProgressTimes(100)
+                                                .setAutoRetryTimes(5)
+                                                .setListener(taskDownloadListener);
+
+                                        TasksManager.getImpl()
+                                                .addTaskForViewHolder(task);
+
+                                        TasksManager.getImpl()
+                                                .updateViewHolder(holder.id, holder);
+
+                                        task.start();
+                                    }
+                                });
+                    }
+                }
+            }
         }
 
         private void setApkIcon(TaskItemViewHolder holder, String path, int status) {
@@ -805,16 +819,16 @@ public class DownloadManagerActivity extends BaseActivity {
             }
         }
 
-        public void removeTaskListener(int id){
+        public void removeTaskListener(int id) {
             BaseDownloadTask task = getTaskById(id);
-            if (task != null){
+            if (task != null) {
                 task.setListener(null);
             }
         }
 
-        public void addTaskListener(int id, FileDownloadListener listener){
+        public void addTaskListener(int id, FileDownloadListener listener) {
             BaseDownloadTask task = getTaskById(id);
-            if (task != null){
+            if (task != null) {
                 task.setListener(listener);
             }
         }

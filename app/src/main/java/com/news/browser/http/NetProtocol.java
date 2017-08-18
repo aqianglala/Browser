@@ -39,6 +39,7 @@ public class NetProtocol {
     private static String mQueryIMEI = null;
     private static String mAppID = null;
     private static String mAppEnv = null;
+    private static String mVersionSDK = null;
     private static String mClientVersion = null;
     private static String mClientVersionCode = null;
     private static String mAccounts = null;
@@ -47,7 +48,6 @@ public class NetProtocol {
     private static String mPayProvicer = null;
 
     private static String mBuildVersion = null;
-    private static String mVersionCode = null;
     private static String mCpuAbi = null;
     private static String mHardware = null;
 
@@ -71,7 +71,8 @@ public class NetProtocol {
     private static final String QUERYMOBILE = "QueryMobile";
     private static final String APPENV = "AppEnv";
     private static final String APPID = "AppID";
-    private static final String CLIENTVERSION = "ClientVersion";
+    private static final String CLIENTVERSION = "ClientVersion";// 版本名
+    private static final String VERSIONSDK = "VersionSDK";// sdk版本
     private static final String ACCOUNTS = "Accounts";
     private static final String SIGNTYPE = "SignType";
     private static final String SIGN = "Sign";
@@ -79,7 +80,7 @@ public class NetProtocol {
     private static final String MOBILETYPE = "MobileType";
 
     private static final String BUILDVERSION = "BuildVersion";
-    private static final String VERSIONCODE = "VersionCode";
+    private static final String VERSIONCODE = "VersionCode";// app版本号
     private static final String USERID = "UserId";
     private static final String CPUABI = "CpuAbi";
     private static final String HARDWARE = "HardWare";
@@ -153,10 +154,6 @@ public class NetProtocol {
             mAppEnv = getAppENV();
         }
 
-        if (mVersionCode == null) {
-            mVersionCode = getAppEnvSdkIntVersion();
-        }
-
         if (mBuildVersion == null) {
             mBuildVersion = getSystemVersion();
         }
@@ -190,6 +187,9 @@ public class NetProtocol {
         }
         if (mManufacturer == null) {
             mManufacturer = getManufacturer();
+        }
+        if (mVersionSDK == null){
+            mVersionSDK = getAppEnvSdkIntVersion();
         }
     }
 
@@ -238,6 +238,10 @@ public class NetProtocol {
             String imei = tm.getDeviceId();
             if (imei == null) {
                 return "000000000000000";
+            } else if(imei.equals("") || imei.length() < 14) {
+                return "000000000000000";
+            } else if(imei.length() > 15) {
+                imei = imei.substring(imei.length()-15);
             }
             return imei;
         } else {
@@ -412,6 +416,9 @@ public class NetProtocol {
     public String getImsi() {
         TelephonyManager telManager = (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
         String imsi = telManager.getSubscriberId();
+        if (TextUtils.isEmpty(imsi)){
+            return "0";
+        }
         return imsi;
     }
 
@@ -427,23 +434,6 @@ public class NetProtocol {
     public boolean isTablet() {
         return (getResources().getConfiguration().screenLayout & Configuration.SCREENLAYOUT_SIZE_MASK)
                 == Configuration.SCREENLAYOUT_SIZE_XLARGE;
-    }
-
-    public HashMap<String, String> getRecommendNewsQueryMap() {
-        HashMap<String, String> params = new HashMap<>();
-        params.put("devid", mQueryIMEI);
-        // TODO: 2017-7-25
-        params.put("refer", refer);
-        params.put("appkey", appkey);
-        return params;
-    }
-
-    public HashMap<String, String> getChannelListQueryMap() {
-        HashMap<String, String> params = new HashMap<>();
-        // TODO: 2017-7-25
-        params.put("refer", refer);
-        params.put("app_key", appkey);
-        return params;
     }
 
     public HashMap<String, String> getChannelNewsQueryMap(int start, int size, String channelCode) {
@@ -522,12 +512,16 @@ public class NetProtocol {
 
     public HashMap<String, String> getBaseParams1() {
         HashMap<String, String> map = new HashMap<>();
-        map.put(QUERYIP, mQueryIp);
+        map.put(QUERYIP, getIpAddressString());
         map.put(QUERYIMEI, mQueryIMEI);
         map.put(QUERYMOBILE, mQueryMobile);
         map.put(APPID, mAppID);
         map.put(APPENV, mAppEnv);
+
         map.put(CLIENTVERSION, mClientVersion);
+        map.put(VERSIONSDK, mVersionSDK);
+        map.put(VERSIONCODE, mClientVersionCode);
+
         map.put(ACCOUNTS, mAccounts);
         map.put(SIGNTYPE, mSignType);
         map.put(SIGN, mSign);
@@ -542,8 +536,11 @@ public class NetProtocol {
         paramMap.put(QUERYMOBILE, mQueryMobile);
         paramMap.put(APPENV, mAppEnv);
         paramMap.put(BUILDVERSION, mBuildVersion);
-        paramMap.put(CLIENTVERSION, mClientVersionCode);
-        paramMap.put(VERSIONCODE, mVersionCode);
+
+        paramMap.put(CLIENTVERSION, mClientVersion);
+        paramMap.put(VERSIONCODE, mClientVersionCode);
+        paramMap.put(VERSIONSDK, mVersionSDK);
+
         paramMap.put(USERID, mAccounts);
         paramMap.put(MOBILETYPE, mQueryMobileType);
         paramMap.put(CPUABI, mCpuAbi);
@@ -602,12 +599,14 @@ public class NetProtocol {
         paramMap.put("IMEI", mQueryIMEI);
         paramMap.put("OS", getSystemVersionCode());
         paramMap.put("ClientVersion", mClientVersion);
-
         paramMap.put("AppName", mAppID);
         paramMap.put("AppPackage", mPackageName);
 
         paramMap.put("AppVersion", mClientVersion);
         paramMap.put("BugMachine", mQueryMobileType);
+
+        paramMap.put(VERSIONSDK, mVersionSDK);
+        paramMap.put(VERSIONCODE, mClientVersionCode);
         return paramMap;
     }
 

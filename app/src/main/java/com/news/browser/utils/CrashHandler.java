@@ -28,7 +28,7 @@ public class CrashHandler implements Thread.UncaughtExceptionHandler {
     public void uncaughtException(Thread arg0, Throwable arg1) {
         System.out.println("程序挂掉了 ");
         // 在此可以把用户手机的一些信息以及异常信息捕获并上传,由于UMeng在这方面有很程序的api接口来调用，故没有考虑
-
+        FileUtils.writeCrashToStorage(arg1);
         //干掉当前的程序
         android.os.Process.killProcess(android.os.Process.myPid());
     }

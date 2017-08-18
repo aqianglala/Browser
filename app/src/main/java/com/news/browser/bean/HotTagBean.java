@@ -1,6 +1,7 @@
 package com.news.browser.bean;
 
 import android.content.ContentValues;
+import android.graphics.Bitmap;
 
 import com.news.browser.db.HotTagDatabase;
 
@@ -59,6 +60,7 @@ public class HotTagBean {
         private String name;
         private String addrUrl;
         private String iconUrl;
+        private Bitmap bitmap;
 
         public int getId() {
             return id;
@@ -98,6 +100,14 @@ public class HotTagBean {
 
         public void setIconUrl(String iconUrl) {
             this.iconUrl = iconUrl;
+        }
+
+        public Bitmap getBitmap() {
+            return bitmap;
+        }
+
+        public void setBitmap(Bitmap bitmap) {
+            this.bitmap = bitmap;
         }
 
         public ContentValues toContentValues() {

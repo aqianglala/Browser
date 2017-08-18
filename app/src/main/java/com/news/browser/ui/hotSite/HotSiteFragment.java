@@ -6,6 +6,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.View;
+import android.widget.TextView;
 
 import com.news.browser.R;
 import com.news.browser.base.BaseFragment;
@@ -14,6 +15,7 @@ import com.news.browser.bean.HotSiteBean;
 import com.news.browser.bean.HotSiteTitleBean;
 import com.news.browser.bean.HotTagBean;
 import com.news.browser.bus.RXEvent;
+import com.news.browser.data.AccessRecordTool;
 import com.news.browser.db.HotTagDatabase;
 import com.news.browser.ui.hotSite.adapter.HotSiteAdapter;
 import com.news.browser.ui.hotSite.mvp.HotSiteContract;
@@ -34,18 +36,21 @@ import butterknife.OnClick;
  */
 
 public class HotSiteFragment extends BaseFragment<HotSitePresenter> implements HotSiteContract.View,
-        MultiItemTypeAdapter.OnItemClickListener, HotSiteAdapter.OnButtonClickListener{
+        MultiItemTypeAdapter.OnItemClickListener, HotSiteAdapter.OnButtonClickListener {
 
     private List<BaseItem> mData = new ArrayList<>();
     private List<String> mTitleList = new ArrayList<>();
     private HotTagDatabase mHotTagDatabase;
+
+    @BindView(R.id.tv_title)
+    TextView tv_title;
 
     @BindView(R.id.recycler_view)
     RecyclerView recycler_view;
     private HotSiteAdapter mHotSiteAdapter;
 
     @OnClick(R.id.iv_back)
-    void back(){
+    void back() {
         mActivity.getSupportFragmentManager().popBackStack();
     }
 
@@ -66,29 +71,32 @@ public class HotSiteFragment extends BaseFragment<HotSitePresenter> implements H
         mHotSiteAdapter.setOnItemClickListener(this);
         recycler_view.setLayoutManager(new LinearLayoutManager(mActivity));
         recycler_view.setHasFixedSize(true);
-        recycler_view.addItemDecoration(new DividerItemDecoration(mActivity,DividerItemDecoration.VERTICAL));
+        recycler_view.addItemDecoration(new DividerItemDecoration(mActivity, DividerItemDecoration.VERTICAL));
         recycler_view.setAdapter(mHotSiteAdapter);
     }
 
     @Override
     protected void doBusiness(Bundle savedInstanceState) {
+        tv_title.setText(R.string.hot_site);
         mHotTagDatabase = HotTagDatabase.getInstance();
         mPresenter.getHotSite();
+        // 自营数据统计
+        AccessRecordTool.getInstance().accessHotSite();
     }
 
     @Override
     public void receiveHotSite(HotSiteBean bean) {
         List<HotSiteBean.DataBean> data = bean.getData();
-        if (data != null && data.size() > 0){
+        if (data != null && data.size() > 0) {
             mData.clear();
-            for (HotSiteBean.DataBean b : data){
+            for (HotSiteBean.DataBean b : data) {
                 String classifyName = b.getClassifyName();
-                if (!TextUtils.isEmpty(classifyName)){
-                    if (!isContainTitle(classifyName)){
+                if (!TextUtils.isEmpty(classifyName)) {
+                    if (!isContainTitle(classifyName)) {
                         mTitleList.add(classifyName);
                         mData.add(new HotSiteTitleBean(classifyName));
                         mData.add(b);
-                    }else {
+                    } else {
                         mData.add(b);
                     }
                 }
@@ -102,10 +110,10 @@ public class HotSiteFragment extends BaseFragment<HotSitePresenter> implements H
 
     }
 
-    private boolean isContainTitle(String title){
+    private boolean isContainTitle(String title) {
         boolean isContain = false;
-        for (String str : mTitleList){
-            if (title.equals(str)){
+        for (String str : mTitleList) {
+            if (title.equals(str)) {
                 isContain = true;
                 break;
             }
@@ -116,7 +124,7 @@ public class HotSiteFragment extends BaseFragment<HotSitePresenter> implements H
     @Override
     public void onItemClick(View view, RecyclerView.ViewHolder holder, int position) {
         BaseItem baseItem = mData.get(position);
-        if (baseItem instanceof HotSiteBean.DataBean){
+        if (baseItem instanceof HotSiteBean.DataBean) {
             BrowserActivity browserActivity = (BrowserActivity) mActivity;
             browserActivity.searchTheWeb(((HotSiteBean.DataBean) baseItem).getAddrUrl());
         }

@@ -12,7 +12,7 @@
         android:layout_height="50dp"
         android:layout_weight="1"
         android:background="?android:attr/selectableItemBackground"
-        android:src="@drawable/ic_back_gray" />
+        android:src="@drawable/selector_back" />
 
     <ImageButton
         android:id="@+id/ib_forward"
@@ -20,7 +20,7 @@
         android:layout_height="50dp"
         android:layout_weight="1"
         android:background="?android:attr/selectableItemBackground"
-        android:src="@drawable/ic_forward" />
+        android:src="@drawable/selector_forward" />
 
     <ImageButton
         android:id="@+id/ib_menu"
@@ -47,6 +47,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerInParent="true"
+            android:textColor="@color/text_color_enable_true"
             android:text="1"
             android:textSize="12sp" />
 

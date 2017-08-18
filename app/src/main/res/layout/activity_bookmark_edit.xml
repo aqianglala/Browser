@@ -6,112 +6,138 @@
     android:orientation="vertical"
     tools:context="com.news.browser.ui.bookmark.BookmarkEditActivity">
 
-    <include layout="@layout/include_bookmark_edit_toolbar"/>
+    <include layout="@layout/include_bookmark_edit_toolbar" />
 
     <TextView
         android:layout_width="match_parent"
         android:layout_height="50dp"
-        android:layout_marginTop="10dp"
+        android:layout_marginTop="@dimen/margin_top"
         android:background="@android:color/white"
-        android:text="@string/name_url"
-        android:gravity="center_vertical"
-        android:paddingLeft="16dp"
-        android:maxLines="1"
         android:ellipsize="end"
-        />
+        android:gravity="center_vertical"
+        android:maxLines="1"
+        android:paddingLeft="@dimen/margin_horizontal"
+        android:text="@string/name_url"
+        android:textColor="@color/text_gray"
+        android:textSize="12sp" />
 
-    <include layout="@layout/include_line_horizontal"/>
+    <include layout="@layout/include_line_horizontal" />
 
     <EditText
         android:id="@+id/et_name"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:background="@android:color/white"
-        android:text="@string/name_url"
-        android:gravity="center_vertical"
-        android:paddingLeft="16dp"
-        android:inputType="text"
-        android:maxLines="1"
-        android:ellipsize="end"
-        />
+        style="@style/EditTextAppearance_edit_bookmark"
+        android:hint="@string/edit_bookmark_name" />
 
-    <include layout="@layout/include_line_horizontal"/>
+    <include layout="@layout/include_line_horizontal" />
 
     <EditText
         android:id="@+id/et_url"
-        android:layout_width="match_parent"
-        android:layout_height="50dp"
-        android:background="@android:color/white"
-        android:text="@string/name_url"
-        android:gravity="center_vertical"
-        android:paddingLeft="16dp"
-        android:inputType="text"
-        android:maxLines="1"
-        android:ellipsize="end"
-        />
+        style="@style/EditTextAppearance_edit_bookmark"
+        android:hint="@string/edit_bookmark_url" />
 
     <TextView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginLeft="@dimen/margin_horizontal"
+        android:layout_marginTop="20dp"
         android:text="@string/bookmark_add_to"
-        android:layout_marginLeft="16dp"
-        android:layout_marginTop="16dp"
-        />
+        android:textSize="12sp" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:orientation="horizontal"
-        android:layout_marginLeft="16dp"
-        android:layout_marginRight="16dp"
+        android:layout_marginLeft="@dimen/margin_horizontal"
+        android:layout_marginRight="@dimen/margin_horizontal"
         android:layout_marginTop="40dp"
-        >
+        android:orientation="horizontal">
 
         <LinearLayout
             android:id="@+id/ll_bookmark"
             android:layout_width="0dp"
-            android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:clickable="true"
+            android:layout_weight="1"
             android:background="?attr/selectableItemBackground"
+            android:clickable="true"
             android:gravity="center"
             android:orientation="vertical">
 
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_bookmark"/>
+            <RelativeLayout
+                android:layout_width="45dp"
+                android:layout_height="80dp">
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/ic_bookmark" />
+
+                <ImageView
+                    android:id="@+id/iv_added_bookmark"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:src="@drawable/ic_bookmark_added"
+                    android:visibility="gone" />
+
+                <ImageView
+                    android:id="@+id/iv_choose_bookmark"
+                    android:layout_width="15dp"
+                    android:layout_height="15dp"
+                    android:layout_alignParentBottom="true"
+                    android:layout_alignParentRight="true"
+                    android:visibility="gone"
+                    android:src="@drawable/ic_selected_circle" />
+            </RelativeLayout>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/bookmark"
-                android:layout_margin="16dp"
-                />
+                android:layout_margin="@dimen/margin_horizontal"
+                android:text="@string/bookmark" />
         </LinearLayout>
 
 
         <LinearLayout
             android:id="@+id/ll_bookmark_home"
             android:layout_width="0dp"
-            android:layout_weight="1"
             android:layout_height="wrap_content"
-            android:clickable="true"
+            android:layout_weight="1"
             android:background="?attr/selectableItemBackground"
+            android:clickable="true"
             android:gravity="center"
             android:orientation="vertical">
 
-            <ImageView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:src="@drawable/ic_bookmark_home"/>
+            <RelativeLayout
+                android:layout_width="45dp"
+                android:layout_height="80dp">
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:src="@drawable/ic_bookmark_home" />
+
+                <ImageView
+                    android:id="@+id/iv_added_home"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_alignParentRight="true"
+                    android:src="@drawable/ic_bookmark_added"
+                    android:visibility="gone" />
+
+                <ImageView
+                    android:id="@+id/iv_choose_home"
+                    android:layout_width="15dp"
+                    android:layout_height="15dp"
+                    android:layout_alignParentBottom="true"
+                    android:layout_alignParentRight="true"
+                    android:visibility="gone"
+                    android:src="@drawable/ic_selected_circle" />
+            </RelativeLayout>
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="@string/bookmark_home"
-                android:layout_margin="16dp"
-                />
+                android:layout_margin="@dimen/margin_horizontal"
+                android:text="@string/bookmark_home" />
         </LinearLayout>
 
     </LinearLayout>

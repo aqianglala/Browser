@@ -95,12 +95,12 @@ public class FeedbackPresenter extends BasePresenter<FeedbackActivity> implement
 
                     @Override
                     public void onError(Throwable e) {
-
+                        getIView().sendFeedbackError();
                     }
 
                     @Override
                     public void onNext(ResponseBody body) {
-
+                        getIView().sendFeedbackSuccess();
                     }
                 });
     }

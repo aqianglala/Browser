@@ -9,17 +9,16 @@ import android.os.Looper;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
-import com.news.browser.ui.download.GlobalMonitor;
-import com.news.browser.utils.ForegroundCallbacks;
-import com.news.browser.utils.LocationUtils;
-import com.news.browser.receiver.PackageChangeReceiver;
-import com.news.browser.service.UpdateService;
-import com.news.browser.ui.main.db.BookmarkManager;
 import com.liulishuo.filedownloader.FileDownloadMonitor;
 import com.liulishuo.filedownloader.FileDownloader;
 import com.liulishuo.filedownloader.connection.FileDownloadUrlConnection;
 import com.liulishuo.filedownloader.util.FileDownloadLog;
 import com.liulishuo.filedownloader.util.FileDownloadUtils;
+import com.news.browser.receiver.PackageChangeReceiver;
+import com.news.browser.service.UpdateService;
+import com.news.browser.ui.download.GlobalMonitor;
+import com.news.browser.utils.CrashHandler;
+import com.news.browser.utils.ForegroundCallbacks;
 import com.orhanobut.logger.AndroidLogAdapter;
 import com.orhanobut.logger.Logger;
 
@@ -50,26 +49,22 @@ public class BaseApplication extends Application {
         super.onCreate();
         context = this;
 
-        new LocationUtils(context).getLocation();
-
         getMainThreadData();
         ForegroundCallbacks.init(this);
-//        CrashHandler.getInstance().init(getApplicationContext());
+        // 注册log
+        initFileDownloader();
+        //设置包安装，卸载的监听器
+        registerPackageChangeReceiver();
 
+        CrashHandler.getInstance().init(getApplicationContext());
 //        LeakCanary.install(this);
+
         Logger.addLogAdapter(new AndroidLogAdapter() {
             @Override
             public boolean isLoggable(int priority, String tag) {
                 return true;
             }
         });
-        initFileDownloader();
-
-        //设置包安装，卸载的监听器
-        registerPackageChangeReceivier();
-
-        BookmarkManager.getInstance();
-
     }
 
     private void initFileDownloader() {
@@ -117,7 +112,7 @@ public class BaseApplication extends Application {
                 });
     }
 
-    private void registerPackageChangeReceivier() {
+    private void registerPackageChangeReceiver() {
         mPackageReceiver = new PackageChangeReceiver();
         IntentFilter InF = new IntentFilter();
         InF.addAction(Intent.ACTION_PACKAGE_ADDED);
@@ -172,7 +167,7 @@ public class BaseApplication extends Application {
         return (BaseApplication) context.getApplicationContext();
     }
 
-    public static void startCheckAppStoreUpdate(Context context, boolean isForce)
+    public static void startCheckAppUpdate(Context context, boolean isForce)
     {
         Intent intent = new Intent(context, UpdateService.class);
         intent.putExtra(UpdateService.DOWNLOADED_FORCE, isForce);

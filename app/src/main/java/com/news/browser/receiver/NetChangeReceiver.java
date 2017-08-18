@@ -23,7 +23,7 @@ public class NetChangeReceiver extends BroadcastReceiver {
         NetworkInfo wifiNetInfo=connectivityManager.getNetworkInfo(ConnectivityManager.TYPE_WIFI);
         boolean isCon = wifiNetInfo.isConnected();
         if (isCon){// 自升级检测
-            BaseApplication.startCheckAppStoreUpdate(context, false);
+            BaseApplication.startCheckAppUpdate(context, false);
         }
     }
 

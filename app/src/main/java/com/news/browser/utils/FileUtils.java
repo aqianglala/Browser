@@ -2,12 +2,16 @@ package com.news.browser.utils;
 
 import android.content.Context;
 import android.content.res.AssetManager;
+import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.util.Log;
 
 import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.PrintStream;
 
 import rx.Observable;
 import rx.Subscriber;
@@ -50,5 +54,28 @@ public class FileUtils {
                 subscriber.onCompleted();
             }
         }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
+    }
+
+    /**
+     * Writes a stacktrace to the downloads folder with
+     * the following filename: [EXCEPTION]_[TIME OF CRASH IN MILLIS].txt
+     *
+     * @param throwable the Throwable to log to external storage
+     */
+    public static void writeCrashToStorage(@NonNull Throwable throwable) {
+        String fileName = throwable.getClass().getSimpleName() + '_' + System.currentTimeMillis() + ".txt";
+        File outputFile = new File(Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS), fileName);
+
+        FileOutputStream outputStream = null;
+        try {
+            //noinspection IOResourceOpenedButNotSafelyClosed
+            outputStream = new FileOutputStream(outputFile);
+            throwable.printStackTrace(new PrintStream(outputStream));
+            outputStream.flush();
+        } catch (IOException e) {
+            Log.e(Constants.TAG, "Unable to write bundle to storage");
+        } finally {
+            Utils.close(outputStream);
+        }
     }
 }

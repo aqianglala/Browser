@@ -32,8 +32,12 @@ public class WindowManagerFragmentNew extends BaseFragment implements WindowSwip
 
     @OnClick(R.id.ll_new_create)
     void addTab(){
-        mBrowserAct.getSupportFragmentManager().popBackStack();
-        mTabsManager.newTab("", false, true);
+        if (mTabsManager.size() >= 20) {
+            toast("窗口数量已达上限");
+        }else{
+            mBrowserAct.getSupportFragmentManager().popBackStack();
+            mTabsManager.newTab("", false, true);
+        }
     }
 
     @OnClick(R.id.ll_clear)
@@ -83,13 +87,13 @@ public class WindowManagerFragmentNew extends BaseFragment implements WindowSwip
     }
 
     private void initData() {
-        ArrayList<BrowserFragment> tabsList = mTabsManager.getmTabList();
+        ArrayList<BrowserFragment> tabsList = mTabsManager.getTabList();
         if (tabsList.size() == 0){
             tabsList.add(null);
         }
         for (BrowserFragment tab : tabsList){
             if (tab == null){
-                mData.add(mTabsManager.getmHomeTitleInfo());
+                mData.add(mTabsManager.getHomeTitleInfo());
             }else{
                 mData.add(tab.getTitleInfo());
             }
@@ -99,7 +103,7 @@ public class WindowManagerFragmentNew extends BaseFragment implements WindowSwip
     @Override
     public void onDismiss(int position) {
         mTabsManager.deleteTab(position);
-        if (mTabsManager.getmTabList().size() == 0){
+        if (mTabsManager.getTabList().size() == 0){
             mBrowserAct.getSupportFragmentManager().popBackStack();
         }
     }
@@ -115,7 +119,7 @@ public class WindowManagerFragmentNew extends BaseFragment implements WindowSwip
         mData.remove(position);
         mAdapter.notifyItemRemoved(position);
         mTabsManager.deleteTab(position);
-        if (mTabsManager.getmTabList().size() == 0){
+        if (mTabsManager.getTabList().size() == 0){
             mBrowserAct.getSupportFragmentManager().popBackStack();
         }
     }

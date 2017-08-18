@@ -1,6 +1,8 @@
 package com.news.browser.ui.feedback;
 
 import android.app.AlertDialog;
+import android.app.Dialog;
+import android.app.ProgressDialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.res.Resources;
@@ -10,6 +12,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Canvas;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.text.Editable;
 import android.text.TextUtils;
@@ -41,7 +44,9 @@ import butterknife.OnClick;
 public class FeedbackActivity extends BaseActivity<FeedbackPresenter> implements FeedbackContract.View {
     private List<FeedbackTypeBean.TypelistBean> mTypeList = new ArrayList<>();
     private FeedbackTypeAdapter mFeedbackTypeAdapter;
-    private FeedbackTypeBean.TypelistBean mCuurentType;
+    private FeedbackTypeBean.TypelistBean mCurrentType;
+    private ProgressDialog mProgressDialog;
+    private Dialog successBuilder;
 
     @OnClick(R.id.iv_back)
     void back(){
@@ -50,8 +55,8 @@ public class FeedbackActivity extends BaseActivity<FeedbackPresenter> implements
 
     @OnClick(R.id.btn_commit)
     void commit(){
-        if (mCuurentType != null){
-            if ("请在此快速选择您遇到的问题类型".equals(mCuurentType.getTypeName())){
+        if (mCurrentType != null){
+            if ("请在此快速选择您遇到的问题类型".equals(mCurrentType.getTypeName())){
                 toast("反馈类型不能为空！");
                 return;
             }
@@ -76,8 +81,16 @@ public class FeedbackActivity extends BaseActivity<FeedbackPresenter> implements
                 imageLst.add(i, (String)tag);
             }
         }
-        mPresenter.sendFeedback(mCuurentType.getId(), content, contact, imageLst);
+        mProgressDialog = new ProgressDialog(this);
+        mProgressDialog.setTitle(R.string.send_message_title);
+        mProgressDialog.setMessage(getResources().getString(
+                R.string.send_message));
+        mProgressDialog.setCancelable(false);
+        mProgressDialog.show();
+        mPresenter.sendFeedback(mCurrentType.getId(), content, contact, imageLst);
     }
+    @BindView(R.id.tv_title)
+    TextView tv_title;
 
     @BindView(R.id.sp_feedback_type)
     Spinner sp_feedback_type;
@@ -124,7 +137,7 @@ public class FeedbackActivity extends BaseActivity<FeedbackPresenter> implements
                 FeedbackTypeBean.TypelistBean bean = mTypeList.get(position);
                 if (bean != null){
                     toast(bean.getTypeName());
-                    mCuurentType = bean;
+                    mCurrentType = bean;
                 }
                 view.setBackgroundResource(R.drawable.shape_feedback_bg_gray);
             }
@@ -138,6 +151,7 @@ public class FeedbackActivity extends BaseActivity<FeedbackPresenter> implements
 
     @Override
     protected void doBusiness(Bundle savedInstanceState) {
+        tv_title.setText(R.string.feedback);
         mPresenter.getFeedbackType();
     }
 
@@ -152,7 +166,7 @@ public class FeedbackActivity extends BaseActivity<FeedbackPresenter> implements
                 mTypeList.add(typelistBean);
                 mTypeList.addAll(typeList);
                 mFeedbackTypeAdapter.notifyDataSetChanged();
-                mCuurentType = typelistBean;
+                mCurrentType = typelistBean;
             }
         }
     }
@@ -160,6 +174,41 @@ public class FeedbackActivity extends BaseActivity<FeedbackPresenter> implements
     @Override
     public void onGetFeedbackTypeError(Throwable e) {
 
+    }
+
+    @Override
+    public void sendFeedbackSuccess() {
+        try {
+            mProgressDialog.dismiss();
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+            builder.setTitle(R.string.send_succeed_title);
+            builder.setMessage(R.string.send_succeed_message);
+            builder.setCancelable(false);
+            successBuilder = builder.create();
+            successBuilder.show();
+            mHandler.sendEmptyMessageDelayed(COMMIT_SUCCESS, 2000);//2s关闭activity,返回到设置界面
+        } catch (Exception e) {
+        }
+    }
+
+    @Override
+    public void sendFeedbackError() {
+        try {
+            AlertDialog.Builder failBuilder = new AlertDialog.Builder(this);
+            failBuilder.setTitle(R.string.send_failure_title);
+            failBuilder.setMessage(R.string.send_failure_message);
+            failBuilder.setPositiveButton(R.string.sure,
+                    new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            dialog.dismiss();
+                            mProgressDialog.dismiss();
+                        }
+                    });
+            failBuilder.create().show();
+        } catch (Exception e) {
+            // TODO: handle exception
+        }
     }
 
     private TextWatcher mWatcher = new TextWatcher() {
@@ -352,4 +401,23 @@ public class FeedbackActivity extends BaseActivity<FeedbackPresenter> implements
 
         return newb;
     }
+    private static final int COMMIT_SUCCESS = 1;
+    private Handler mHandler = new Handler(){
+        public void handleMessage(android.os.Message msg) {
+            switch (msg.what) {
+                case COMMIT_SUCCESS:
+                    try {
+                        if(successBuilder!=null && successBuilder.isShowing()){
+                            successBuilder.dismiss();
+                            finish();
+                        }
+                    } catch (Exception e) {
+                        // TODO: handle exception
+                    }
+                    break;
+                default:
+                    break;
+            }
+        };
+    };
 }

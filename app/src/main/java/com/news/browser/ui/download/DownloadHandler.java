@@ -8,7 +8,6 @@ import android.app.Activity;
 import android.app.Dialog;
 import android.content.ActivityNotFoundException;
 import android.content.Context;
-import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
@@ -19,7 +18,10 @@ import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AlertDialog;
 import android.util.Log;
+import android.view.LayoutInflater;
+import android.view.View;
 import android.webkit.URLUtil;
+import android.widget.TextView;
 
 import com.anthonycr.grant.PermissionsManager;
 import com.anthonycr.grant.PermissionsResultAction;
@@ -29,8 +31,8 @@ import com.news.browser.bus.RXEvent;
 import com.news.browser.dialog.BrowserDialog;
 import com.news.browser.preference.PreferenceManager;
 import com.news.browser.ui.main.BrowserActivity;
-import com.news.browser.utils.Constants;
 import com.news.browser.utils.RxBus;
+import com.news.browser.utils.Utils;
 
 import java.io.File;
 import java.io.IOException;
@@ -336,34 +338,55 @@ public class DownloadHandler {
                                       final String fileName, final String url, final String userAgent,
                                       final String contentDisposition, final String mimetype,
                                       final String clickid, final String conversion_link) {
+        promptDownload(activity, preference, fileName, url, userAgent,
+                contentDisposition, mimetype, clickid, conversion_link, -1);
+    }
+
+    public static void promptDownload(final Activity activity, final PreferenceManager preference,
+                                      final String fileName, final String url, final String userAgent,
+                                      final String contentDisposition, final String mimetype,
+                                      final String clickid, final String conversion_link, final long contentLength) {
         PermissionsManager.getInstance().requestPermissionsIfNecessaryForResult(activity,
                 new String[]{Manifest.permission.READ_EXTERNAL_STORAGE, Manifest.permission.WRITE_EXTERNAL_STORAGE},
                 new PermissionsResultAction() {
                     @Override
                     public void onGranted() {
-                        DialogInterface.OnClickListener dialogClickListener = new DialogInterface.OnClickListener() {
-                            @Override
-                            public void onClick(DialogInterface dialog, int which) {
-                                switch (which) {
-                                    case DialogInterface.BUTTON_POSITIVE:
-                                        DownloadHandler.onDownloadStart(activity, preference, url, userAgent,
-                                                contentDisposition, mimetype, clickid, conversion_link);
-                                        break;
-                                    case DialogInterface.BUTTON_NEGATIVE:
-                                        break;
-                                }
-                            }
-                        };
+                        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
 
-                        AlertDialog.Builder builder = new AlertDialog.Builder(activity); // dialog
-                        Dialog dialog = builder.setTitle(fileName)
-                                .setMessage(activity.getResources().getString(R.string.dialog_download))
-                                .setPositiveButton(activity.getResources().getString(R.string.action_download),
-                                        dialogClickListener)
-                                .setNegativeButton(activity.getResources().getString(R.string.action_cancel),
-                                        dialogClickListener).show();
-                        BrowserDialog.setDialogSize(activity, dialog);
-                        Log.i(Constants.TAG, "Downloading" + fileName);
+                        View layout = LayoutInflater.from(activity).inflate(R.layout.layout_dialog_download, null);
+
+                        TextView tv_file_name = (TextView) layout.findViewById(R.id.tv_file_name);
+                        TextView tv_file_size = (TextView) layout.findViewById(R.id.tv_file_size);
+
+                        tv_file_name.setText("名称：" + fileName);
+                        if (contentLength != -1){
+                            tv_file_size.setVisibility(View.VISIBLE);
+                            tv_file_size.setText("大小："+Utils.formatFileSize(contentLength)+ "M");
+                        }else{
+                            tv_file_size.setVisibility(View.GONE);
+                        }
+
+                        builder.setView(layout);
+
+                        final Dialog dialog = builder.show();
+
+                        layout.findViewById(R.id.tv_left).setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                dialog.dismiss();
+
+                            }
+                        });
+
+                        layout.findViewById(R.id.tv_right).setOnClickListener(new View.OnClickListener() {
+                            @Override
+                            public void onClick(View v) {
+                                dialog.dismiss();
+                                DownloadHandler.onDownloadStart(activity, preference, url, userAgent,
+                                        contentDisposition, mimetype, clickid, conversion_link);
+                            }
+                        });
+
                     }
 
                     @Override

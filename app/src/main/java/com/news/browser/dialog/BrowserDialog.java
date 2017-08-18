@@ -17,6 +17,7 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.ListView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.news.browser.R;
@@ -137,51 +138,51 @@ public class BrowserDialog {
         });
     }
 
-    public static void show(@NonNull Activity activity, @Nullable String title, @Nullable String message,
-                            @NonNull final Item itemLeft, @Nullable final Item itemRight) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(activity);
+    public static void showConfirm(@NonNull Context context, @StringRes int title, @StringRes int message,
+                                   final Item itemLeft, @Nullable final Item itemRight) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(context);
 
-        View layout = LayoutInflater.from(activity).inflate(R.layout.layout_dialog, null);
+        View layout = LayoutInflater.from(context).inflate(R.layout.layout_dialog, null);
 
         TextView tv_title = (TextView) layout.findViewById(R.id.tv_title);
         TextView tv_message = (TextView) layout.findViewById(R.id.tv_message);
-        View view_line_title = layout.findViewById(R.id.view_line_title);
+        TextView tv_left = (TextView) layout.findViewById(R.id.tv_left);
+        TextView tv_right = (TextView) layout.findViewById(R.id.tv_right);
+        RelativeLayout rl_title = (RelativeLayout) layout.findViewById(R.id.rl_title);
 
-        if (!TextUtils.isEmpty(title)){
-            tv_title.setVisibility(View.VISIBLE);
+        if (title != -1){
+            rl_title.setVisibility(View.VISIBLE);
             tv_title.setText(title);
-            view_line_title.setVisibility(View.VISIBLE);
         }else {
-            tv_title.setVisibility(View.GONE);
-            view_line_title.setVisibility(View.VISIBLE);
+            rl_title.setVisibility(View.GONE);
         }
-
-        if (!TextUtils.isEmpty(message)){
-            tv_message.setVisibility(View.VISIBLE);
-            tv_message.setText(title);
-        }else{
-            tv_message.setVisibility(View.GONE);
-        }
+        tv_message.setText(message);
+        tv_left.setText(itemLeft == null ? R.string.cancel : itemLeft.getTitle());
+        tv_right.setText(itemRight.getTitle());
 
         builder.setView(layout);
-        builder.setNegativeButton(itemLeft.getTitle(), new DialogInterface.OnClickListener() {
+
+        final Dialog dialog = builder.show();
+
+        setDialogSize(context, dialog);
+
+        layout.findViewById(R.id.tv_left).setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialog, int which) {
+            public void onClick(View v) {
                 dialog.dismiss();
-                itemLeft.onClick();
+                if (itemLeft != null){
+                    itemLeft.onClick();
+                }
             }
         });
-        builder.setPositiveButton(itemRight.getTitle(), new DialogInterface.OnClickListener() {
+
+        layout.findViewById(R.id.tv_right).setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(DialogInterface dialog, int which) {
+            public void onClick(View v) {
                 dialog.dismiss();
                 itemRight.onClick();
             }
         });
-
-        final Dialog dialog = builder.show();
-
-        setDialogSize(activity, dialog);
     }
 
     public static void showEditText(@NonNull Activity activity, @StringRes int title,

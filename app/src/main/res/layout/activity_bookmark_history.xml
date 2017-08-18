@@ -4,8 +4,8 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#FAFAFA"
-    tools:context="com.news.browser.ui.bookmark.BookmarkHistoryActivity">
+    android:background="@color/color_page_bg"
+    tools:context=".ui.main.BrowserActivity">
 
     <include layout="@layout/include_bookmark_history_toolbar"/>
 
@@ -13,7 +13,6 @@
         android:id="@+id/viewPager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:background="@android:color/white"
         android:layout_marginTop="10dp"
         />
 </LinearLayout>

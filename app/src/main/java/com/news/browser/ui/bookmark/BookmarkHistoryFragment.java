@@ -41,6 +41,8 @@ public class BookmarkHistoryFragment extends BaseFragment {
     TextView tv_cancel;
     @BindView(R.id.iv_back)
     ImageView iv_back;
+    @BindView(R.id.tv_edit_title)
+    TextView tv_edit_title;
 
     @OnClick(R.id.tv_edit)
     void edit(){
@@ -54,6 +56,10 @@ public class BookmarkHistoryFragment extends BaseFragment {
 
             iv_back.setVisibility(View.GONE);
             tv_cancel.setVisibility(View.VISIBLE);
+
+            mTabLayout.setVisibility(View.GONE);
+            tv_edit_title.setVisibility(View.VISIBLE);
+            tv_edit_title.setText(currentItem == 0 ? "选择书签" : "选择历史记录");
 
             currentFragment.setEditable(true);
             currentFragment.unSelectAll();
@@ -76,6 +82,9 @@ public class BookmarkHistoryFragment extends BaseFragment {
         tv_edit.setText("编辑");
         iv_back.setVisibility(View.VISIBLE);
         tv_cancel.setVisibility(View.GONE);
+
+        mTabLayout.setVisibility(View.VISIBLE);
+        tv_edit_title.setVisibility(View.GONE);
 
         setTabLayoutCanClick(true);
         mViewPager.setPagingEnabled(true);

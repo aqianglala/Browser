@@ -11,12 +11,56 @@
         <item name="windowNoTitle">true</item>
 
         <item name="android:listDivider">@drawable/divider_bg</item>
-
+        <item name="android:windowBackground">@color/color_page_bg</item>
     </style>
 
     <style name="PopupAnimation" parent="android:Animation">
         <item name="android:windowEnterAnimation">@anim/popup_enter</item>
         <item name="android:windowExitAnimation">@anim/popup_exit</item>
+    </style>
+
+    <style name="AppTheme.Launcher">
+        <item name="android:windowBackground">@drawable/launch_background</item>
+    </style>
+
+    <style name="TextAppearance_NewsTitle">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:maxLines">2</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:textColor">@color/text_black</item>
+        <item name="android:textSize">14sp</item>
+    </style>
+
+    <style name="TextAppearance_NewsSourceTime">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
+        <item name="android:textColor">@color/text_gray</item>
+        <item name="android:textSize">10sp</item>
+    </style>
+
+    <style name="TextAppearance_menu">
+        <item name="android:layout_width">wrap_content</item>
+        <item name="android:layout_height">wrap_content</item>
+        <item name="android:textColor">@color/text_color_enable_true</item>
+        <item name="android:textSize">10sp</item>
+        <item name="android:layout_marginTop">10dp</item>
+    </style>
+
+    <style name="EditTextAppearance_edit_bookmark">
+        <item name="android:layout_width">match_parent</item>
+        <item name="android:layout_height">50dp</item>
+        <item name="android:background">@android:color/white</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textColor">@color/text_black</item>
+        <item name="android:gravity">center_vertical</item>
+        <item name="android:paddingLeft">@dimen/margin_horizontal</item>
+        <item name="android:paddingRight">@dimen/margin_horizontal</item>
+        <item name="android:inputType">text</item>
+        <item name="android:maxLines">1</item>
+        <item name="android:ellipsize">end</item>
     </style>
 
 </resources>

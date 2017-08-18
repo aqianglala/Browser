@@ -26,6 +26,6 @@ public class LightningDownloadListener implements DownloadListener {
                                 final String contentDisposition, final String mimetype, long contentLength) {
         String fileName = URLUtil.guessFileName(url, contentDisposition, mimetype);
         DownloadHandler.promptDownload(mActivity, mPreferenceManager, fileName, url, userAgent,
-                contentDisposition, mimetype, null, null);
+                contentDisposition, mimetype, null, null, contentLength);
     }
 }

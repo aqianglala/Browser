@@ -8,11 +8,10 @@ import java.util.List;
 
 public class UpgradeBean {
 
-
     /**
      * ret : 0
      * msg :
-     * data : [{"updateInfo":"123","limitNet":1,"packageName":"com","noticeContent":"123","noticeTitle":"123","fileSize":0,"versionCode":0,"appMd5":"xx","updateTitle":"123","signatureMd5":"xx","downloadUrl":"http","isForce":0,"minversionCode":0,"versionName":"0"}]
+     * data : [{"updateInfo":"升级标题标题标题升级标题标题标题\n升级标题标题标题升级标题标题标题\n升级标题标题标题升级标题标题标题\n升级标题标题标题升级标题标题标题","packageName":"com.news.browser","limitNet":1,"fileSize":4454073,"versionCode":2,"appMd5":"18686a490290380d5cec23bb138021c2","updateTitle":"升级标题标题标题","signatureMd5":"5bbdf510d8f7d36f9221dce51ace4c5b","downloadUrl":"http://ds-browser.oss-cn-shenzhen.aliyuncs.com/apk/apk_1502778240.apk","isForce":0,"minversionCode":15,"versionName":"1.0.1"}]
      */
 
     private int ret;
@@ -45,27 +44,26 @@ public class UpgradeBean {
 
     public static class DataBean {
         /**
-         * updateInfo : 123
+         * updateInfo : 升级标题标题标题升级标题标题标题
+         升级标题标题标题升级标题标题标题
+         升级标题标题标题升级标题标题标题
+         升级标题标题标题升级标题标题标题
+         * packageName : com.news.browser
          * limitNet : 1
-         * packageName : com
-         * noticeContent : 123
-         * noticeTitle : 123
-         * fileSize : 0
-         * versionCode : 0
-         * appMd5 : xx
-         * updateTitle : 123
-         * signatureMd5 : xx
-         * downloadUrl : http
+         * fileSize : 4454073
+         * versionCode : 2
+         * appMd5 : 18686a490290380d5cec23bb138021c2
+         * updateTitle : 升级标题标题标题
+         * signatureMd5 : 5bbdf510d8f7d36f9221dce51ace4c5b
+         * downloadUrl : http://ds-browser.oss-cn-shenzhen.aliyuncs.com/apk/apk_1502778240.apk
          * isForce : 0
-         * minversionCode : 0
-         * versionName : 0
+         * minversionCode : 15
+         * versionName : 1.0.1
          */
 
         private String updateInfo;
-        private int limitNet;
         private String packageName;
-        private String noticeContent;
-        private String noticeTitle;
+        private int limitNet;
         private int fileSize;
         private int versionCode;
         private String appMd5;
@@ -84,14 +82,6 @@ public class UpgradeBean {
             this.updateInfo = updateInfo;
         }
 
-        public int getLimitNet() {
-            return limitNet;
-        }
-
-        public void setLimitNet(int limitNet) {
-            this.limitNet = limitNet;
-        }
-
         public String getPackageName() {
             return packageName;
         }
@@ -100,20 +90,12 @@ public class UpgradeBean {
             this.packageName = packageName;
         }
 
-        public String getNoticeContent() {
-            return noticeContent;
+        public int getLimitNet() {
+            return limitNet;
         }
 
-        public void setNoticeContent(String noticeContent) {
-            this.noticeContent = noticeContent;
-        }
-
-        public String getNoticeTitle() {
-            return noticeTitle;
-        }
-
-        public void setNoticeTitle(String noticeTitle) {
-            this.noticeTitle = noticeTitle;
+        public void setLimitNet(int limitNet) {
+            this.limitNet = limitNet;
         }
 
         public int getFileSize() {

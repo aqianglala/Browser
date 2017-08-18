@@ -14,6 +14,10 @@ public interface FeedbackContract {
         void receiveFeedbackType(FeedbackTypeBean bean);
 
         void onGetFeedbackTypeError(Throwable e);
+
+        void sendFeedbackSuccess();
+
+        void sendFeedbackError();
     }
 
     interface Presenter{

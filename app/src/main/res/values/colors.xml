@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <color name="colorPrimary">#3F51B5</color>
-    <color name="colorPrimaryDark">#303F9F</color>
-    <color name="colorAccent">#FF4081</color>
+    <color name="colorPrimary">#00A2E9</color>
+    <color name="colorPrimaryDark">#00A2E9</color>
+    <color name="colorAccent">#00A2E9</color>
 
     <color name="colorPrimaryIcons">#FFFFFF</color>
     <color name="colorPrimaryLight">#CFD8DC</color>
@@ -14,7 +14,7 @@
     <color name="selected_dark">#0FFFFFFF</color>
     <color name="selected_light">#0F000000</color>
 
-    <color name="color_blue">#43BBEF</color>
+    <color name="color_blue">#00A2E9</color>
 
     <!--progressBar-->
     <color name="progressBar_color_foreground">#00A2E9</color>
@@ -22,10 +22,18 @@
 
     <color name="text_black">#3A3332</color>
     <color name="text_gray">#8b8b8c</color>
+    <color name="text_gray_light">#a1a1a1</color>
     <color name="text_white">#ffffff</color>
+    <color name="text_blue">#00A2E9</color>
 
     <color name="remove_history_bg_blue">#4EC1EA</color>
 
     <color name="bg_gray">#F0F0F0</color>
     <color name="feedback_bg_gray">#A1A1A1</color>
+
+    <color name="text_color_enable_false">#DCDDDD</color>
+    <color name="text_color_enable_true">#5F5D5D</color>
+
+    <color name="color_line">#DCDDDD</color>
+    <color name="color_page_bg">#F0F0F0</color>
 </resources>

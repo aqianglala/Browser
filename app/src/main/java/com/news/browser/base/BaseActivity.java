@@ -272,14 +272,28 @@ public abstract class BaseActivity<P extends BasePresenter> extends AppCompatAct
 
     /**
      * 添加fragment
-     *
+     * 默认添加动画
      * @param fragment
      * @param contentId
      * @param addToBackStack
      */
     public void addFragment(BaseFragment fragment, int contentId, boolean addToBackStack) {
+        addFragment(fragment, contentId, addToBackStack, true);
+    }
+
+    /**
+     * 添加fragment
+     *
+     * @param fragment
+     * @param contentId
+     * @param addToBackStack
+     */
+    public void addFragment(BaseFragment fragment, int contentId, boolean addToBackStack, boolean hasAnimation) {
         if (fragment != null) {
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+            if (hasAnimation){
+                transaction.setCustomAnimations(R.anim.fragment_enter,R.anim.fragment_exit,R.anim.fragment_enter,R.anim.fragment_exit);
+            }
             transaction.add(contentId, fragment, fragment.getClass().getSimpleName());
             if (addToBackStack) {
                 transaction.addToBackStack("");

@@ -90,11 +90,12 @@ public class BookmarkFragment extends BaseFragment implements MultiItemTypeAdapt
     public void onItemClick(View view, RecyclerView.ViewHolder holder, int position) {
         boolean editStatus = mBookmarkAdapter.isEditStatus();
         HistoryItem item = mBookmarks.get(position);
+        if (item == null) return;
         if (editStatus) {
             Boolean isSelected = mStatusMap.get(item);
             mStatusMap.put(item, !isSelected);
             ViewHolder viewHolder = (ViewHolder) holder;
-            viewHolder.setImageResource(R.id.iv_choose, isSelected ? R.drawable.ic_unselected : R.drawable.ic_selected);
+            viewHolder.setImageResource(R.id.iv_choose, isSelected ? R.drawable.ic_unselected : R.drawable.ic_selected_circle);
         } else {// 打开网页
             mActivity.getSupportFragmentManager().popBackStack();
             RxBus.getInstance().post(new RXEvent(RXEvent.TAG_SEARCH, item.getUrl()));
@@ -151,7 +152,7 @@ public class BookmarkFragment extends BaseFragment implements MultiItemTypeAdapt
             holder.setText(R.id.tv_url, historyItem.getUrl());
             holder.setVisible(R.id.iv_choose, isEditStatus ? true : false);
             holder.setImageResource(R.id.iv_choose, mStatusMap.get(historyItem)
-                    ? R.drawable.ic_selected
+                    ? R.drawable.ic_selected_circle
                     : R.drawable.ic_unselected);
         }
     }

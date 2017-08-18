@@ -7,6 +7,7 @@ import com.bumptech.glide.Glide;
 import com.news.browser.R;
 import com.news.browser.bean.BaseNewsItem;
 import com.news.browser.bean.RecommendBean;
+import com.news.browser.utils.DateUtil;
 import com.zhy.adapter.recyclerview.base.ItemViewDelegate;
 import com.zhy.adapter.recyclerview.base.ViewHolder;
 
@@ -23,9 +24,9 @@ public class ItemThreeImgDelegate implements ItemViewDelegate<BaseNewsItem> {
 
     @Override
     public boolean isForViewType(BaseNewsItem item, int position) {
-        if (item instanceof RecommendBean.NewslistBean){
+        if (item instanceof RecommendBean.NewslistBean) {
             RecommendBean.NewslistBean bean = (RecommendBean.NewslistBean) item;
-            if ("1".equals(bean.getArticletype())){
+            if ("1".equals(bean.getArticletype())) {
                 return true;
             }
         }
@@ -34,12 +35,15 @@ public class ItemThreeImgDelegate implements ItemViewDelegate<BaseNewsItem> {
 
     @Override
     public void convert(ViewHolder holder, BaseNewsItem item, int position) {
-        RecommendBean.NewslistBean newslistBean = (RecommendBean.NewslistBean) item;
+        RecommendBean.NewslistBean bean = (RecommendBean.NewslistBean) item;
         Context context = holder.getConvertView().getContext();
-        holder.setText(R.id.tv_title, newslistBean.getTitle());
-        holder.setText(R.id.tv_source, newslistBean.getSource());
+        holder.setText(R.id.tv_title, bean.getTitle());
+        holder.setText(R.id.tv_source, bean.getSource());
 
-        String fimgurl33 = newslistBean.getFimgurl33();
+        String convertTime = DateUtil.converTime(bean.getTimestamp());
+        holder.setText(R.id.tv_time, convertTime);
+
+        String fimgurl33 = bean.getFimgurl33();
         String[] imgList = fimgurl33.split(",");
         if (imgList.length != 3) return;
         Glide.with(context)

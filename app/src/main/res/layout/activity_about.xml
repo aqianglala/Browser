@@ -1,107 +1,76 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context="com.news.browser.ui.about.AboutActivity">
 
-    <android.support.v7.widget.Toolbar
-        android:id="@+id/id_toolbar"
-        android:layout_height="?attr/actionBarSize"
-        android:minHeight="?attr/actionBarSize"
-        android:layout_width="match_parent"
-        android:background="@android:color/white"
-        app:contentInsetLeft="0dp"
-        app:contentInsetStart="0dp"
-        >
-
-        <ImageView
-            android:id="@+id/iv_back"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
-            android:src="@drawable/ic_back_black"
-            android:clickable="true"
-            android:background="?attr/selectableItemBackground"
-            android:gravity="center"
-            android:paddingLeft="16dp"
-            android:paddingRight="16dp"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:layout_gravity="center"
-            android:text="关于浏览器"
-            style="@style/TextAppearance.AppCompat.Widget.ActionBar.Title"
-            />
-
-    </android.support.v7.widget.Toolbar>
+    <include layout="@layout/include_title_bar" />
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="75dp"
-        android:orientation="horizontal"
-        android:paddingLeft="12.5dp"
-        android:gravity="center_vertical"
         android:layout_marginTop="10dp"
-        android:background="@android:color/white">
+        android:background="@android:color/white"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingLeft="@dimen/margin_horizontal">
 
         <ImageView
             android:layout_width="32.5dp"
             android:layout_height="32.5dp"
-            android:src="@drawable/ic_app"/>
+            android:src="@drawable/ic_app" />
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginLeft="12.5dp"
+            android:layout_marginLeft="@dimen/margin_horizontal"
             android:orientation="vertical">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="@string/app_name"
-                android:textSize="12sp"
-                android:textColor="@color/text_black"/>
+                android:textColor="@color/text_black"
+                android:textSize="12sp" />
 
             <TextView
                 android:id="@+id/tv_version"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="10sp"
                 android:layout_marginTop="10dp"
-                android:textColor="@color/text_gray"/>
+                android:textColor="@color/text_gray"
+                android:textSize="10sp" />
         </LinearLayout>
     </LinearLayout>
 
     <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:orientation="vertical"
         android:layout_marginTop="10dp"
-        android:paddingLeft="12.5dp"
-        android:paddingRight="12.5dp"
-        android:paddingBottom="12.5dp"
         android:background="@android:color/white"
-        >
+        android:orientation="vertical"
+        android:paddingBottom="@dimen/margin_horizontal"
+        android:paddingLeft="@dimen/margin_horizontal"
+        android:paddingRight="@dimen/margin_horizontal">
 
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="10sp"
-            android:text="负责声明"
             android:layout_marginTop="15dp"
-            android:textColor="@color/text_gray"/>
+            android:text="负责声明"
+            android:textColor="@color/text_gray"
+            android:textSize="10sp" />
 
         <TextView
             android:id="@+id/tv_declaration"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="10sp"
-            android:text="负责声明"
             android:layout_marginTop="15dp"
-            android:textColor="@color/text_black"/>
+            android:text="@string/declaration"
+            android:textColor="@color/text_black"
+            android:textSize="10sp" />
     </LinearLayout>
 
 </LinearLayout>

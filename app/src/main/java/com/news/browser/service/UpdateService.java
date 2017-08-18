@@ -10,22 +10,23 @@ import android.support.annotation.Nullable;
 import android.text.TextUtils;
 import android.webkit.URLUtil;
 
-import com.news.browser.bean.UpgradeBean;
-import com.news.browser.http.Http;
-import com.news.browser.http.NetProtocol;
-import com.news.browser.http.transformer.ScheduleTransformer;
-import com.news.browser.ui.download.db.FileItem;
-import com.news.browser.utils.ForegroundCallbacks;
-import com.news.browser.utils.GlobalParams;
-import com.news.browser.utils.PackageExcuteTool;
-import com.news.browser.utils.SPUtils;
-import com.news.browser.utils.Utils;
-import com.news.browser.ui.download.DownloadManagerActivity.TasksManager;
 import com.liulishuo.filedownloader.BaseDownloadTask;
 import com.liulishuo.filedownloader.FileDownloadListener;
 import com.liulishuo.filedownloader.FileDownloadSampleListener;
 import com.liulishuo.filedownloader.FileDownloader;
 import com.liulishuo.filedownloader.model.FileDownloadStatus;
+import com.news.browser.bean.UpgradeBean;
+import com.news.browser.http.Http;
+import com.news.browser.http.NetProtocol;
+import com.news.browser.http.transformer.ScheduleTransformer;
+import com.news.browser.ui.download.DownloadManagerActivity.TasksManager;
+import com.news.browser.ui.download.db.FileItem;
+import com.news.browser.utils.ForegroundCallbacks;
+import com.news.browser.utils.GlobalParams;
+import com.news.browser.utils.PackageExcuteTool;
+import com.news.browser.utils.SPUtils;
+import com.news.browser.utils.UIUtils;
+import com.news.browser.utils.Utils;
 
 import java.io.File;
 import java.util.HashMap;
@@ -60,7 +61,9 @@ public class UpdateService extends Service {
     private static int mAppVersion = 0;
     private static boolean mIsAutoInstall = true;
 
-    private static int taskId;
+    public static int taskId;
+    public static boolean hasNewVersion;
+    private static UpgradeBean mUpgradeBean;
 
     @Nullable
     @Override
@@ -127,13 +130,17 @@ public class UpdateService extends Service {
         mFileDownloadInfoInterface = null;
     }
 
-    public void checkAppStoreVersion() {
+    public static void setFileDownloadInfoListener(IFileDownloadInfoReturn fileInterface)
+    {
+        mFileDownloadInfoInterface = fileInterface;
+    }
 
-        if (APP_DOWNLOAD_STATUS_DOWNLOADING != mDownloadStatus
-                || APP_DOWNLOAD_STATUS_CHECKING != mDownloadStatus) {
+    public void checkAppStoreVersion() {
+        // 不是下载中，也不是检查更新中
+        if (APP_DOWNLOAD_STATUS_DOWNLOADING != mDownloadStatus && APP_DOWNLOAD_STATUS_CHECKING != mDownloadStatus) {
             mDownloadStatus = APP_DOWNLOAD_STATUS_CHECKING;
             checkUpdateInfo();
-        } else if (null != mAppStoreUpdateInterface && null == mFileDownloadInfoInterface) {
+        } else if (null != mAppStoreUpdateInterface && null == mFileDownloadInfoInterface) {// 下载中进入前台
             mAppStoreUpdateInterface.receiveAppStoreUpdateInfo(mDownloadStatus);
         }
     }
@@ -151,15 +158,19 @@ public class UpdateService extends Service {
 
                     @Override
                     public void onError(Throwable e) {
-                        // TODO: 2017-8-9
+                        mDownloadStatus = APP_DOWNLOAD_STATUS_DEFAULT;
                     }
 
                     @Override
                     public void onNext(UpgradeBean upgradeBean) {
-                        mIsAutoInstall = true;
-                        if (APP_DOWNLOAD_STATUS_DOWNLOADING == mDownloadStatus || upgradeBean == null)
+                        if (APP_DOWNLOAD_STATUS_DOWNLOADING == mDownloadStatus || upgradeBean == null) {
                             return;
+                        }
+                        mIsAutoInstall = true;
+                        mDownloadStatus = APP_DOWNLOAD_STATUS_DEFAULT;
+
                         if (upgradeBean.getRet() != 0) return;
+                        mUpgradeBean = upgradeBean;
                         try {
                             PackageInfo packageInfo = getPackageManager().getPackageInfo(mContext.getPackageName(), 0);
                             int versionCode = packageInfo.versionCode;
@@ -176,7 +187,7 @@ public class UpdateService extends Service {
                                     }
                                 } else if (null != mDetailAppInterface) {// 未下载，且是前台
                                     mDetailAppInterface.receiveDetailAppInfo(true, upgradeBean);
-                                } else {
+                                } else {// 后台
                                     mIsAutoInstall = false;
                                     startDownloadAppStore(upgradeBean);
                                     if (null != mAppStoreUpdateInterface && null == mFileDownloadInfoInterface)// 前台，且是下载中
@@ -207,7 +218,7 @@ public class UpdateService extends Service {
                 mDownloadDir = item.getPath();
                 BaseDownloadTask task = TasksManager.getImpl().getTaskById(item.getId());
                 mDownloadStatus = APP_DOWNLOAD_STATUS_DOWNLOADING;
-                if (task != null){
+                if (task != null){// 下载中
                     task.setListener(taskDownloadListener);
                 }else{// 任务已存在
                     task = FileDownloader.getImpl().create(item.getUrl())
@@ -222,8 +233,12 @@ public class UpdateService extends Service {
                     String path = TasksManager.getImpl().createPath(info.getDownloadUrl(), filename);
                     int version = Utils.getApkVersion(mContext, path);
                     if (version != -1 && version >= mAppVersion){// 是新版本包
+                        mAppVersion = version;
+                        mDownloadDir = path;
+                        setDownloaded();
                         installApp();
                     }else{
+                        mDownloadStatus = APP_DOWNLOAD_STATUS_DOWNLOADING;
                         BaseDownloadTask task = FileDownloader.getImpl().create(item.getUrl())
                                 .setPath(item.getPath())
                                 .setCallbackProgressTimes(100)
@@ -235,6 +250,11 @@ public class UpdateService extends Service {
                 }
             }
         }
+    }
+
+    public static boolean isDownloading()
+    {
+        return (mDownloadStatus == APP_DOWNLOAD_STATUS_DOWNLOADING);
     }
 
     public static boolean isDownloaded(int checkVersion) {
@@ -281,6 +301,11 @@ public class UpdateService extends Service {
         return mDownloadStatus;
     }
 
+    public static UpgradeBean getUpgradeBean()
+    {
+        return mUpgradeBean;
+    }
+
     public static boolean checkDownloadFile() {
         String filePath = (String) SPUtils.get(APPSTORE_DOWNLOADED_FILE_PATH, "");
 
@@ -303,12 +328,18 @@ public class UpdateService extends Service {
             @Override
             public void run() {
                 boolean installResult = PackageExcuteTool.installApp(mDownloadDir);
-                if (!installResult) {
-                    if (null != mAppStoreUpdateInterface) {
+                if (!installResult) {// 无法静默安装
+                    if (null != mAppStoreUpdateInterface) {// 前台
+                        UIUtils.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                notifyStatusChange();
+                            }
+                        });
                         if (mIsAutoInstall) {
                             PackageExcuteTool.normalInstall(mDownloadDir, mContext);
                         }
-                    } else {
+                    } else {// 后台
 //                        notificationAppstoreUpdateInstall();
                     }
                 }
@@ -406,32 +437,31 @@ public class UpdateService extends Service {
             notifyStatusChange();
             // TODO: 2017-8-9 这里如果是预装的话，在安装过程中如果跳转到其他页面又回来会显示安装和忽略
             setDownloaded();
-            if (mFileDownloadInfoInterface == null){
-                installApp();
-            }
+            installApp();
         }
 
-        /**
-         * 前台下载
-         * @param task
-         * @param soFarBytes
-         * @param totalBytes
-         */
-        private void notifyDownloadInfo(BaseDownloadTask task, int soFarBytes, int totalBytes) {
-            if (null != mFileDownloadInfoInterface) {
-                mFileDownloadInfoInterface.receiveFileDownloadInfo(task, soFarBytes, totalBytes);
-            }
-        }
-
-        /**
-         * 后台下载
-         */
-        private void notifyStatusChange() {
-            if (null != mAppStoreUpdateInterface && null == mFileDownloadInfoInterface) {
-                mAppStoreUpdateInterface.receiveAppStoreUpdateInfo(mDownloadStatus);
-            }
-        }
     };
+
+    /**
+     * 前台下载
+     * @param task
+     * @param soFarBytes
+     * @param totalBytes
+     */
+    private static void notifyDownloadInfo(BaseDownloadTask task, int soFarBytes, int totalBytes) {
+        if (null != mFileDownloadInfoInterface) {
+            mFileDownloadInfoInterface.receiveFileDownloadInfo(task, soFarBytes, totalBytes);
+        }
+    }
+
+    /**
+     * 后台下载，进入前台
+     */
+    private static void notifyStatusChange() {
+        if (null != mAppStoreUpdateInterface && null == mFileDownloadInfoInterface) {
+            mAppStoreUpdateInterface.receiveAppStoreUpdateInfo(mDownloadStatus);
+        }
+    }
 
     public static void updateStatus(BaseDownloadTask task){
         if (task == null) return;
