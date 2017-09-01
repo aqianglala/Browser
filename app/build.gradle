@@ -1,4 +1,5 @@
 apply plugin: 'com.android.application'
+//apply plugin: 'bonree'
 
 def keystorePropertiesFile = rootProject.file("keystore.properties")
 def keystoreProperties = new Properties()
@@ -15,6 +16,8 @@ android {
         versionName "1.0"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
+
+        multiDexEnabled true
     }
     signingConfigs {
         config {
@@ -46,10 +49,6 @@ android {
 
     // 多渠道打包
     productFlavors {
-        xiaomi {}
-        _360 {}
-        baidu {}
-        wandoujia {}
         doov {}
     }
 
@@ -64,10 +63,14 @@ dependencies {
         exclude group: 'com.android.support', module: 'support-annotations'
     })
     //    使用26.0.0的v7和design包时，首页的滑动动画没有26以下的包流畅
+
     //    第三方
-    //    debugCompile 'com.squareup.leakcanary:leakcanary-android:1.5'
-    //    releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5'
-    //    testCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5'
+
+    debugCompile 'com.squareup.leakcanary:leakcanary-android:1.5'
+
+    releaseCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5'
+
+    testCompile 'com.squareup.leakcanary:leakcanary-android-no-op:1.5'
     compile files('libs/BaiduLBS_Android.jar')
     compile project(':qrcodelib')
     compile project(':directoryChooserlib')
@@ -88,9 +91,15 @@ dependencies {
     compile 'com.anthonycr.grant:permissions:1.1.2'
     compile 'com.liulishuo.filedownloader:library:1.6.2'
     compile 'com.zhy:base-rvadapter:3.0.3'
-    compile 'com.readystatesoftware.systembartint:systembartint:1.0.3'
     testCompile 'junit:junit:4.12'
     annotationProcessor 'com.jakewharton:butterknife-compiler:8.5.1'
     debugCompile 'cn.dreamtobe.threaddebugger:threaddebugger:1.3.3'
     releaseCompile 'cn.dreamtobe.threaddebugger:threaddebugger-no-op:1.3.3'
+    compile 'com.jaeger.statusbarutil:library:1.4.0'
+    compile 'com.makeramen:roundedimageview:2.3.0'
+    compile files('libs/mta-android-sdk-3.1.2.jar')
+    compile files('libs/libthrift-0.10.0.jar')
+    compile 'com.yqritc:recyclerview-flexibledivider:1.4.0'
+//    compile 'com.bonree.agent.android:agent:2.2.7'
+    compile 'com.android.support:multidex:1.0.1'
 }

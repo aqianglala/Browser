@@ -1,20 +1,20 @@
 package com.news.browser.ui.news.mvp.recommend;
 
 import com.news.browser.base.BasePresenter;
+import com.news.browser.bean.ADResponseBean;
+import com.news.browser.bean.ADResponseBean.DataBean._$8050018672826551Bean.ListBean;
 import com.news.browser.bean.ClickLinkResponseBean;
 import com.news.browser.bean.RecommendBean;
 import com.news.browser.http.NetProtocol;
 import com.news.browser.http.transformer.ScheduleTransformer;
-import com.news.browser.bean.ADResponseBean;
-import com.news.browser.bean.ADResponseBean.DataBean._$8050018672826551Bean.ListBean;
 import com.news.browser.ui.news.NewsRecommendFragment;
+import com.orhanobut.logger.Logger;
 
 import java.util.HashMap;
 
 import okhttp3.ResponseBody;
 import rx.Subscriber;
 import rx.Subscription;
-import rx.functions.Action1;
 
 /**
  * Created by zy1584 on 2017-7-25.
@@ -30,7 +30,7 @@ public class NewsRecommendPresenter extends BasePresenter<NewsRecommendFragment>
 
     @Override
     public void getNewsRecommendList() {
-        HashMap<String, String> queryMap = NetProtocol.getImpl(getIView().getActivity()).getBaseParams2();
+        HashMap<String, String> queryMap = NetProtocol.getImpl().getBaseParams2();
         Subscription subscribe = mBiz.getNewsRecommendList(queryMap).compose(new ScheduleTransformer<RecommendBean>())
                 .subscribe(new Subscriber<RecommendBean>() {
                     @Override
@@ -49,9 +49,9 @@ public class NewsRecommendPresenter extends BasePresenter<NewsRecommendFragment>
                             getIView().onGetRecommendListError(new Exception("返回值为空"));
                             return;
                         }
-                        if (recommendBean.getRet() != 0){
+                        if (recommendBean.getRet() != 0) {
                             getIView().onGetRecommendListError(new Exception("ret != 0"));
-                        }else{
+                        } else {
                             getIView().onReceiveRecommendList(recommendBean);
                         }
                     }
@@ -61,7 +61,7 @@ public class NewsRecommendPresenter extends BasePresenter<NewsRecommendFragment>
 
     @Override
     public void getADList() {
-        HashMap<String, String> adMap = NetProtocol.getImpl(getIView().getActivity()).getADMap();
+        HashMap<String, String> adMap = NetProtocol.getImpl().getADMap();
         Subscription subscribe = mBiz.getADList(adMap).compose(new ScheduleTransformer<ADResponseBean>())
                 .subscribe(new Subscriber<ADResponseBean>() {
                     @Override
@@ -76,14 +76,14 @@ public class NewsRecommendPresenter extends BasePresenter<NewsRecommendFragment>
 
                     @Override
                     public void onNext(ADResponseBean adResponseBean) {
-                        if (adResponseBean == null){
+                        if (adResponseBean == null) {
                             getIView().onGetADListError(new Exception("返回值为空"));
                             return;
                         }
                         int ret = adResponseBean.getRet();
-                        if (ret != 0){
+                        if (ret != 0) {
                             getIView().onGetADListError(new Exception(adResponseBean.getMsg()));
-                        }else{
+                        } else {
                             getIView().onReceiveADList(adResponseBean);
                         }
                     }
@@ -107,7 +107,7 @@ public class NewsRecommendPresenter extends BasePresenter<NewsRecommendFragment>
 
                     @Override
                     public void onNext(ClickLinkResponseBean bean) {
-                        if (bean != null && bean.getRet() == 0){
+                        if (bean != null && bean.getRet() == 0) {
                             getIView().onReceiveReportClick(bean, item);
                         }
                     }
@@ -119,10 +119,22 @@ public class NewsRecommendPresenter extends BasePresenter<NewsRecommendFragment>
     public void reportADExpose(final ListBean bean) {
         Subscription subscribe = mBiz.reportADExposed(bean.getImpression_link())
                 .compose(new ScheduleTransformer<ResponseBody>())
-                .subscribe(new Action1<ResponseBody>() {
+                .subscribe(new Subscriber<ResponseBody>() {
                     @Override
-                    public void call(ResponseBody responseBody) {
-                        bean.setHasExpose(true);
+                    public void onCompleted() {
+
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        bean.setThirdTiming(false);
+                        Logger.e(e, "个性推荐广告曝光上报失败");
+                    }
+
+                    @Override
+                    public void onNext(ResponseBody body) {
+                        bean.setThirdTiming(false);
+                        bean.setHasExpose2Third(true);
                     }
                 });
         addSubscription(subscribe);

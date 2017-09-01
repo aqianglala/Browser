@@ -146,8 +146,8 @@ public class Http {
                 HttpUrl url = originalRequest.url();
                 String host = url.host();
                 int port = url.port();
-                if (TextUtils.isEmpty(host) || port == 0 || (host.equals(GlobalParams.HOLDER_HOST) && port == GlobalParams.HOLDER_PORT)){// 请求地址
-                    if (requestServerAddress()){
+                if (GlobalParams.HOLDER_HOST.equals(host) && port == GlobalParams.HOLDER_PORT) {// 请求地址
+                    if (requestServerAddress()) {
                         String newIp = (String) SPUtils.get(GlobalParams.IP, "");
                         String newPort = (String) SPUtils.get(GlobalParams.PORT, "");
                         HttpUrl newUrl = originalRequest.url().newBuilder()
@@ -158,7 +158,19 @@ public class Http {
                                 .url(newUrl);
                         newRequest = requestBuilder.build();
                     }
-                }else{
+                } else if (GlobalParams.HOLDER_HOST_RECORD.equals(host) && port == GlobalParams.HOLDER_PORT_RECORD) {
+                    if (requestRecordServerAddress()) {
+                        String newIp = (String) SPUtils.get(GlobalParams.RECORD_IP, "");
+                        String newPort = (String) SPUtils.get(GlobalParams.RECORD_PORT, "");
+                        HttpUrl newUrl = originalRequest.url().newBuilder()
+                                .host(newIp)
+                                .port(Integer.parseInt(newPort))
+                                .build();
+                        Request.Builder requestBuilder = originalRequest.newBuilder()
+                                .url(newUrl);
+                        newRequest = requestBuilder.build();
+                    }
+                } else {
                     newRequest = originalRequest;
                 }
 
@@ -168,30 +180,52 @@ public class Http {
         return serverAddressInterceptor;
     }
 
-    private static boolean requestServerAddress() throws IOException {
-        HashMap<String, String> params = NetProtocol.getImpl(BaseApplication.getContext()).getRequestServerAddressQueryMap();
-        ResponseBody body = httpService.requestServerAddress(params).execute().body();
-        if (body != null){
-            if (body != null){
-                try {
-                    JSONArray jsonArray = new JSONArray(body.string());
-                    JSONObject obj = (JSONObject) jsonArray.get(0);
-                    String ip = obj.optString("IP");
-                    String port = obj.optString("Port");
-                    if (!TextUtils.isEmpty(ip) && !TextUtils.isEmpty(port)){
-                        SPUtils.put(GlobalParams.IP, ip);
-                        SPUtils.put(GlobalParams.PORT, port);
-                    }
-                } catch (JSONException e) {
-                    e.printStackTrace();
-                } catch (IOException e) {
-                    e.printStackTrace();
+    private synchronized static boolean requestServerAddress() {
+        try {
+            HashMap<String, String> params = NetProtocol.getImpl().getServerAddressMap();
+            ResponseBody body = httpService.requestServerAddress(params).execute().body();
+            if (body != null) {
+                JSONArray jsonArray = new JSONArray(body.string());
+                JSONObject obj = (JSONObject) jsonArray.get(0);
+                String ip = obj.optString("IP");
+                String port = obj.optString("Port");
+                if (!TextUtils.isEmpty(ip) && !TextUtils.isEmpty(port)) {
+                    SPUtils.put(GlobalParams.IP, ip);
+                    SPUtils.put(GlobalParams.PORT, port);
+                    return true;
                 }
             }
-            return true;
+        } catch (JSONException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         return false;
     }
+
+    private synchronized static boolean requestRecordServerAddress() {
+        try {
+            HashMap<String, String> params = NetProtocol.getImpl().getRecordServerAdressMap();
+            ResponseBody body = httpService.requestServerAddress(params).execute().body();
+            if (body != null) {
+                JSONArray jsonArray = new JSONArray(body.string());
+                JSONObject obj = (JSONObject) jsonArray.get(0);
+                String ip = obj.optString("IP");
+                String port = obj.optString("Port");
+                if (!TextUtils.isEmpty(ip) && !TextUtils.isEmpty(port)) {
+                    SPUtils.put(GlobalParams.RECORD_IP, ip);
+                    SPUtils.put(GlobalParams.RECORD_PORT, port);
+                    return true;
+                }
+            }
+        } catch (JSONException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
 
     public static Retrofit getRetrofit() {
         if (retrofit == null) {

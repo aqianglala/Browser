@@ -119,12 +119,21 @@ public class RecommendBean {
         private String abstractX;
         private String origUrl;
         private String graphicLiveID;
+        private String Fimgurl29;
         private String Fimgurl30;
         private String Fimgurl32;
         private String Fimgurl33;
         private int pushCommentCount;
         private List<String> thumbnails;
         private List<String> tag;
+
+        public String getFimgurl29() {
+            return Fimgurl29;
+        }
+
+        public void setFimgurl29(String fimgurl29) {
+            Fimgurl29 = fimgurl29;
+        }
 
         public String getId() {
             return id;
@@ -375,5 +384,6 @@ public class RecommendBean {
                 this.qqnews_thu = qqnews_thu;
             }
         }
+
     }
 }

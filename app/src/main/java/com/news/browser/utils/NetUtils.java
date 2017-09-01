@@ -150,4 +150,24 @@ public class NetUtils
         return TYPE_UNKNOWN;
     }
 
+    public static String getNetworkClassStr(Context context){
+        int networkClass = getNetworkClass(context);
+        String str = "";
+        switch (networkClass){
+            case TYPE_WIFI:
+                str = "WIFI";
+                break;
+            case TYPE_2G:
+                str = "2G";
+                break;
+            case TYPE_3G:
+                str = "3G";
+                break;
+            case TYPE_4G:
+                str = "4G";
+                break;
+        }
+        return str;
+    }
+
 }

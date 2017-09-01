@@ -25,13 +25,13 @@ import com.news.browser.ui.main.BrowserActivity;
 import com.news.browser.ui.news.adapter.channel.NewsChannelAdapter;
 import com.news.browser.ui.news.bean.EmptyNewsBean;
 import com.news.browser.ui.news.bean.NewsChannelBean;
+import com.news.browser.ui.news.bean.NewsChannelBean.DataBean.ListBean.ContentBean;
 import com.news.browser.ui.news.interfaces.OnADItemClickListener;
 import com.news.browser.ui.news.mvp.channel.NewsChannelContract;
 import com.news.browser.ui.news.mvp.channel.NewsChannelPresenter;
 import com.news.browser.utils.NetUtils;
 import com.news.browser.utils.SPUtils;
 import com.news.browser.utils.UIUtils;
-import com.news.browser.widget.DividerItemDecoration;
 import com.orhanobut.logger.Logger;
 import com.zhy.adapter.recyclerview.MultiItemTypeAdapter;
 import com.zhy.adapter.recyclerview.base.ViewHolder;
@@ -63,13 +63,15 @@ public class NewsChannelFragment extends BaseFragment<NewsChannelPresenter> impl
     private PreferenceManager mPreferenceManager;
     private LinearLayoutManager mLayoutManager;
     private LoadMoreWrapper mAdapter;
-    private List<NewsChannelBean.DataBean.ListBean.ContentBean> mNewsList = new ArrayList<>();
+    private List<ContentBean> mNewsList = new ArrayList<>();
     private List<BaseNewsItem> mData = new ArrayList<>();
     private boolean isLoading;
     private boolean isRefresh;
     private String mChannelCode;
+    private String mChannelName;
 
     public static final String CHANNEL_CODE = "channel_code";
+    public static final String CHANNEL_NAME = "channel_name";
     public static final String action_type_click = "click";
 
     public static final String CACHE_SUFFIX_NEWS = "_news";
@@ -82,24 +84,32 @@ public class NewsChannelFragment extends BaseFragment<NewsChannelPresenter> impl
         @Override
         public void handleMessage(@NonNull Message msg) {
             super.handleMessage(msg);
-            if (msg != null && msg.obj != null){
-                ADResponseBean.DataBean._$8050018672826551Bean.ListBean bean = (ADResponseBean.DataBean._$8050018672826551Bean.ListBean) msg.obj;
-                if (!bean.isHasExpose() && bean.isTiming()){
-                    bean.setTiming(false);
-                    removeCallbacksAndMessages(bean);
-                    // 自营统计数据：广告
-                    AccessRecordTool.getInstance().reportExpose();
-
-                    mPresenter.reportADExpose(bean);
-                }
+            if (msg == null || msg.obj == null) return;
+            switch (msg.what) {
+                case WHAT_AD_THIRD:
+                    ADResponseBean.DataBean._$8050018672826551Bean.ListBean bean = (ADResponseBean.DataBean._$8050018672826551Bean.ListBean) msg.obj;
+                    if (!bean.isHasExpose2Third() && bean.isThirdTiming()) {
+                        removeMessages(WHAT_AD_THIRD, bean);
+                        mPresenter.reportADExpose(bean);
+                    }
+                    break;
+                case WHAT_AD_SELF:
+                    ADResponseBean.DataBean._$8050018672826551Bean.ListBean selfBean = (ADResponseBean.DataBean._$8050018672826551Bean.ListBean) msg.obj;
+                    if (!selfBean.isHasExpose2Self() && selfBean.isSelfTiming()) {
+                        removeMessages(WHAT_AD_SELF, selfBean);
+                        // 自营统计上报数据：广告
+                        AccessRecordTool.getInstance().reportAdExpose(selfBean, mChannelName, selfBean.getTitle(), AccessRecordTool.EV_SHOW, AccessRecordTool.TYPE_AD);
+                    }
+                    break;
             }
         }
     }
 
-    public static NewsChannelFragment newInstance(String channelCode) {
+    public static NewsChannelFragment newInstance(String channelCode, String channelName) {
         NewsChannelFragment f = new NewsChannelFragment();
         final Bundle bundle = new Bundle();
         bundle.putString(CHANNEL_CODE, channelCode);
+        bundle.putString(CHANNEL_NAME, channelName);
         f.setArguments(bundle);
         return f;
     }
@@ -128,7 +138,7 @@ public class NewsChannelFragment extends BaseFragment<NewsChannelPresenter> impl
         mRecyclerView.setLayoutManager(mLayoutManager = new LinearLayoutManager(mActivity));
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
-        mRecyclerView.addItemDecoration(new DividerItemDecoration(mActivity, DividerItemDecoration.VERTICAL_LIST));
+        mRecyclerView.addItemDecoration(getDefaultDivider());
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.addOnScrollListener(new OnRVScrollListener());
     }
@@ -142,14 +152,15 @@ public class NewsChannelFragment extends BaseFragment<NewsChannelPresenter> impl
     @Override
     protected void doBusiness(Bundle savedInstanceState) {
         Bundle bundle = getArguments();
-        if (bundle != null){
+        if (bundle != null) {
             mChannelCode = bundle.getString(CHANNEL_CODE);
+            mChannelName = bundle.getString(CHANNEL_NAME);
             // 从缓存中加载
-            if (!TextUtils.isEmpty(mChannelCode)){
+            if (!TextUtils.isEmpty(mChannelCode)) {
                 readFromCache();
 
                 boolean connected = NetUtils.isConnected(mActivity);
-                if (connected){
+                if (connected) {
                     isLoading = true;
                     isRefresh = true;
                     mPreferenceManager = PreferenceManager.getInstance();
@@ -163,11 +174,11 @@ public class NewsChannelFragment extends BaseFragment<NewsChannelPresenter> impl
         String json_news = (String) get(mChannelCode + CACHE_SUFFIX_NEWS, "");
         String json_ad = (String) SPUtils.get(mChannelCode + CACHE_SUFFIX_AD, "");
 
-        if (!TextUtils.isEmpty(json_news)){
+        if (!TextUtils.isEmpty(json_news)) {
             NewsChannelBean newsChannelBean = new Gson().fromJson(json_news, NewsChannelBean.class);
             List<NewsChannelBean.DataBean.ListBean> originalList = newsChannelBean.getData().getList();
-            List<NewsChannelBean.DataBean.ListBean.ContentBean> newsList = new ArrayList<>();
-            for (NewsChannelBean.DataBean.ListBean b : originalList){
+            List<ContentBean> newsList = new ArrayList<>();
+            for (NewsChannelBean.DataBean.ListBean b : originalList) {
                 newsList.add(b.getContent());
             }
             mData.clear();
@@ -177,7 +188,7 @@ public class NewsChannelFragment extends BaseFragment<NewsChannelPresenter> impl
             mNewsList.addAll(newsList);
         }
 
-        if (!TextUtils.isEmpty(json_news) && !TextUtils.isEmpty(json_ad)){
+        if (!TextUtils.isEmpty(json_news) && !TextUtils.isEmpty(json_ad)) {
             ADResponseBean adResponseBean = new Gson().fromJson(json_ad, ADResponseBean.class);
             List<ADResponseBean.DataBean._$8050018672826551Bean.ListBean> list = adResponseBean.getData().get_$8050018672826551().getList();
             ADResponseBean.DataBean._$8050018672826551Bean.ListBean listBean = list.get(0);
@@ -187,8 +198,8 @@ public class NewsChannelFragment extends BaseFragment<NewsChannelPresenter> impl
             mData.add(index, listBean);
         }
 
-        if (TextUtils.isEmpty(json_news) && TextUtils.isEmpty(json_ad)){
-            for (int i = 0; i < 10; i++){
+        if (TextUtils.isEmpty(json_news) && TextUtils.isEmpty(json_ad)) {
+            for (int i = 0; i < 10; i++) {
                 mData.add(new EmptyNewsBean());
             }
         }
@@ -197,55 +208,55 @@ public class NewsChannelFragment extends BaseFragment<NewsChannelPresenter> impl
 
     @Override
     public void onReceiveNewsChannelList(NewsChannelBean bean) {
-        List<NewsChannelBean.DataBean.ListBean.ContentBean> newsList = new ArrayList<>();
+        List<ContentBean> newsList = new ArrayList<>();
         List<NewsChannelBean.DataBean.ListBean> originalList = bean.getData().getList();
-        if (originalList != null && originalList.size() > 0){
-
-            for (NewsChannelBean.DataBean.ListBean b : originalList){
+        if (originalList != null && originalList.size() > 0) {
+            if (mData.size() == 10 && mData.get(0) instanceof EmptyNewsBean){
+                mData.clear();
+            }
+            for (NewsChannelBean.DataBean.ListBean b : originalList) {
                 newsList.add(b.getContent());
             }
-            if (isRefresh){
+            if (isRefresh) {
                 // 缓存新闻
                 SPUtils.put(mChannelCode + CACHE_SUFFIX_NEWS, new Gson().toJson(bean));
 
-                mData.clear();
-                mData.addAll(newsList);
-
-                mNewsList.clear();
+                mData.addAll(0, newsList);
                 mNewsList.addAll(newsList);
-            }else{
+            } else {
                 mData.addAll(newsList);
                 mNewsList.addAll(newsList);
             }
             mPresenter.getADList();// 加载广告
-        }else {
+        } else {
             isLoading = false;
-            if (isRefresh){
-                mSwipeRefreshLayout.setRefreshing(false);
-            }
+            stopRefresh();
         }
     }
 
     @Override
     public void onGetNewsChannelListError(Throwable e) {
         isLoading = false;
-        if (isRefresh){
-            mSwipeRefreshLayout.setRefreshing(false);
-        }
+        stopRefresh();
     }
 
     @Override
     public void onReceiveADList(ADResponseBean bean) {
         isLoading = false;
         List<ADResponseBean.DataBean._$8050018672826551Bean.ListBean> list = bean.getData().get_$8050018672826551().getList();
-        if (list != null && list.size() > 0){
+        if (list != null && list.size() > 0) {
             // 缓存广告
-            if (mData.size() == 10){
+            if (mData.size() == 10) {
                 SPUtils.put(mChannelCode + CACHE_SUFFIX_AD, new Gson().toJson(bean));
             }
             ADResponseBean.DataBean._$8050018672826551Bean.ListBean listBean = list.get(0);
+            int index;
             Random random = new Random();
-            int index = mData.size() - 7 + random.nextInt(5);
+            if (isRefresh){
+                index = 3 + random.nextInt(5);
+            }else{
+                index = mData.size() - 7 + random.nextInt(5);
+            }
             Logger.t("index").e("data size :" + mData.size() + "    index:" + index);
             mData.add(index, listBean);
         }
@@ -255,10 +266,18 @@ public class NewsChannelFragment extends BaseFragment<NewsChannelPresenter> impl
     @Override
     public void onGetADListError(Throwable e) {
         isLoading = false;
-        if (isRefresh){
-            mSwipeRefreshLayout.setRefreshing(false);
-        }
         notifyDataSetChanged();
+    }
+
+    private void stopRefresh() {
+        if (isRefresh) {
+            mActivity.runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    mSwipeRefreshLayout.setRefreshing(false);
+                }
+            });
+        }
     }
 
     @Override
@@ -273,8 +292,8 @@ public class NewsChannelFragment extends BaseFragment<NewsChannelPresenter> impl
 
     @Override
     public void onLoadMoreRequested() {
-        if (!isLoading){
-            if (mData.size() > 0 && !(mData.get(0) instanceof EmptyNewsBean)){
+        if (!isLoading) {
+            if (mData.size() > 0 && !(mData.get(0) instanceof EmptyNewsBean)) {
                 isLoading = true;
                 isRefresh = false;
                 mPresenter.getNewsChannelList(mNewsList.size(), 10, mChannelCode);
@@ -284,21 +303,22 @@ public class NewsChannelFragment extends BaseFragment<NewsChannelPresenter> impl
 
     @Override
     public void onRefresh() {
-        if (!isLoading){
+        if (!isLoading) {
             isLoading = true;
             isRefresh = true;
-            mPresenter.getNewsChannelList(0, 10, mChannelCode);
+            mPresenter.getNewsChannelList(mNewsList.size(), 10, mChannelCode);
         }
     }
 
     @Override
     public void onItemClick(View view, RecyclerView.ViewHolder holder, int position) {
         BaseNewsItem item = mData.get(position);
-        if (item instanceof NewsChannelBean.DataBean.ListBean.ContentBean){
-            NewsChannelBean.DataBean.ListBean.ContentBean bean = (NewsChannelBean.DataBean.ListBean.ContentBean) item;
+        if (item instanceof ContentBean) {
+            ContentBean bean = (ContentBean) item;
             BrowserActivity browserAct = (BrowserActivity) mActivity;
             browserAct.searchTheWeb(bean.getUrl());
-            mPresenter.reportActionType(mNewsList.get(position), action_type_click);
+            mPresenter.reportActionType(bean, action_type_click);
+            AccessRecordTool.getInstance().reportADClick(mChannelName, bean.getTitle(), AccessRecordTool.EV_CLICK, AccessRecordTool.TYPE_NEWS);
         }
     }
 
@@ -321,22 +341,24 @@ public class NewsChannelFragment extends BaseFragment<NewsChannelPresenter> impl
                 .replace("__UP_X__", String.valueOf(upX))
                 .replace("__UP_Y__", String.valueOf(upY));
         int interact_type = item.getInteract_type();
-        if (interact_type == 0){
+        if (interact_type == 0) {
             BrowserActivity browserAct = (BrowserActivity) mActivity;
             browserAct.searchTheWeb(url);
-        }else if (interact_type == 1){
+        } else if (interact_type == 1) {
             mPresenter.reportClick(url, item);
         }
+        AccessRecordTool.getInstance().reportADClick(mChannelName, item.getTitle(), AccessRecordTool.EV_CLICK, AccessRecordTool.TYPE_AD);
     }
 
-    private void notifyDataSetChanged(){
-        if (mSwipeRefreshLayout.isRefreshing()){
-            mSwipeRefreshLayout.setRefreshing(false);
-        }
+    private void notifyDataSetChanged() {
+        stopRefresh();
         mAdapter.notifyDataSetChanged();
     }
 
-    private class OnRVScrollListener extends RecyclerView.OnScrollListener{
+    private static final int WHAT_AD_THIRD = 1;
+    private static final int WHAT_AD_SELF = 2;
+
+    private class OnRVScrollListener extends RecyclerView.OnScrollListener {
         @Override
         public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
             super.onScrollStateChanged(recyclerView, newState);
@@ -346,31 +368,55 @@ public class NewsChannelFragment extends BaseFragment<NewsChannelPresenter> impl
         public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
             super.onScrolled(recyclerView, dx, dy);
             if (mData.size() == 0) return;
+            if (!isCurrentFragment()) return;
             int first = mLayoutManager.findFirstVisibleItemPosition();
             int last = mLayoutManager.findLastVisibleItemPosition();
-            for (int i = first; i <= last; i ++){
+            for (int i = first; i <= last; i++) {
                 if (i >= mData.size()) continue;// footer
                 BaseNewsItem item = mData.get(i);
-                if (item instanceof ADResponseBean.DataBean._$8050018672826551Bean.ListBean){// 广告
+                if (item instanceof ADResponseBean.DataBean._$8050018672826551Bean.ListBean) {// 广告
                     ADResponseBean.DataBean._$8050018672826551Bean.ListBean bean = (ADResponseBean.DataBean._$8050018672826551Bean.ListBean) item;
-                    if (bean.isHasExpose()) continue; // 已经上报
-                    View childAt = mLayoutManager.getChildAt(i - first);
-                    int percents = bean.getVisibilityPercents(childAt);
-                    if (percents >= 50){
-                        if (!bean.isTiming()){
-                            Message msg = mTimingHandler.obtainMessage();
-                            if (msg != null) {
-                                msg.obj = bean;
-                                bean.setTiming(true);
-                                mTimingHandler.sendMessageDelayed(msg, 1000);
+                    if (!bean.isHasExpose2Third()) {
+                        View childAt = mLayoutManager.getChildAt(i - first);
+                        int percents = bean.getVisibilityPercents(childAt);
+                        if (percents >= 50) {
+                            if (!bean.isThirdTiming()) {
+                                Message msg = mTimingHandler.obtainMessage();
+                                if (msg != null) {
+                                    msg.obj = bean;
+                                    msg.what = WHAT_AD_THIRD;
+                                    bean.setThirdTiming(true);
+                                    mTimingHandler.sendMessageDelayed(msg, 1000);
+                                }
                             }
+                        } else {
+                            mTimingHandler.removeCallbacksAndMessages(bean);
                         }
-                    }else{
-                        bean.setTiming(false);
-                        mTimingHandler.removeCallbacksAndMessages(bean);
                     }
+                    // 自营统计
+                    if (!bean.isHasExpose2Self()) {
+                        View childAt = mLayoutManager.getChildAt(i - first);
+                        int percents = bean.getVisibilityPercents(childAt);
+                        if (percents >= 50) {
+                            if (!bean.isSelfTiming()) {
+                                Message msg = mTimingHandler.obtainMessage();
+                                if (msg != null) {
+                                    msg.obj = bean;
+                                    msg.what = WHAT_AD_SELF;
+                                    bean.setSelfTiming(true);
+                                    mTimingHandler.sendMessageDelayed(msg, 1000);
+                                }
+                            }
+                        } else {
+                            mTimingHandler.removeCallbacksAndMessages(bean);
+                        }
+                    }
+
+                } else if (item instanceof ContentBean) {
+
                 }
             }
         }
     }
+
 }

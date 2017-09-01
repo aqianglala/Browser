@@ -7,18 +7,22 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.news.browser.R;
 import com.news.browser.mvp.IView;
 import com.news.browser.utils.ToastUtils;
+import com.news.browser.utils.UIUtils;
 import com.orhanobut.logger.Logger;
+import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration;
 
 import butterknife.ButterKnife;
 
 
 public abstract class BaseFragment<P extends BasePresenter> extends Fragment implements IView,
-        View.OnClickListener {
+        View.OnClickListener, View.OnTouchListener {
     public String TAG;
     protected View mContentView;
     protected BaseActivity mActivity;
@@ -58,6 +62,8 @@ public abstract class BaseFragment<P extends BasePresenter> extends Fragment imp
                 parent.removeView(mContentView);
             }
         }
+        // 解决addFragment时事件穿透的问题
+        mContentView.setOnTouchListener(this);
         return mContentView;
     }
 
@@ -119,6 +125,14 @@ public abstract class BaseFragment<P extends BasePresenter> extends Fragment imp
         recyclerView.setItemAnimator(new DefaultItemAnimator());
     }
 
+    protected HorizontalDividerItemDecoration getDefaultDivider(){
+        return new HorizontalDividerItemDecoration.Builder(mActivity)
+                .color(UIUtils.getColor(R.color.color_line))
+                .sizeResId(R.dimen.height_divider)
+                .marginResId(R.dimen.margin_horizontal, R.dimen.margin_horizontal)
+                .build();
+    }
+
     /******************************************* activity生命周期封装 ***********************************************/
 
     @Override
@@ -129,4 +143,22 @@ public abstract class BaseFragment<P extends BasePresenter> extends Fragment imp
             mPresenter.detachView();
         }
     }
+
+    private boolean isCurrentFragment;
+
+    public void setIsCurrentFragment(boolean isCurrent) {
+        isCurrentFragment = isCurrent;
+    }
+
+    public boolean isCurrentFragment() {
+        return isCurrentFragment;
+    }
+
+    /******************************************* 解决fragment点击穿透 ***********************************************/
+
+    @Override
+    public boolean onTouch(View v, MotionEvent event) {
+        return true;
+    }
+
 }

@@ -33,7 +33,6 @@ import com.news.browser.utils.GlobalParams;
 import com.news.browser.utils.NetUtils;
 import com.news.browser.utils.SPUtils;
 import com.news.browser.utils.UIUtils;
-import com.news.browser.widget.DividerItemDecoration;
 import com.zhy.adapter.recyclerview.MultiItemTypeAdapter;
 import com.zhy.adapter.recyclerview.base.ViewHolder;
 import com.zhy.adapter.recyclerview.wrapper.LoadMoreWrapper;
@@ -73,16 +72,23 @@ public class NewsRecommendFragment extends BaseFragment<NewsRecommendPresenter> 
         @Override
         public void handleMessage(@NonNull Message msg) {
             super.handleMessage(msg);
-            if (msg != null && msg.obj != null){
-                ListBean bean = (ListBean) msg.obj;
-                if (!bean.isHasExpose() && bean.isTiming()){
-                    bean.setTiming(false);
-                    removeCallbacksAndMessages(bean);
-                    // 自营统计上报数据：广告
-                    AccessRecordTool.getInstance().reportExpose();
-
-                    mPresenter.reportADExpose(bean);
-                }
+            if (msg == null || msg.obj == null) return;
+            switch (msg.what){
+                case WHAT_AD_THIRD:
+                    ListBean thirdBean = (ListBean) msg.obj;
+                    if (!thirdBean.isHasExpose2Third() && thirdBean.isThirdTiming()){
+                        removeMessages(WHAT_AD_THIRD, thirdBean);
+                        mPresenter.reportADExpose(thirdBean);
+                    }
+                    break;
+                case WHAT_AD_SELF:
+                    ListBean selfBean = (ListBean) msg.obj;
+                    if (!selfBean.isHasExpose2Self() && selfBean.isSelfTiming()){
+                        removeMessages(WHAT_AD_SELF, selfBean);
+                        // 自营统计上报数据：广告
+                        AccessRecordTool.getInstance().reportAdExpose(selfBean, "推荐", selfBean.getTitle(), AccessRecordTool.EV_SHOW, AccessRecordTool.TYPE_AD);
+                    }
+                    break;
             }
         }
     }
@@ -111,7 +117,7 @@ public class NewsRecommendFragment extends BaseFragment<NewsRecommendPresenter> 
         mRecyclerView.setLayoutManager(mLayoutManager = new LinearLayoutManager(mActivity));
         mRecyclerView.setHasFixedSize(true);
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
-        mRecyclerView.addItemDecoration(new DividerItemDecoration(mActivity, DividerItemDecoration.VERTICAL_LIST));
+        mRecyclerView.addItemDecoration(getDefaultDivider());
         mRecyclerView.setAdapter(mAdapter);
         mRecyclerView.addOnScrollListener(new OnRVScrollListener());
     }
@@ -197,15 +203,17 @@ public class NewsRecommendFragment extends BaseFragment<NewsRecommendPresenter> 
     public void onReceiveRecommendList(RecommendBean bean) {
         List<RecommendBean.NewslistBean> newslist = bean.getNewslist();
         if (newslist != null && newslist.size() > 0) {
-            if (isRefresh){
-                // 缓存新闻
-                SPUtils.put(GlobalParams.DATA_RECOMMEND_NEWS, new Gson().toJson(bean));
-                // 保存更新时间
-                SPUtils.put(GlobalParams.LAST_UPDATE_TIME, System.currentTimeMillis());
-
+            if (mData.size() == 10 && mData.get(0) instanceof EmptyNewsBean){
                 mData.clear();
-                mData.addAll(newslist);
-                mNewsList.clear();
+            }
+            if (isRefresh){
+                if (newslist.size() == 10){
+                    // 缓存新闻
+                    SPUtils.put(GlobalParams.DATA_RECOMMEND_NEWS, new Gson().toJson(bean));
+                    // 保存更新时间
+                    SPUtils.put(GlobalParams.LAST_UPDATE_TIME, System.currentTimeMillis());
+                }
+                mData.addAll(0, newslist);
                 mNewsList.addAll(newslist);
             }else{
                 mData.addAll(newslist);
@@ -238,8 +246,13 @@ public class NewsRecommendFragment extends BaseFragment<NewsRecommendPresenter> 
                 SPUtils.put(GlobalParams.DATA_RECOMMEND_AD, new Gson().toJson(bean));
             }
             ListBean listBean = list.get(0);
+            int index;
             Random random = new Random();
-            int index = mData.size() - 7 + random.nextInt(5);// 随机位置
+            if (isRefresh){
+                index = 3 + random.nextInt(5);
+            }else{
+                index = mData.size() - 7 + random.nextInt(5);// 随机位置
+            }
             mData.add(index, listBean);
         }
         notifyDataSetChanged();
@@ -291,6 +304,7 @@ public class NewsRecommendFragment extends BaseFragment<NewsRecommendPresenter> 
             RecommendBean.NewslistBean bean = (RecommendBean.NewslistBean) item;
             BrowserActivity browserAct = (BrowserActivity) mActivity;
             browserAct.searchTheWeb(bean.getUrl());
+            AccessRecordTool.getInstance().reportADClick("推荐", bean.getTitle(), AccessRecordTool.EV_CLICK, AccessRecordTool.TYPE_NEWS);
         }
     }
 
@@ -326,8 +340,10 @@ public class NewsRecommendFragment extends BaseFragment<NewsRecommendPresenter> 
         }else if (interact_type == 1){
             mPresenter.reportClick(url, item);
         }
+        AccessRecordTool.getInstance().reportADClick("推荐", item.getTitle(), AccessRecordTool.EV_CLICK, AccessRecordTool.TYPE_AD);
     }
-
+    private static final int WHAT_AD_THIRD = 1;
+    private static final int WHAT_AD_SELF = 2;
     private class OnRVScrollListener extends RecyclerView.OnScrollListener{
         @Override
         public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
@@ -338,6 +354,7 @@ public class NewsRecommendFragment extends BaseFragment<NewsRecommendPresenter> 
         public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
             super.onScrolled(recyclerView, dx, dy);
             if (mData.size() == 0) return;
+            if (!isCurrentFragment()) return;
             int first = mLayoutManager.findFirstVisibleItemPosition();
             int last = mLayoutManager.findLastVisibleItemPosition();
             for (int i = first; i <= last; i ++){
@@ -345,22 +362,44 @@ public class NewsRecommendFragment extends BaseFragment<NewsRecommendPresenter> 
                 BaseNewsItem item = mData.get(i);
                 if (item instanceof ListBean){// 广告
                     ListBean bean = (ListBean) item;
-                    if (bean.isHasExpose()) continue; // 已经上报
-                    View childAt = mLayoutManager.getChildAt(i - first);
-                    int percents = bean.getVisibilityPercents(childAt);
-                    if (percents >= 50){
-                        if (!bean.isTiming()){
-                            Message msg = mTimingHandler.obtainMessage();
-                            if (msg != null) {
-                                msg.obj = bean;
-                                bean.setTiming(true);
-                                mTimingHandler.sendMessageDelayed(msg, 1000);
+                    // 第三方统计
+                    if (!bean.isHasExpose2Third()) {
+                        View childAt = mLayoutManager.getChildAt(i - first);
+                        int percents = bean.getVisibilityPercents(childAt);
+                        if (percents >= 50){
+                            if (!bean.isThirdTiming()){
+                                Message msg = mTimingHandler.obtainMessage();
+                                if (msg != null) {
+                                    msg.obj = bean;
+                                    msg.what = WHAT_AD_THIRD;
+                                    bean.setThirdTiming(true);
+                                    mTimingHandler.sendMessageDelayed(msg, 1000);
+                                }
                             }
+                        }else{
+                            mTimingHandler.removeCallbacksAndMessages(bean);
                         }
-                    }else{
-                        bean.setTiming(false);
-                        mTimingHandler.removeCallbacksAndMessages(bean);
                     }
+                    // 自营统计
+                    if (!bean.isHasExpose2Self()) {
+                        View childAt = mLayoutManager.getChildAt(i - first);
+                        int percents = bean.getVisibilityPercents(childAt);
+                        if (percents >= 50){
+                            if (!bean.isSelfTiming()){
+                                Message msg = mTimingHandler.obtainMessage();
+                                if (msg != null) {
+                                    msg.obj = bean;
+                                    msg.what = WHAT_AD_SELF;
+                                    bean.setSelfTiming(true);
+                                    mTimingHandler.sendMessageDelayed(msg, 1000);
+                                }
+                            }
+                        }else{
+                            mTimingHandler.removeCallbacksAndMessages(bean);
+                        }
+                    }
+
+                } else if (item instanceof RecommendBean.NewslistBean){
                 }
             }
         }

@@ -106,7 +106,7 @@ public class DownloadHandler {
                         context.startActivity(intent);
                         return;
                     } catch (ActivityNotFoundException ex) {
-                        // Best behavior is to fall back to a download in this
+                        // Best behavior is to fall ic_back_white to a download in this
                         // case
                     }
                 }
@@ -391,7 +391,7 @@ public class DownloadHandler {
 
                     @Override
                     public void onDenied(String permission) {
-                        //TODO show message
+                        //TODO showBrowserFragment message
                     }
                 });
     }

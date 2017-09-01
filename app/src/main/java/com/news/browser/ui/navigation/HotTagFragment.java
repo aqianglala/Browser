@@ -72,7 +72,7 @@ public class HotTagFragment extends BaseFragment<HotBookmarkPresenter> implement
 
         rv_tag.setLayoutManager(new GridLayoutManager(mActivity, 4));
         rv_tag.setHasFixedSize(true);
-        rv_tag.addItemDecoration(new SpacesItemDecoration(DensityUtils.dpToPx(15)));
+        rv_tag.addItemDecoration(new SpacesItemDecoration(DensityUtils.dpToPx(12.5f)));
         rv_tag.setAdapter(mHotTagAdapter);
     }
 
@@ -151,7 +151,8 @@ public class HotTagFragment extends BaseFragment<HotBookmarkPresenter> implement
         }else{
             browserAct.searchTheWeb(mData.get(position).getAddrUrl());
             // 自营数据统计：热门标签
-            AccessRecordTool.getInstance().clickHotTag();
+            AccessRecordTool.getInstance().reportClick(0, AccessRecordTool.PG_RIGHT_SCREEN,
+                    AccessRecordTool.TYPE_HOT_TAG, position, mData.get(position).getName(), mData.get(position).getAddrUrl());
         }
     }
 
@@ -191,7 +192,7 @@ public class HotTagFragment extends BaseFragment<HotBookmarkPresenter> implement
         switch (v.getId()){
             case R.id.tv_hint:
                 if (!mHotTagAdapter.isEditable()){
-                    ((BrowserActivity)mActivity).jumpToSearch();
+                    ((BrowserActivity)mActivity).jumpToSearch(AccessRecordTool.PG_RIGHT_SCREEN);
                 }
                 break;
         }

@@ -3,7 +3,7 @@
     android:id="@+id/ll_toolbar_container"
     android:layout_width="match_parent"
     android:layout_height="50dp"
-    android:background="@drawable/bg_bottom_toolbar"
+    android:background="@drawable/shape_bg_white_top_line"
     android:orientation="horizontal">
 
     <ImageButton

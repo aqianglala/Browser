@@ -31,7 +31,9 @@ import android.widget.TextView;
 import com.news.browser.R;
 import com.news.browser.mvp.IView;
 import com.news.browser.utils.ToastUtils;
+import com.news.browser.utils.UIUtils;
 import com.orhanobut.logger.Logger;
+import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -155,11 +157,11 @@ public abstract class BaseActivity<P extends BasePresenter> extends AppCompatAct
     private TextView mToolbarSubTitle;
     private Toolbar mToolbar;
 
-    public TextView getToolbarTitle(){
+    public TextView getToolbarTitle() {
         return mToolbarTitle;
     }
 
-    public TextView getSubTitle(){
+    public TextView getSubTitle() {
         return mToolbarSubTitle;
     }
 
@@ -169,12 +171,13 @@ public abstract class BaseActivity<P extends BasePresenter> extends AppCompatAct
 
     /**
      * 设置标题
+     *
      * @param title
      */
     public void setToolBarTitle(CharSequence title) {
-        if(mToolbarTitle != null){
+        if (mToolbarTitle != null) {
             mToolbarTitle.setText(title);
-        }else{
+        } else {
             getToolbar().setTitle(title);
             setSupportActionBar(getToolbar());
         }
@@ -201,7 +204,7 @@ public abstract class BaseActivity<P extends BasePresenter> extends AppCompatAct
     /**
      * 设置返回按钮，默认显示
      */
-    protected void showBack(){
+    protected void showBack() {
         ActionBar supportActionBar = getSupportActionBar();
         supportActionBar.setDisplayHomeAsUpEnabled(isShowBacking());
         getToolbar().setNavigationOnClickListener(new View.OnClickListener() {
@@ -214,9 +217,10 @@ public abstract class BaseActivity<P extends BasePresenter> extends AppCompatAct
 
     /**
      * 是否显示后退按钮,默认显示,可在子类重写该方法.
+     *
      * @return
      */
-    protected boolean isShowBacking(){
+    protected boolean isShowBacking() {
         return true;
     }
 
@@ -268,17 +272,27 @@ public abstract class BaseActivity<P extends BasePresenter> extends AppCompatAct
         recyclerView.setItemAnimator(new DefaultItemAnimator());
     }
 
+    protected HorizontalDividerItemDecoration getDefaultDivider() {
+        return new HorizontalDividerItemDecoration.Builder(mActivity)
+                .color(UIUtils.getColor(R.color.color_line))
+                .sizeResId(R.dimen.height_divider)
+                .marginResId(R.dimen.margin_horizontal, R.dimen.margin_horizontal)
+                .build();
+    }
+
     /******************************************* fragment操作封装 ***********************************************/
 
     /**
      * 添加fragment
-     * 默认添加动画
+     * 默认添加平移动画
+     *
      * @param fragment
      * @param contentId
      * @param addToBackStack
+     * @param stackName
      */
-    public void addFragment(BaseFragment fragment, int contentId, boolean addToBackStack) {
-        addFragment(fragment, contentId, addToBackStack, true);
+    public void addFragment(BaseFragment fragment, int contentId, boolean addToBackStack, String stackName) {
+        addFragment(fragment, contentId, addToBackStack, stackName, true);
     }
 
     /**
@@ -287,16 +301,19 @@ public abstract class BaseActivity<P extends BasePresenter> extends AppCompatAct
      * @param fragment
      * @param contentId
      * @param addToBackStack
+     * @param stackName
+     * @param hasAnimation
      */
-    public void addFragment(BaseFragment fragment, int contentId, boolean addToBackStack, boolean hasAnimation) {
+    public void addFragment(BaseFragment fragment, int contentId, boolean addToBackStack, String stackName, boolean hasAnimation) {
         if (fragment != null) {
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            if (hasAnimation){
-                transaction.setCustomAnimations(R.anim.fragment_enter,R.anim.fragment_exit,R.anim.fragment_enter,R.anim.fragment_exit);
+            if (hasAnimation) {
+                transaction.setCustomAnimations(R.anim.fragment_enter, R.anim.fragment_exit,
+                        R.anim.fragment_enter, R.anim.fragment_exit);
             }
             transaction.add(contentId, fragment, fragment.getClass().getSimpleName());
             if (addToBackStack) {
-                transaction.addToBackStack("");
+                transaction.addToBackStack(stackName);
             }
 //            transaction.commit();
             transaction.commitAllowingStateLoss();
@@ -317,7 +334,18 @@ public abstract class BaseActivity<P extends BasePresenter> extends AppCompatAct
             transaction.addToBackStack("");
         }
         transaction.commit();
+    }
 
+    /**
+     * 移除fragment
+     *
+     * @param fragment
+     */
+    public void remove(BaseFragment fragment) {
+        if (fragment == null) return;
+        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
+        transaction.remove(fragment);
+        transaction.commitAllowingStateLoss();
     }
 
     //移除fragment

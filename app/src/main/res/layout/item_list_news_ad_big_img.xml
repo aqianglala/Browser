@@ -3,26 +3,28 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:paddingBottom="20dp"
+    android:paddingBottom="15dp"
     android:paddingLeft="@dimen/margin_horizontal"
     android:paddingRight="@dimen/margin_horizontal">
 
     <TextView
         android:id="@+id/tv_title"
         style="@style/TextAppearance_NewsTitle"
-        android:layout_marginTop="20dp" />
+        android:layout_marginTop="15dp" />
 
     <ImageView
         android:id="@+id/iv_thumbnail"
         android:layout_width="match_parent"
         android:layout_height="188.4dp"
-        android:layout_marginTop="15dp"
+        android:layout_marginTop="10dp"
+        android:src="@color/empty_news_bg"
         android:scaleType="centerCrop" />
 
     <ImageView
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginTop="15dp"
+        android:layout_marginTop="7.5dp"
         android:src="@drawable/ic_ad" />
+
 
 </LinearLayout>

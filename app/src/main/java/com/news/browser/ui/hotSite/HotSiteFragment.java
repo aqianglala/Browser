@@ -1,7 +1,8 @@
 package com.news.browser.ui.hotSite;
 
 import android.os.Bundle;
-import android.support.v7.widget.DividerItemDecoration;
+import android.os.Handler;
+import android.support.annotation.Nullable;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
@@ -65,13 +66,18 @@ public class HotSiteFragment extends BaseFragment<HotSitePresenter> implements H
     }
 
     @Override
+    public void onViewCreated(View view, @Nullable Bundle savedInstanceState) {
+        super.onViewCreated(view, savedInstanceState);
+    }
+
+    @Override
     protected void initView(Bundle savedInstanceState) {
         super.initView(savedInstanceState);
         mHotSiteAdapter = new HotSiteAdapter(mActivity, mData, this);
         mHotSiteAdapter.setOnItemClickListener(this);
         recycler_view.setLayoutManager(new LinearLayoutManager(mActivity));
         recycler_view.setHasFixedSize(true);
-        recycler_view.addItemDecoration(new DividerItemDecoration(mActivity, DividerItemDecoration.VERTICAL));
+        recycler_view.addItemDecoration(getDefaultDivider());
         recycler_view.setAdapter(mHotSiteAdapter);
     }
 
@@ -79,9 +85,14 @@ public class HotSiteFragment extends BaseFragment<HotSitePresenter> implements H
     protected void doBusiness(Bundle savedInstanceState) {
         tv_title.setText(R.string.hot_site);
         mHotTagDatabase = HotTagDatabase.getInstance();
-        mPresenter.getHotSite();
-        // 自营数据统计
-        AccessRecordTool.getInstance().accessHotSite();
+        new Handler().postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                mPresenter.getHotSite();
+                // 自营数据统计
+                AccessRecordTool.getInstance().accessPage(AccessRecordTool.PG_RIGHT_SCREEN, AccessRecordTool.PG_HOT_SITE, null);
+            }
+        }, 300);
     }
 
     @Override
@@ -125,7 +136,10 @@ public class HotSiteFragment extends BaseFragment<HotSitePresenter> implements H
     public void onItemClick(View view, RecyclerView.ViewHolder holder, int position) {
         BaseItem baseItem = mData.get(position);
         if (baseItem instanceof HotSiteBean.DataBean) {
+            HotSiteBean.DataBean bean = (HotSiteBean.DataBean) baseItem;
             BrowserActivity browserActivity = (BrowserActivity) mActivity;
+            AccessRecordTool.getInstance().reportClick(AccessRecordTool.PG_RIGHT_SCREEN, AccessRecordTool.PG_HOT_SITE,
+                    AccessRecordTool.TYPE_HOT_SITE, getRealPos(position), bean.getName(), bean.getAddrUrl());
             browserActivity.searchTheWeb(((HotSiteBean.DataBean) baseItem).getAddrUrl());
         }
     }
@@ -149,6 +163,19 @@ public class HotSiteFragment extends BaseFragment<HotSitePresenter> implements H
     @Override
     public void onOpenClick(ViewHolder holder, HotSiteBean.DataBean bean, int position) {
         BrowserActivity browserActivity = (BrowserActivity) mActivity;
+        AccessRecordTool.getInstance().reportClick(AccessRecordTool.PG_RIGHT_SCREEN, AccessRecordTool.PG_HOT_SITE,
+                AccessRecordTool.TYPE_HOT_SITE, getRealPos(position), bean.getName(), bean.getAddrUrl());
         browserActivity.searchTheWeb(bean.getAddrUrl());
     }
+
+    public int getRealPos(int oldPos) {
+        for (int i = 0; i < oldPos; i++) {
+            BaseItem baseItem = mData.get(i);
+            if (baseItem != null && baseItem instanceof HotSiteTitleBean) {
+                oldPos--;
+            }
+        }
+        return oldPos;
+    }
+
 }

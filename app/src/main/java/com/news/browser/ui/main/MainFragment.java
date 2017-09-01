@@ -11,7 +11,6 @@ import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
-import com.bumptech.glide.Glide;
 import com.google.gson.Gson;
 import com.news.browser.BuildConfig;
 import com.news.browser.R;
@@ -26,6 +25,7 @@ import com.news.browser.ui.news.NewsChannelFragment;
 import com.news.browser.ui.news.NewsRecommendFragment;
 import com.news.browser.utils.DensityUtils;
 import com.news.browser.utils.FileUtils;
+import com.news.browser.utils.GlideUtils;
 import com.news.browser.utils.GlobalParams;
 import com.news.browser.utils.LocationUtils;
 import com.news.browser.utils.SPUtils;
@@ -64,6 +64,7 @@ public class MainFragment extends BaseFragment<MainFrgPresenter> implements UcNe
     private NewsViewPager mNewsPager;
     private TabLayout mTableLayout;
     private List<BaseFragment> mFragments = new ArrayList<>();
+    private List<String> mTitles = new ArrayList<>();
     private UcNewsHeaderPagerBehavior mPagerBehavior;
     private TestFragmentAdapter mNewsPagerAdapter;
 
@@ -76,7 +77,7 @@ public class MainFragment extends BaseFragment<MainFrgPresenter> implements UcNe
     private NewsRecommendFragment mRecommendFragment;
 
     @OnClick(R.id.iv_qr_code)
-    void openQrcode(){
+    void openQrcode() {
         BrowserActivity browserActivity = (BrowserActivity) mActivity;
         browserActivity.openQrcode();
     }
@@ -100,12 +101,11 @@ public class MainFragment extends BaseFragment<MainFrgPresenter> implements UcNe
         mTableLayout = (TabLayout) mContentView.findViewById(R.id.id_uc_news_tab);
 
         mRecommendFragment = new NewsRecommendFragment();
-        mFragments.add(mRecommendFragment);
-        mTableLayout.addTab(mTableLayout.newTab().setText("推荐"));
         mTableLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
         mTableLayout.addOnTabSelectedListener(new TabSelectedListener());
         mNewsPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(mTableLayout));
-        mNewsPagerAdapter = new TestFragmentAdapter(mFragments, getFragmentManager());
+        mTableLayout.setupWithViewPager(mNewsPager);
+        mNewsPagerAdapter = new TestFragmentAdapter(mFragments, mTitles, getFragmentManager());
         mNewsPager.setAdapter(mNewsPagerAdapter);
 
         initNavigation();
@@ -115,7 +115,7 @@ public class MainFragment extends BaseFragment<MainFrgPresenter> implements UcNe
         GridLayoutManager gridLayoutManager = new GridLayoutManager(mActivity, 6);
         rv_navigation.setLayoutManager(gridLayoutManager);
         rv_navigation.setHasFixedSize(true);
-        rv_navigation.addItemDecoration(new SpacesItemDecoration(DensityUtils.dpToPx(12.5f), DensityUtils.dpToPx(20)));
+        rv_navigation.addItemDecoration(new SpacesItemDecoration(DensityUtils.dpToPx(8f), DensityUtils.dpToPx(20)));
     }
 
     @Override
@@ -136,10 +136,10 @@ public class MainFragment extends BaseFragment<MainFrgPresenter> implements UcNe
      */
     private void getNavigation() {
         String json_Navigation = (String) SPUtils.get(GlobalParams.DATA_NAVIGATION, "");
-        if (!TextUtils.isEmpty(json_Navigation)){
+        if (!TextUtils.isEmpty(json_Navigation)) {
             HomeNavigationBean homeNavigationBean = new Gson().fromJson(json_Navigation, HomeNavigationBean.class);
             setNavigationData(homeNavigationBean);
-        }else{
+        } else {
             FileUtils.loadFile(mActivity, FileUtils.HOME_NAVIGATION_FILE_NAME)
                     .subscribe(new Action1<String>() {
                         @Override
@@ -157,7 +157,7 @@ public class MainFragment extends BaseFragment<MainFrgPresenter> implements UcNe
      */
     private void getChannelList() {
         String jsonStr = (String) get(GlobalParams.DATA_CHANNEL, "");
-        if (TextUtils.isEmpty(jsonStr)){
+        if (TextUtils.isEmpty(jsonStr)) {
             FileUtils.loadFile(mActivity, FileUtils.CHANNEL_LIST_FILE_NAME)
                     .subscribe(new Action1<String>() {
                         @Override
@@ -167,7 +167,7 @@ public class MainFragment extends BaseFragment<MainFrgPresenter> implements UcNe
                         }
                     });
             mPresenter.getChannelList();
-        }else{
+        } else {
             Map<String, ChannelBean> beanMap = parseChannelListJson(jsonStr);
             setChannelList(beanMap);
         }
@@ -201,10 +201,12 @@ public class MainFragment extends BaseFragment<MainFrgPresenter> implements UcNe
     @Override
     public void onClick(View v) {
         super.onClick(v);
-        switch (v.getId()){
+        switch (v.getId()) {
             case R.id.iv_search:
+                ((BrowserActivity) mActivity).jumpToSearch(AccessRecordTool.PG_HOT_NEWS);
+                break;
             case R.id.tv_hint:
-                ((BrowserActivity)mActivity).jumpToSearch();
+                ((BrowserActivity) mActivity).jumpToSearch(AccessRecordTool.PG_HOME);
                 break;
         }
     }
@@ -215,15 +217,19 @@ public class MainFragment extends BaseFragment<MainFrgPresenter> implements UcNe
             Log.d(TAG, "onPagerClosed: ");
         }
         mNewsPager.setPagingEnabled(true);
+        // 自营统计
+        if (mNewsPager.getCurrentItem() == 0) {
+            AccessRecordTool.getInstance().accessPage(0, AccessRecordTool.PG_HOT_NEWS, "推荐");
+        }
     }
 
     @Override
     public void onPagerOpened() {
         mNewsPager.setPagingEnabled(false);
-        mNewsPager.setCurrentItem(0);
-        if (mRecommendFragment != null){
+        if (mRecommendFragment != null) {
             mRecommendFragment.scrollToTop();
         }
+        mNewsPager.setCurrentItem(0);
     }
 
     public boolean onBackPressed() {
@@ -246,21 +252,25 @@ public class MainFragment extends BaseFragment<MainFrgPresenter> implements UcNe
         List<String> channels = new LinkedList(Arrays.asList(defaultChannels));
         String province = (String) get(LocationUtils.PROVINCE, "");
         String city = (String) get(LocationUtils.CITY, "");
-        if (!TextUtils.isEmpty(province)){
-            for (ChannelBean bean : channelMap.values()){
+        if (!TextUtils.isEmpty(province)) {
+            for (ChannelBean bean : channelMap.values()) {
                 if (bean == null) continue;
-                if (city.contains(bean.getChanName()) || province.contains(bean.getChanName())){
-                    channels.add(2, bean.getChanId());
+                if (city.contains(bean.getChanName()) || province.contains(bean.getChanName())) {
+                    channels.add(4, bean.getChanId());
                     break;
                 }
             }
         }
-        for (String key : channels){
+        mFragments.clear();
+        mFragments.add(mRecommendFragment);
+        mTitles.clear();
+        mTitles.add("推荐");
+        for (String key : channels) {
             ChannelBean bean = channelMap.get(key);
-            if (bean != null){
-                NewsChannelFragment fragment = NewsChannelFragment.newInstance(bean.getChanCode());
+            if (bean != null) {
+                NewsChannelFragment fragment = NewsChannelFragment.newInstance(bean.getChanCode(), bean.getChanName());
                 mFragments.add(fragment);
-                mTableLayout.addTab(mTableLayout.newTab().setText(bean.getChanName()));
+                mTitles.add(bean.getChanName());
             }
         }
         mNewsPagerAdapter.notifyDataSetChanged();
@@ -268,6 +278,7 @@ public class MainFragment extends BaseFragment<MainFrgPresenter> implements UcNe
 
     /**
      * 加载失败则从本地文件中读取
+     *
      * @param e
      */
     @Override
@@ -282,8 +293,16 @@ public class MainFragment extends BaseFragment<MainFrgPresenter> implements UcNe
 
     private void setNavigationData(HomeNavigationBean bean) {
         mNavigationList.clear();
-        mNavigationList.addAll(bean.getData());
-        if (mNavigationAdapter == null){
+        List<HomeNavigationBean.DataBean> data = bean.getData();
+        if (data != null) {
+            if (data.size() > 12) {
+                List<HomeNavigationBean.DataBean> dataBeen = data.subList(0, 12);
+                mNavigationList.addAll(dataBeen);
+            } else {
+                mNavigationList.addAll(data);
+            }
+        }
+        if (mNavigationAdapter == null) {
             mNavigationAdapter = new NavigationAdapter(mActivity, R.layout.item_list_navigatioin, mNavigationList);
             rv_navigation.setAdapter(mNavigationAdapter);
             mNavigationAdapter.setOnItemClickListener(new MultiItemTypeAdapter.OnItemClickListener() {
@@ -293,7 +312,8 @@ public class MainFragment extends BaseFragment<MainFrgPresenter> implements UcNe
                     BrowserActivity browserAct = (BrowserActivity) mActivity;
                     browserAct.searchTheWeb(dataBean.getAddrUrl());
                     // 自营数据统计：首页导航
-                    AccessRecordTool.getInstance().clickNavigation();
+                    AccessRecordTool.getInstance().reportClick(0, AccessRecordTool.PG_HOME,
+                            AccessRecordTool.TYPE_NAVIGATION, position, dataBean.getName(), dataBean.getAddrUrl());
                 }
 
                 @Override
@@ -301,13 +321,14 @@ public class MainFragment extends BaseFragment<MainFrgPresenter> implements UcNe
                     return false;
                 }
             });
-        }else{
+        } else {
             mNavigationAdapter.notifyDataSetChanged();
         }
     }
 
     /**
      * 加载失败则从本地文件中读取
+     *
      * @param e
      */
     @Override
@@ -320,6 +341,18 @@ public class MainFragment extends BaseFragment<MainFrgPresenter> implements UcNe
         @Override
         public void onTabSelected(TabLayout.Tab tab) {
             mNewsPager.setCurrentItem(tab.getPosition());
+            for (int i = 0; i < mFragments.size(); i++) {
+                BaseFragment fragment = mFragments.get(i);
+                if (i == tab.getPosition()) {
+                    fragment.setIsCurrentFragment(true);
+                } else {
+                    fragment.setIsCurrentFragment(false);
+                }
+            }
+            // 自营统计
+            if (mNewsPager.isPagingEnabled()) {
+                AccessRecordTool.getInstance().accessPage(0, AccessRecordTool.PG_HOT_NEWS, tab.getText().toString());
+            }
         }
 
         @Override
@@ -333,7 +366,7 @@ public class MainFragment extends BaseFragment<MainFrgPresenter> implements UcNe
         }
     }
 
-    class NavigationAdapter extends CommonAdapter<HomeNavigationBean.DataBean>{
+    class NavigationAdapter extends CommonAdapter<HomeNavigationBean.DataBean> {
 
         public NavigationAdapter(Context context, int layoutId, List<HomeNavigationBean.DataBean> datas) {
             super(context, layoutId, datas);
@@ -343,14 +376,16 @@ public class MainFragment extends BaseFragment<MainFrgPresenter> implements UcNe
         protected void convert(ViewHolder holder, HomeNavigationBean.DataBean dataBean, int position) {
             holder.setText(R.id.tv_name, dataBean.getName());
             ImageView iv_icon = holder.getView(R.id.iv_icon);
-            Glide.with(mActivity).load(dataBean.getIconUrl()).into(iv_icon);
+            GlideUtils.loadIconImage(mActivity, dataBean.getIconUrl(), iv_icon);
         }
     }
 
-    public boolean home(){
-        if (mPagerBehavior.isClosed()){
-            mPagerBehavior.openPager();
-            return true;
+    public boolean home() {
+        if (mPagerBehavior != null) {
+            if (mPagerBehavior.isClosed()) {
+                mPagerBehavior.openPager();
+                return true;
+            }
         }
         return false;
     }

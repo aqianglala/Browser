@@ -20,7 +20,6 @@ public class FileItem {
     private int mId;
     private String mUrl;
     private String mName;
-    private long mSize;
     private int mType;
     private String mPath;
     private int mStatus;
@@ -31,11 +30,10 @@ public class FileItem {
     public FileItem() {
     }
 
-    public FileItem(int id, String mUrl, String mName, long mSize, int mType, String mPath) {
+    public FileItem(int id, String mUrl, String mName, int mType, String mPath) {
         this.mId = id;
         this.mUrl = mUrl;
         this.mName = mName;
-        this.mSize = mSize;
         this.mType = mType;
         this.mPath = mPath;
     }
@@ -62,14 +60,6 @@ public class FileItem {
 
     public void setName(String mName) {
         this.mName = mName;
-    }
-
-    public long getSize() {
-        return mSize;
-    }
-
-    public void setSize(long mSize) {
-        this.mSize = mSize;
     }
 
     public int getType() {

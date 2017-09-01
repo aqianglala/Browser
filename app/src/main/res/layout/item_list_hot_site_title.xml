@@ -9,11 +9,11 @@
         android:id="@+id/tv_group"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:textColor="@color/text_black"
+        android:textColor="@color/text_blue"
         android:textSize="10sp"
         android:layout_marginLeft="12.5dp"
         android:layout_marginRight="12.5dp"
-        android:layout_marginTop="7.5dp"
-        android:layout_marginBottom="7.5dp"
+        android:layout_marginTop="14dp"
+        android:layout_marginBottom="14dp"
         />
 </LinearLayout>

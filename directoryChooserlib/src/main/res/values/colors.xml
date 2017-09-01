@@ -6,4 +6,11 @@
     <!-- Use Gingerbread-orange -->
     <color name="selection_background_color">#FEBB20</color>
 
+    <color name="text_black">#3A3332</color>
+    <color name="text_white">#ffffff</color>
+
+    <color name="color_blue">#00A2E9</color>
+    <color name="color_window_manager">#1F1D1D</color>
+
+    <color name="color_page_bg">#F0F0F0</color>
 </resources>

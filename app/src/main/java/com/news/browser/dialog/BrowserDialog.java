@@ -138,7 +138,7 @@ public class BrowserDialog {
         });
     }
 
-    public static void showConfirm(@NonNull Context context, @StringRes int title, @StringRes int message,
+    public static void showConfirm(@NonNull Context context, boolean isCancelable, @StringRes int title, @StringRes int message,
                                    final Item itemLeft, @Nullable final Item itemRight) {
         AlertDialog.Builder builder = new AlertDialog.Builder(context);
 
@@ -161,6 +161,7 @@ public class BrowserDialog {
         tv_right.setText(itemRight.getTitle());
 
         builder.setView(layout);
+        builder.setCancelable(isCancelable);
 
         final Dialog dialog = builder.show();
 

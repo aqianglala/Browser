@@ -136,7 +136,6 @@ public class FeedbackActivity extends BaseActivity<FeedbackPresenter> implements
             public void onItemSelected(AdapterView<?> parent, View view, int position, long id) {
                 FeedbackTypeBean.TypelistBean bean = mTypeList.get(position);
                 if (bean != null){
-                    toast(bean.getTypeName());
                     mCurrentType = bean;
                 }
                 view.setBackgroundResource(R.drawable.shape_feedback_bg_gray);
@@ -242,7 +241,11 @@ public class FeedbackActivity extends BaseActivity<FeedbackPresenter> implements
                 Intent intent = new Intent(
                         Intent.ACTION_PICK,
                         MediaStore.Images.Media.EXTERNAL_CONTENT_URI);
-                startActivityForResult(intent, 1);
+                if (intent == null){
+                    toast("请打开系统相册后重试！");
+                }else{
+                    startActivityForResult(intent, 1);
+                }
             }
         };
     };

@@ -2,21 +2,26 @@ package com.news.browser.ui.download;
 
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.util.SparseArray;
+import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.ProgressBar;
 import android.widget.TextView;
 
@@ -39,7 +44,6 @@ import com.news.browser.ui.download.db.FileItem;
 import com.news.browser.utils.FileOpenUtils;
 import com.news.browser.utils.RxBus;
 import com.news.browser.utils.Utils;
-import com.news.browser.widget.DividerItemDecoration;
 import com.news.browser.widget.RecyclerViewEmptySupport;
 
 import java.io.File;
@@ -54,6 +58,8 @@ import butterknife.OnClick;
 public class DownloadManagerActivity extends BaseActivity {
 
     private static Context mContext;
+    private static DownloadManagerActivity mActivity;
+    private static View mViewParent;
     private TaskItemAdapter adapter;
 
     @BindView(R.id.tv_title)
@@ -65,7 +71,7 @@ public class DownloadManagerActivity extends BaseActivity {
     LinearLayout ll_empty;
 
     @OnClick(R.id.iv_back)
-    void back(){
+    void back() {
         finish();
     }
 
@@ -83,12 +89,14 @@ public class DownloadManagerActivity extends BaseActivity {
     protected void initView() {
         super.initView();
         mContext = this;
+        mActivity = this;
+        mViewParent = mContentView;
 
         final RecyclerViewEmptySupport recyclerView = (RecyclerViewEmptySupport) findViewById(R.id.recycler_view);
 
         recyclerView.setEmptyView(ll_empty);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
-        recyclerView.addItemDecoration(new DividerItemDecoration(mActivity, DividerItemDecoration.VERTICAL_LIST));
+        recyclerView.addItemDecoration(getDefaultDivider());
         recyclerView.setAdapter(adapter = new TaskItemAdapter());
 
         // 链接服务
@@ -113,6 +121,8 @@ public class DownloadManagerActivity extends BaseActivity {
     protected void onDestroy() {
         TasksManager.getImpl().onDestroy();
         adapter = null;
+        mActivity = null;
+        mContext = null;
 //        FileDownloader.getImpl().pauseAll();
         super.onDestroy();
     }
@@ -202,16 +212,18 @@ public class DownloadManagerActivity extends BaseActivity {
             switch (status) {
                 case FileDownloadStatus.error:
                     tv_status.setText(R.string.tasks_manager_demo_status_error);
+                    btn_action.setText(R.string.start);
                     break;
                 case FileDownloadStatus.paused:
                     tv_status.setText(R.string.tasks_manager_demo_status_paused);
+                    btn_action.setText(R.string.go_on);
                     break;
                 default:
                     tv_status.setText(R.string.tasks_manager_demo_status_not_downloaded);
+                    btn_action.setText(R.string.start);
                     break;
             }
             tv_process.setText(Utils.formatFileSize(sofar) + "/" + Utils.formatFileSize(total) + "M");
-            btn_action.setText(R.string.start);
         }
 
         /**
@@ -346,7 +358,7 @@ public class DownloadManagerActivity extends BaseActivity {
                     return;
                 }
                 setApkIcon(tag, task.getPath(), task.getStatus());
-                long size = TasksManager.getImpl().getById(task.getId()).getSize();
+                long size = getFileSize(task.getPath());
                 tag.updateDownloaded(size);
                 TasksManager.getImpl().removeTaskForViewHolder(task.getId());
 
@@ -365,7 +377,8 @@ public class DownloadManagerActivity extends BaseActivity {
                 if (action.equals(v.getResources().getString(R.string.pause))) {
                     // to pause
                     FileDownloader.getImpl().pause(holder.id);
-                } else if (action.equals(v.getResources().getString(R.string.start))) {
+                } else if (action.equals(v.getResources().getString(R.string.start))
+                        || action.equals(v.getResources().getString(R.string.go_on))) {
                     // to start
                     // to start
                     final FileItem model = TasksManager.getImpl().get(holder.getLayoutPosition());
@@ -446,7 +459,8 @@ public class DownloadManagerActivity extends BaseActivity {
                     holder.updateNotDownloaded(status, 0, 0);
                 } else if (TasksManager.getImpl().isDownloaded(status)) {
                     // already downloaded and exist
-                    holder.updateDownloaded(model.getSize());
+                    long total = getFileSize(model.getPath());
+                    holder.updateDownloaded(total);
                 } else if (status == FileDownloadStatus.progress) {
                     // downloading
                     holder.updateDownloading(status, TasksManager.getImpl().getSoFar(model.getId())
@@ -472,25 +486,83 @@ public class DownloadManagerActivity extends BaseActivity {
             holder.iv_delete.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
-                    BrowserDialog.showConfirm(mContext, R.string.prompt_confirm, R.string.prompt_deleted, null,
-                            new BrowserDialog.Item(R.string.sure) {
-                                @Override
-                                public void onClick() {
-                                    int pos = holder.getLayoutPosition();
-                                    FileDownloader.getImpl().clear(model.getId(), model.getPath());
-
-                                    TasksManager.getImpl().removeTaskForViewHolder(model.getId());
-                                    TasksManager.getImpl().removeTaskFromDB(model.getId());
-                                    TasksManager.getImpl().removeItem(pos);
-
-//                    notifyItemRemoved(pos);
-                                    notifyDataSetChanged();
-                                }
-                            });
+                    int pos = holder.getLayoutPosition();
+                    showDeleteWindow(pos, model);
                 }
             });
 
         }
+
+        public void showDeleteWindow(final int pos, final FileItem model) {
+            View menuView = LayoutInflater.from(mActivity).inflate(R.layout.include_image_window, (ViewGroup) mViewParent, false);
+
+            final PopupWindow window = new PopupWindow(menuView, CoordinatorLayout.LayoutParams.MATCH_PARENT, CoordinatorLayout.LayoutParams.WRAP_CONTENT);
+            TextView tv_first_item = (TextView) menuView.findViewById(R.id.tv_first_item);
+            TextView tv_second_item = (TextView) menuView.findViewById(R.id.tv_second_item);
+
+            tv_first_item.setText("删除下载记录及本地文件");
+            tv_second_item.setText("删除下载记录");
+
+            window.setFocusable(true);
+            // 设置允许在外点击消失，必须和setBackgroundDrawable方法一起使用才有效
+            window.setOutsideTouchable(true);
+            window.update();
+            window.setBackgroundDrawable(new BitmapDrawable());
+
+            window.setAnimationStyle(R.style.PopupAnimation);
+            window.setOutsideTouchable(true);
+            window.showAtLocation(mViewParent, Gravity.BOTTOM, 0, 0);
+
+            // 设置背景颜色变暗
+            setBackgroundBlur();
+            window.setOnDismissListener(onDismissListener);
+
+            menuView.findViewById(R.id.tv_first_item).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    window.dismiss();
+                    FileDownloader.getImpl().clear(model.getId(), model.getPath());
+
+                    TasksManager.getImpl().removeTaskForViewHolder(model.getId());
+                    TasksManager.getImpl().removeTaskFromDB(model.getId());
+                    TasksManager.getImpl().removeItem(pos);
+
+                    notifyDataSetChanged();
+                }
+            });
+            menuView.findViewById(R.id.tv_second_item).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    window.dismiss();
+
+                    TasksManager.getImpl().removeTaskForViewHolder(model.getId());
+                    TasksManager.getImpl().removeTaskFromDB(model.getId());
+                    TasksManager.getImpl().removeItem(pos);
+                    notifyDataSetChanged();
+                }
+            });
+            menuView.findViewById(R.id.tv_cancel).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    window.dismiss();
+                }
+            });
+        }
+
+        private void setBackgroundBlur() {
+            WindowManager.LayoutParams lp = mActivity.getWindow().getAttributes();
+            lp.alpha = 0.7f;
+            mActivity.getWindow().setAttributes(lp);
+        }
+
+        private PopupWindow.OnDismissListener onDismissListener = new PopupWindow.OnDismissListener() {
+            @Override
+            public void onDismiss() {
+                WindowManager.LayoutParams lp = mActivity.getWindow().getAttributes();
+                lp.alpha = 1f;
+                mActivity.getWindow().setAttributes(lp);
+            }
+        };
 
         private void openTask(View v, FileItem model, final TaskItemViewHolder holder) {
             BaseDownloadTask task = TasksManager.getImpl().getTaskById(model.getId());
@@ -505,7 +577,7 @@ public class DownloadManagerActivity extends BaseActivity {
                 } else {
                     String action = holder.btn_action.getText().toString();
                     if (action.equals(v.getResources().getString(R.string.open))) {
-                        BrowserDialog.showConfirm(mContext, R.string.prompt_confirm, R.string.prompt_file_deleted, null,
+                        BrowserDialog.showConfirm(mContext, true, R.string.prompt_confirm, R.string.prompt_file_deleted, null,
                                 new BrowserDialog.Item(R.string.action_ok) {
                                     @Override
                                     public void onClick() {
@@ -544,6 +616,15 @@ public class DownloadManagerActivity extends BaseActivity {
         public int getItemCount() {
             return TasksManager.getImpl().getTaskCounts();
         }
+    }
+
+    private static long getFileSize(String path) {
+        File file = new File(path);
+        long total = 0;
+        if (file.exists() && file.isFile()) {
+            total = file.length();
+        }
+        return total;
     }
 
     public static class TasksManager {
@@ -733,8 +814,11 @@ public class DownloadManagerActivity extends BaseActivity {
                 return null;
             }
 
+            // 开始下载
+            RxBus.getInstance().post(new RXEvent(RXEvent.TAG_BROWSER_MSG, R.string.prompt_task_start));
+
             final int id = FileDownloadUtils.generateId(url, path);
-            FileItem newModel = new FileItem(id, url, name, 0, 0, path);
+            FileItem newModel = new FileItem(id, url, name, 0, path);
             newModel.setClickId(click_id);// 广告联盟
             newModel.setConversionLink(conversion_link);// 广告联盟
 
@@ -804,21 +888,6 @@ public class DownloadManagerActivity extends BaseActivity {
             return true;
         }
 
-        /**
-         * 更新文件大小
-         *
-         * @param id
-         * @param total
-         */
-        public void updateModelSize(int id, long total) {
-            if (total == 0) return;
-            FileItem item = getById(id);
-            if (item != null && item.getSize() == 0) {
-                item.setSize(total);
-                dbController.updateFileItem(item);
-            }
-        }
-
         public void removeTaskListener(int id) {
             BaseDownloadTask task = getTaskById(id);
             if (task != null) {
@@ -833,4 +902,5 @@ public class DownloadManagerActivity extends BaseActivity {
             }
         }
     }
+
 }

@@ -36,7 +36,7 @@ import android.widget.TextView;
 import java.util.List;
 
 /**
- * This utility class can add a horizontal popup-menu easily
+ * This utility class can addBrowserFragment a horizontal popup-menu easily
  * <p>
  * 该工具类可以很方便的为View、ListView/GridView绑定长按弹出横向气泡菜单
  */
@@ -177,7 +177,7 @@ public class PopupList {
     }
 
     /**
-     * show a popup window in a bubble style.
+     * showBrowserFragment a popup window in a bubble style.
      *
      * @param anchorView        the view on which to pin the popup window
      * @param contextPosition   context position

@@ -10,6 +10,8 @@ import android.support.annotation.NonNull;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 
+import com.news.browser.base.BaseApplication;
+import com.news.browser.utils.ChannelUtil;
 import com.news.browser.utils.LocationUtils;
 import com.news.browser.utils.NetUtils;
 import com.news.browser.utils.SPUtils;
@@ -21,6 +23,7 @@ import java.net.SocketException;
 import java.util.Enumeration;
 import java.util.HashMap;
 
+import static com.news.browser.utils.SPUtils.get;
 import static com.news.browser.utils.UIUtils.getResources;
 
 /**
@@ -93,8 +96,8 @@ public class NetProtocol {
         private static final NetProtocol INSTANCE = new NetProtocol();
     }
 
-    public static NetProtocol getImpl(Context context) {
-        mContext = context;
+    public static NetProtocol getImpl() {
+        mContext = BaseApplication.getContext();
         return HolderClass.INSTANCE;
     }
 
@@ -188,7 +191,7 @@ public class NetProtocol {
         if (mManufacturer == null) {
             mManufacturer = getManufacturer();
         }
-        if (mVersionSDK == null){
+        if (mVersionSDK == null) {
             mVersionSDK = getAppEnvSdkIntVersion();
         }
     }
@@ -238,10 +241,10 @@ public class NetProtocol {
             String imei = tm.getDeviceId();
             if (imei == null) {
                 return "000000000000000";
-            } else if(imei.equals("") || imei.length() < 14) {
+            } else if (imei.equals("") || imei.length() < 14) {
                 return "000000000000000";
-            } else if(imei.length() > 15) {
-                imei = imei.substring(imei.length()-15);
+            } else if (imei.length() > 15) {
+                imei = imei.substring(imei.length() - 15);
             }
             return imei;
         } else {
@@ -416,7 +419,7 @@ public class NetProtocol {
     public String getImsi() {
         TelephonyManager telManager = (TelephonyManager) mContext.getSystemService(Context.TELEPHONY_SERVICE);
         String imsi = telManager.getSubscriberId();
-        if (TextUtils.isEmpty(imsi)){
+        if (TextUtils.isEmpty(imsi)) {
             return "0";
         }
         return imsi;
@@ -548,12 +551,22 @@ public class NetProtocol {
         return paramMap;
     }
 
-    public HashMap<String, String> getRequestServerAddressQueryMap() {
-        String latitude = (String) SPUtils.get(LocationUtils.LATITUDE, "22.53");
-        String longitude = (String) SPUtils.get(LocationUtils.LONGITUDE, "114.03");
+    public HashMap<String, String> getServerAddressMap() {
+        String latitude = (String) get(LocationUtils.LATITUDE, "22.53");
+        String longitude = (String) get(LocationUtils.LONGITUDE, "114.03");
         HashMap<String, String> params = getBaseParams1();
         params.put(LONGITUDE, longitude);
         params.put(LATITUDE, latitude);
+        return params;
+    }
+
+    public HashMap<String, String> getRecordServerAdressMap() {
+        String latitude = (String) get(LocationUtils.LATITUDE, "22.53");
+        String longitude = (String) get(LocationUtils.LONGITUDE, "114.03");
+        HashMap<String, String> params = getBaseParams1();
+        params.put(LONGITUDE, longitude);
+        params.put(LATITUDE, latitude);
+        params.put(APPID, "BrowserLog");
         return params;
     }
 
@@ -562,7 +575,7 @@ public class NetProtocol {
         String result = model.replaceAll("[Dd][Oo][Oo][Vv]", "");
         result = result.replaceAll(" ", "");
 
-        if(TextUtils.isEmpty(result)) {
+        if (TextUtils.isEmpty(result)) {
             return model.replace(" ", "");
         }
 
@@ -575,11 +588,11 @@ public class NetProtocol {
         HashMap<String, String> paramMap = getBaseFeedbackMap();
 
         //检查一下参数
-        if(TextUtils.isEmpty(contact)) {
+        if (TextUtils.isEmpty(contact)) {
             contact = "13800000000";
         }
 
-        if(TextUtils.isEmpty(content)) {
+        if (TextUtils.isEmpty(content)) {
             content = "no suggets";
         }
 
@@ -608,6 +621,23 @@ public class NetProtocol {
         paramMap.put(VERSIONSDK, mVersionSDK);
         paramMap.put(VERSIONCODE, mClientVersionCode);
         return paramMap;
+    }
+
+    public HashMap<String, String> getBaseRecordParams(int lastPage, int currentPage, int event) {
+        HashMap<String, String> params = getBaseParams2();
+        params.put("Network", NetUtils.getNetworkClassStr(mContext));
+        params.put("Channel", ChannelUtil.getChannel(mContext));
+        String province = (String) SPUtils.get(LocationUtils.PROVINCE, "");
+        String city = (String) SPUtils.get(LocationUtils.CITY, "");
+        params.put("Province", province);
+        params.put("City", city);
+        params.put("Time", System.currentTimeMillis() + "");
+
+        params.put("LastPage", lastPage + "");
+        params.put("CurrentPage", currentPage + "");
+        params.put("Event", event + "");
+
+        return params;
     }
 
 }

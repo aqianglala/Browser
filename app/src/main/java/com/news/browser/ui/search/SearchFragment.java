@@ -32,13 +32,14 @@ import com.news.browser.bean.SearchHistoryItem;
 import com.news.browser.data.AccessRecordTool;
 import com.news.browser.db.SearchHistoryDatabase;
 import com.news.browser.manager.TabsManager;
+import com.news.browser.preference.PreferenceManager;
 import com.news.browser.ui.main.BrowserActivity;
 import com.news.browser.ui.main.BrowserFragment;
 import com.news.browser.ui.search.adapter.SearchHistoryAdapter;
+import com.news.browser.utils.GlobalParams;
 import com.news.browser.utils.ScreenUtils;
 import com.news.browser.utils.UIUtils;
 import com.news.browser.utils.UrlUtils;
-import com.news.browser.widget.DividerItemDecoration;
 import com.zhy.adapter.recyclerview.CommonAdapter;
 import com.zhy.adapter.recyclerview.MultiItemTypeAdapter;
 import com.zhy.adapter.recyclerview.base.ViewHolder;
@@ -82,6 +83,7 @@ public class SearchFragment extends BaseFragment {
     private SearchHistoryAdapter mSearchHistoryAdapter;
     private int anchorX;
     private int offsetY;
+    private int lastPage;
 
     @OnClick(R.id.iv_right)
     void deleteInpute() {
@@ -110,7 +112,7 @@ public class SearchFragment extends BaseFragment {
                 rv_engines.setLayoutManager(new LinearLayoutManager(mActivity));
                 rv_engines.setHasFixedSize(true);
                 rv_engines.setItemAnimator(new DefaultItemAnimator());
-                rv_engines.addItemDecoration(new DividerItemDecoration(mActivity, DividerItemDecoration.VERTICAL_LIST));
+                rv_engines.addItemDecoration(getDefaultDivider());
                 rv_engines.setAdapter(mEnginesAdapter);
             }
         }
@@ -122,7 +124,7 @@ public class SearchFragment extends BaseFragment {
                     @Override
                     public void call(String s) {
                         // 统计搜索：搜索关键字 + 搜索引擎
-                        AccessRecordTool.getInstance().recordSearch(s, mDefaultEngine);
+                        AccessRecordTool.getInstance().recordSearch(lastPage, s, mDefaultEngine.getAddrUrl());
 
                         hideSoftInputFromWindow();
                         mBrowserAct.getSupportFragmentManager().popBackStack();
@@ -150,6 +152,14 @@ public class SearchFragment extends BaseFragment {
     private BrowserActivity mBrowserAct;
     private TabsManager mTabsManager;
 
+    public static SearchFragment newInstance(int lastPage) {
+        SearchFragment f = new SearchFragment();
+        final Bundle bundle = new Bundle();
+        bundle.putInt(GlobalParams.LAST_PAGE, lastPage);
+        f.setArguments(bundle);
+        return f;
+    }
+
     @Override
     protected int getLayoutId() {
         return R.layout.fragment_search;
@@ -165,8 +175,15 @@ public class SearchFragment extends BaseFragment {
         super.initView(savedInstanceState);
         mBrowserAct = (BrowserActivity) mActivity;
         mTabsManager = mBrowserAct.getTabModel();
-        mDefaultEngine = mBrowserAct.getDefaultEngineItem();
-        updateDefaultEngineIcon();
+        EngineItem defaultEngineItem = mBrowserAct.getDefaultEngineItem();
+        if (defaultEngineItem != null){
+            mDefaultEngine = defaultEngineItem;
+        }else{
+            mDefaultEngine = new EngineItem();
+            String searchUrl = PreferenceManager.getInstance().getSearchUrl();
+            mDefaultEngine.setAddrUrl(searchUrl);
+        }
+//        updateDefaultEngineIcon();
     }
 
     private void updateDefaultEngineIcon() {
@@ -177,6 +194,11 @@ public class SearchFragment extends BaseFragment {
 
     @Override
     protected void doBusiness(Bundle savedInstanceState) {
+        final Bundle arguments = getArguments();
+        if (arguments != null) {
+            lastPage = arguments.getInt(GlobalParams.LAST_PAGE);
+        }
+
         BrowserFragment currentTab = mTabsManager.getCurrentFragment();
         if (currentTab != null) {
             String url = currentTab.getUrl();
@@ -205,13 +227,15 @@ public class SearchFragment extends BaseFragment {
                                 rv_history.setLayoutManager(new LinearLayoutManager(mActivity));
                                 rv_history.setHasFixedSize(true);
                                 rv_history.setItemAnimator(new DefaultItemAnimator());
-                                rv_history.addItemDecoration(new DividerItemDecoration(mActivity, DividerItemDecoration.VERTICAL_LIST));
+                                rv_history.addItemDecoration(getDefaultDivider());
                                 rv_history.setAdapter(mSearchHistoryAdapter);
                                 mSearchHistoryAdapter.setOnItemClickListener(new OnSearchItemClickListener());
                             }
                         }
                     }
                 });
+        // 埋点
+        AccessRecordTool.getInstance().accessSearchPage(lastPage, AccessRecordTool.PG_SEARCH, mDefaultEngine.getAddrUrl());
     }
 
     private void showDeleteButton(CharSequence s) {
@@ -220,7 +244,7 @@ public class SearchFragment extends BaseFragment {
             tv_cancel.setText("取消");
         } else {
             iv_right.setVisibility(View.VISIBLE);
-            iv_right.setImageResource(R.drawable.ic_action_delete);
+            iv_right.setImageResource(R.drawable.ic_remove_input);
             tv_cancel.setText("搜索");
         }
     }
@@ -332,7 +356,7 @@ public class SearchFragment extends BaseFragment {
                             .subscribe(new Action1<EngineItem>() {
                                 @Override
                                 public void call(EngineItem item) {
-                                    updateDefaultEngineIcon();
+//                                    updateDefaultEngineIcon();
                                     notifyDataSetChanged();
                                     rv_engines.setVisibility(View.GONE);
                                     rv_history.setVisibility(View.VISIBLE);

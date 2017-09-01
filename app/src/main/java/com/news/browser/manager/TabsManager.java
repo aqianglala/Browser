@@ -4,9 +4,11 @@ import android.graphics.Bitmap;
 import android.support.annotation.Nullable;
 import android.text.TextUtils;
 
+import com.news.browser.bus.RXEvent;
 import com.news.browser.ui.main.BrowserActivity;
 import com.news.browser.ui.main.BrowserFragment;
-import com.news.browser.ui.main.view.LightningViewTitle;
+import com.news.browser.ui.main.view.BrowserViewTitle;
+import com.news.browser.utils.RxBus;
 
 import java.util.ArrayList;
 
@@ -20,29 +22,28 @@ public class TabsManager {
     private BrowserActivity mActivity;
     private BrowserFragment mCurrentFragment;
     private int mCurrentIndex;
-    private LightningViewTitle mHomeTitleInfo;
+    private BrowserViewTitle mHomeTitleInfo;
 
     public TabsManager(BrowserActivity activity) {
         mTabList.add(null);
         mActivity = activity;
-        mHomeTitleInfo = new LightningViewTitle(mActivity);
+        mHomeTitleInfo = new BrowserViewTitle(mActivity);
     }
 
-    public synchronized BrowserFragment newTab(String url, boolean isIncognito, boolean show){
+    public synchronized BrowserFragment newTab(String url, boolean isIncognito, boolean show) {
         BrowserFragment fragment = null;
-        if (TextUtils.isEmpty(url)){// 隐藏所有的BrowserFragment
+        if (TextUtils.isEmpty(url)) {// 隐藏所有的BrowserFragment
             hideAllBrowserFrg();
             mTabList.add(null);
-        }else{
+        } else {
             fragment = BrowserFragment.newInstance(url, isIncognito);
             mTabList.add(fragment);
-            mActivity.add(fragment);
+            mActivity.addBrowserFragment(fragment);
         }
+        RxBus.getInstance().post(new RXEvent(RXEvent.TAG_UPDATE_TAB_SIZE, null));
+
         if (show) {
             switchToTab(mTabList.size() - 1);
-        }
-        if (mTabNumberListener != null){
-            mTabNumberListener.tabNumberChanged(mTabList.size());
         }
         return fragment;
     }
@@ -50,55 +51,81 @@ public class TabsManager {
     /**
      * 如果删除当前的tab，则切换到前一个tab
      * 如果删除的不是当前的tab，则切换到当前tab
+     *
      * @param position
      */
-    public synchronized void deleteTab(int position){
+    public synchronized void deleteTab(int position) {
         BrowserFragment remove = mTabList.remove(position);
+        if (mTabList.size() == 0) {
+            mTabList.add(null);
+        }
+        RxBus.getInstance().post(new RXEvent(RXEvent.TAG_UPDATE_TAB_SIZE, null));
         mActivity.remove(remove);
-        if (mCurrentIndex == position){
-            if (position == 0 && mTabList.size() > 0){
+        if (mCurrentIndex == position) {
+            if (position == 0 && mTabList.size() > 0) {
                 switchToTab(position);
-            }else if (position > 0){
+            } else if (position > 0) {
                 switchToTab(position - 1);
             }
         }
     }
 
-    public synchronized void clearAllTab(){
-        for (BrowserFragment f: mTabList){
+    public synchronized void clearAllTab() {
+        for (BrowserFragment f : mTabList) {
             mActivity.remove(f);
         }
         mTabList.clear();
         mCurrentIndex = 0;
         mCurrentFragment = null;
+        mTabList.add(null);
+        RxBus.getInstance().post(new RXEvent(RXEvent.TAG_UPDATE_TAB_SIZE, null));
+        if (mTabNumberListener != null) {
+            mTabNumberListener.tabNumberChanged(0);
+        }
     }
 
-    public synchronized void switchToTab(int position){
+    public synchronized void switchToTab(int position) {
         BrowserFragment fragment = mTabList.get(position);
         if (mCurrentIndex == position) return;
+        BrowserFragment currentFragment = getCurrentFragment();
+        if (currentFragment != null) {
+            pauseFragment(currentFragment);
+        }
 
         hideAllBrowserFrg();
-        if (fragment != null){
-            mActivity.show(fragment);
-            if (fragment.isCreated()){
-                fragment.updateProgress(fragment.getProgress());
-                fragment.updateUrl(fragment.getUrl(), true);
+        if (fragment != null) {
+            mActivity.showBrowserFragment(fragment);
+            if (fragment.isCreated()) {
+                resumeFragment(fragment);
             }
             mActivity.setBackButtonEnabled(fragment.canGoBack());
             mActivity.setForwardButtonEnabled(fragment.canGoForward());
         }
         mCurrentFragment = mTabList.get(position);
         mCurrentIndex = position;
-        if (mTabNumberListener != null){
-            mTabNumberListener.tabNumberChanged(position + 1);
+        if (mTabNumberListener != null) {
+            mTabNumberListener.tabNumberChanged(position);
         }
+    }
+
+    private void resumeFragment(BrowserFragment currentTab) {
+        currentTab.resumeTimers();
+        currentTab.onResume();
+        currentTab.updateUrl(currentTab.getUrl(), true);
+        currentTab.updateProgress(currentTab.getProgress());
+    }
+
+    private void pauseFragment(BrowserFragment currentTab) {
+        currentTab.pauseTimers();
+        currentTab.onPause();
     }
 
     /**
      * 当前窗口中浏览
+     *
      * @param fragment
      */
-    public synchronized void updateCurrentTab(BrowserFragment fragment){
+    public synchronized void updateCurrentTab(BrowserFragment fragment) {
         if (fragment == null) return;
         mTabList.set(mCurrentIndex, fragment);
         mCurrentFragment = fragment;
@@ -106,14 +133,15 @@ public class TabsManager {
 
     /**
      * 回到主页，将当前tab置为null
+     *
      * @param fragment
      */
-    public synchronized void backToHome(BrowserFragment fragment){
+    public synchronized void backToHome(BrowserFragment fragment) {
         if (fragment == null) return;
         int index = mTabList.indexOf(fragment);
-        if (index != -1){
+        if (index != -1) {
             mTabList.set(index, null);
-            if (index == mCurrentIndex){
+            if (index == mCurrentIndex) {
                 mCurrentFragment = null;
             }
         }
@@ -140,7 +168,7 @@ public class TabsManager {
         void tabNumberChanged(int newNumber);
     }
 
-    public int size(){
+    public int size() {
         return mTabList.size();
     }
 
@@ -148,15 +176,15 @@ public class TabsManager {
         return mTabList;
     }
 
-    public void hideAllBrowserFrg(){
+    public void hideAllBrowserFrg() {
         for (BrowserFragment fragment : mTabList) {
-            mActivity.hide(fragment);
+            mActivity.hideBrowserFragment(fragment);
         }
     }
 
     public void resumeAll() {
         for (BrowserFragment fragment : mTabList) {
-            if (fragment != null){
+            if (fragment != null) {
                 fragment.resumeTimers();
             }
         }
@@ -164,21 +192,21 @@ public class TabsManager {
 
     public void pauseAll() {
         for (BrowserFragment fragment : mTabList) {
-            if (fragment != null){
+            if (fragment != null) {
                 fragment.pauseTimers();
             }
         }
     }
 
-    public void setShot(Bitmap bitmap){
-        if (mCurrentFragment == null){
+    public void setShot(Bitmap bitmap) {
+        if (mCurrentFragment == null) {
             mHomeTitleInfo.setmShot(bitmap);
-        }else{
+        } else {
             mCurrentFragment.getTitleInfo().setmShot(bitmap);
         }
     }
 
-    public LightningViewTitle getHomeTitleInfo() {
+    public BrowserViewTitle getHomeTitleInfo() {
         return mHomeTitleInfo;
     }
 }

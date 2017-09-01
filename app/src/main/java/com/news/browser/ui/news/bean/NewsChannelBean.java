@@ -1,7 +1,7 @@
 package com.news.browser.ui.news.bean;
 
-import com.news.browser.bean.BaseNewsItem;
 import com.google.gson.annotations.SerializedName;
+import com.news.browser.bean.BaseNewsItem;
 
 import java.util.List;
 
@@ -356,6 +356,7 @@ public class NewsChannelBean {
                         this.qqnews_thu = qqnews_thu;
                     }
                 }
+
             }
         }
     }

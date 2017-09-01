@@ -5,11 +5,12 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageView;
 
-import com.bumptech.glide.Glide;
 import com.news.browser.R;
 import com.news.browser.bean.BaseItem;
 import com.news.browser.bean.HotSiteBean;
 import com.news.browser.db.HotTagDatabase;
+import com.news.browser.utils.GlideUtils;
+import com.news.browser.utils.UIUtils;
 import com.zhy.adapter.recyclerview.base.ItemViewDelegate;
 import com.zhy.adapter.recyclerview.base.ViewHolder;
 
@@ -45,7 +46,7 @@ public class ItemHotSiteDelegate implements ItemViewDelegate<BaseItem> {
         final HotSiteBean.DataBean dataBean = (HotSiteBean.DataBean) baseItem;
         Context context = holder.getConvertView().getContext();
         ImageView iv_icon = holder.getView(R.id.iv_icon);
-        Glide.with(context).load(dataBean.getIconUrl()).into(iv_icon);
+        GlideUtils.loadIconImage(context, dataBean.getIconUrl(), iv_icon);
         holder.setText(R.id.tv_name, dataBean.getName());
         holder.setText(R.id.tv_url, dataBean.getAddrUrl());
 
@@ -69,9 +70,11 @@ public class ItemHotSiteDelegate implements ItemViewDelegate<BaseItem> {
     private void setButton(Button btn_action, boolean contain) {
         if (contain){
             btn_action.setBackgroundResource(R.drawable.shape_btn_bg_white);
+            btn_action.setTextColor(UIUtils.getColor(R.color.text_gray));
             btn_action.setText("打开");
         }else{
             btn_action.setBackgroundResource(R.drawable.shape_btn_bg_blue);
+            btn_action.setTextColor(UIUtils.getColor(R.color.text_blue));
             btn_action.setText("添加");
         }
     }

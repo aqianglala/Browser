@@ -23,3 +23,48 @@
 # If you keep the line number information, uncomment this to
 # hide the original source file name.
 #-renamesourcefileattribute SourceFile
+
+#-keep class com.tencent.stat.* { ;}
+#-keep class com.tencent.mid.* { ;}
+
+-keep class com.tencent.stat.**  {* ;}
+-keep class com.tencent.mid.**  {* ;}
+-keep class com.tencent.mta.track.**
+
+-keep class com.baidu.** {*;}
+-keep class vi.com.** {*;}
+-dontwarn com.baidu.**
+
+#okhttp
+-dontwarn okio.**
+-dontwarn javax.annotation.Nullable
+-dontwarn javax.annotation.ParametersAreNonnullByDefault
+
+#retrofit
+-dontwarn okio.**
+-dontwarn javax.annotation.**
+
+#glide
+-keep public class * implements com.bumptech.glide.module.GlideModule
+-keep public class * extends com.bumptech.glide.AppGlideModule
+-keep public enum com.bumptech.glide.load.resource.bitmap.ImageHeaderParser$** {
+  **[] $VALUES;
+  public *;
+}
+
+# for DexGuard only
+#-keepresourcexmlelements manifest/application/meta-data@value=GlideModule
+
+# ProGuard configurations for Bonree-Agent
+-keep public class com.bonree.**{*;}
+-keep public class bonree.**{*;}
+-dontwarn com.bonree.** -dontwarn bonree.**
+# End Bonree-Agent
+
+-dontwarn javax.servlet.**
+-dontwarn org.apache.thrift.transport.**
+-dontwarn org.slf4j.**
+-dontwarn okio.**
+-dontwarn retrofit2.Platform$Java8
+-dontwarn rx.internal.util.unsafe.*
+

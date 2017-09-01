@@ -9,4 +9,5 @@
     android:paddingLeft="15dp"
     android:singleLine="true"
     android:textAlignment="inherit"
-    android:textSize="10sp" />
+    android:textColor="@color/text_black"
+    android:textSize="12sp" />

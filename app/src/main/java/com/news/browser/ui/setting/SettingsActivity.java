@@ -57,6 +57,7 @@ public class SettingsActivity extends BaseActivity implements IAppStoreUpdateRet
     private PreferenceManager mPreferenceManager;
     private PackageManager mPm;
     private int mLocalVerCode;
+    private String mLocalVerName;
     private UpgradeBean mUpgradeBean;
     private int mNewVerCode;
     private String mNewVerName;
@@ -122,7 +123,11 @@ public class SettingsActivity extends BaseActivity implements IAppStoreUpdateRet
     @OnClick(R.id.rl_check_update)
     void checkUpdate() {
         if (NetUtils.isConnected(this)) {
-            checkAppStoreVersion();
+            if(mNewVerCode>mLocalVerCode){
+                checkAppStoreVersion();
+            }else{
+                toast("已是最新版本");
+            }
         } else {
             toast("请连接网络");
         }
@@ -209,6 +214,7 @@ public class SettingsActivity extends BaseActivity implements IAppStoreUpdateRet
         try {
             PackageInfo packageInfo = mPm.getPackageInfo(mActivity.getPackageName(), 0);
             mLocalVerCode = packageInfo.versionCode;
+            mLocalVerName = packageInfo.versionName;
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }
@@ -220,10 +226,10 @@ public class SettingsActivity extends BaseActivity implements IAppStoreUpdateRet
             if (mNewVerCode > mLocalVerCode) {
                 tv_version.setText(mNewVerName);
             } else {
-                tv_version.setText(mLocalVerCode + "");
+                tv_version.setText(mLocalVerName);
             }
         } else {
-            tv_version.setText(mLocalVerCode + "");
+            tv_version.setText(mLocalVerName);
         }
     }
 
@@ -317,6 +323,7 @@ public class SettingsActivity extends BaseActivity implements IAppStoreUpdateRet
      * @param bean
      */
     private void showUpdateDialog(final UpgradeBean bean) {
+        if (bean == null) return;
         AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
         View layout = LayoutInflater.from(this).inflate(R.layout.layout_dialog_update, null);
@@ -331,8 +338,8 @@ public class SettingsActivity extends BaseActivity implements IAppStoreUpdateRet
 
         UpgradeBean.DataBean info = bean.getData().get(0);
 
-        tv_version.setText(info.getVersionName());
-        tv_size.setText(Utils.formatFileSize(info.getFileSize()) + "M");
+        tv_version.setText("版本号：" + info.getVersionName());
+        tv_size.setText("大小：" + Utils.formatFileSize(info.getFileSize()) + "M");
         tv_title.setText(info.getUpdateTitle());
         tv_description.setText(info.getUpdateInfo());
 

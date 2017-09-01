@@ -136,7 +136,7 @@ public class FileDatabase extends SQLiteOpenHelper {
         mDatabase = openIfNecessary();
         List<FileItem> itemList = new ArrayList<>();
         String selectQuery = "SELECT  * FROM " + TABLE_FILE + " ORDER BY " + KEY_ID
-                + " DESC";
+                + " ASC";
 
         Cursor cursor = mDatabase.rawQuery(selectQuery, null);
 

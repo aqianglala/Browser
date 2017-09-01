@@ -15,10 +15,9 @@
         android:layout_marginRight="@dimen/margin_horizontal"
         android:layout_marginTop="15dp"
         android:maxLines="1"
-        android:shadowColor="@color/text_gray"
         android:text="检测到新版本"
-        android:textColor="@color/text_gray"
-        android:textSize="12sp"
+        android:textColor="@color/text_blue"
+        android:textSize="16sp"
 
         />
 
@@ -39,7 +38,7 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="@color/text_gray"
-            android:textSize="10sp" />
+            android:textSize="12sp" />
 
         <TextView
             android:id="@+id/tv_size"
@@ -47,7 +46,7 @@
             android:layout_height="wrap_content"
             android:layout_alignParentRight="true"
             android:textColor="@color/text_gray"
-            android:textSize="10sp" />
+            android:textSize="12sp" />
 
         <TextView
             android:id="@+id/tv_update_description"
@@ -57,16 +56,16 @@
             android:layout_marginTop="@dimen/margin_top"
             android:text="@string/update_description"
             android:textColor="@color/text_gray"
-            android:textSize="10sp" />
+            android:textSize="12sp" />
 
         <TextView
             android:id="@+id/tv_description"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_below="@id/tv_update_description"
-            android:layout_marginTop="@dimen/margin_top"
             android:textColor="@color/text_gray"
-            android:textSize="10sp" />
+            android:lineSpacingExtra="5dp"
+            android:textSize="12sp" />
     </RelativeLayout>
 
 
@@ -87,7 +86,7 @@
             android:gravity="center"
             android:text="@string/update_next_time"
             android:textColor="@color/text_gray"
-            android:textSize="12sp" />
+            android:textSize="14sp" />
 
         <include layout="@layout/include_line_vertical" />
 
@@ -101,7 +100,7 @@
             android:gravity="center"
             android:text="@string/update_right_now"
             android:textColor="@color/text_blue"
-            android:textSize="12sp" />
+            android:textSize="14sp" />
 
     </LinearLayout>
 

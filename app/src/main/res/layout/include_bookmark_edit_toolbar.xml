@@ -2,7 +2,7 @@
 <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="?attr/actionBarSize"
-    android:background="@android:color/white">
+    android:background="@color/colorPrimary">
 
     <TextView
         android:id="@+id/tv_cancel"
@@ -14,8 +14,8 @@
         android:paddingLeft="@dimen/margin_horizontal"
         android:paddingRight="@dimen/margin_horizontal"
         android:text="@string/bookmark_edit_cancel"
-        android:textColor="@color/color_blue"
-        android:textSize="14sp" />
+        android:textColor="@color/text_white"
+        android:textSize="@dimen/text_size_title" />
 
     <TextView
         android:layout_width="wrap_content"
@@ -25,8 +25,8 @@
         android:paddingLeft="@dimen/margin_horizontal"
         android:paddingRight="@dimen/margin_horizontal"
         android:text="@string/bookmark_edit_title"
-        android:textColor="@android:color/black"
-        android:textSize="14sp" />
+        android:textColor="@color/text_white"
+        android:textSize="@dimen/text_size_title" />
 
     <TextView
         android:id="@+id/tv_save"
@@ -39,7 +39,7 @@
         android:paddingLeft="@dimen/margin_horizontal"
         android:paddingRight="@dimen/margin_horizontal"
         android:text="@string/bookmark_edit_save"
-        android:textColor="@color/color_blue"
-        android:textSize="14sp" />
+        android:textColor="@color/text_white"
+        android:textSize="@dimen/text_size_title" />
 
 </RelativeLayout>

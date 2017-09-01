@@ -135,6 +135,7 @@ public class SearchHistoryDatabase extends SQLiteOpenHelper {
      * @param title
      */
     public synchronized void visitSearchHistoryItem(@NonNull String url, @Nullable String title) {
+        if (TextUtils.isEmpty(title)) return;
         mDatabase = openIfNecessary();
         ContentValues values = new ContentValues();
         values.put(KEY_TITLE, title == null ? "" : title);

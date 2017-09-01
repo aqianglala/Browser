@@ -1,19 +1,22 @@
 package com.news.browser.ui.bookmark;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import com.news.browser.R;
+import com.news.browser.async.ImageDownloadTask;
 import com.news.browser.base.BaseFragment;
 import com.news.browser.base.BasePresenter;
 import com.news.browser.bus.RXEvent;
 import com.news.browser.ui.main.db.HistoryDatabase;
 import com.news.browser.ui.main.db.HistoryItem;
 import com.news.browser.utils.RxBus;
-import com.news.browser.widget.DividerItemDecoration;
+import com.news.browser.utils.Utils;
 import com.zhy.adapter.recyclerview.CommonAdapter;
 import com.zhy.adapter.recyclerview.MultiItemTypeAdapter;
 import com.zhy.adapter.recyclerview.base.ViewHolder;
@@ -38,7 +41,7 @@ import rx.schedulers.Schedulers;
  */
 
 public class HistoryFragment extends BaseFragment implements MultiItemTypeAdapter.OnItemClickListener,
-BaseControlView{
+        BaseControlView {
 
     private final List<HistoryItem> mHistories = new ArrayList<>();
     private final HashMap<HistoryItem, Boolean> mStatusMap = new HashMap<>();
@@ -50,19 +53,24 @@ BaseControlView{
 
     @BindView(R.id.ll_delete)
     LinearLayout ll_delete;
+    private BookmarkHistoryFragment mParentFragment;
 
     @OnClick(R.id.ll_delete)
-    void delete(){
+    void delete() {
         Iterator<Map.Entry<HistoryItem, Boolean>> entries = mStatusMap.entrySet().iterator();
         while (entries.hasNext()) {
             Map.Entry<HistoryItem, Boolean> entry = entries.next();
-            if (entry.getValue()){
+            if (entry.getValue()) {
                 mHistoryDatabase.deleteHistoryItem(entry.getKey().getUrl());
                 mHistories.remove(entry.getKey());
                 entries.remove();
             }
         }
         mHistoryAdapter.notifyDataSetChanged();
+        if (mHistories.size() == 0) {
+            mParentFragment.cancel();
+        }
+        mParentFragment.setEditButtonVisibility(mHistories.size() > 0 ? true : false);
     }
 
     @Override
@@ -77,6 +85,7 @@ BaseControlView{
 
     @Override
     protected void doBusiness(Bundle savedInstanceState) {
+        mParentFragment = (BookmarkHistoryFragment) getParentFragment();
         mHistoryDatabase = HistoryDatabase.getInstance();
         getHistoryList().subscribe(new Action1<List<HistoryItem>>() {
             @Override
@@ -87,7 +96,7 @@ BaseControlView{
                 }
                 mHistoryAdapter = new HistoryAdapter(mActivity, R.layout.item_list_bookmark_history, mHistories);
                 initRecyclerView(mRecyclerView);
-                mRecyclerView.addItemDecoration(new DividerItemDecoration(mActivity, DividerItemDecoration.VERTICAL_LIST));
+                mRecyclerView.addItemDecoration(getDefaultDivider());
                 mRecyclerView.setAdapter(mHistoryAdapter);
 
                 mHistoryAdapter.setOnItemClickListener(HistoryFragment.this);
@@ -106,6 +115,13 @@ BaseControlView{
         }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
     }
 
+    public boolean isShowEditButton() {
+        if (mHistories.size() > 0) {
+            return true;
+        }
+        return false;
+    }
+
     @Override
     public void onItemClick(View view, RecyclerView.ViewHolder holder, int position) {
         boolean editStatus = mHistoryAdapter.isEditStatus();
@@ -115,6 +131,7 @@ BaseControlView{
             mStatusMap.put(item, !isSelected);
             ViewHolder viewHolder = (ViewHolder) holder;
             viewHolder.setImageResource(R.id.iv_choose, isSelected ? R.drawable.ic_unselected : R.drawable.ic_selected_circle);
+            mParentFragment.setIsSelectAll(isSelectAll());
         } else {// 打开网页
             mActivity.getSupportFragmentManager().popBackStack();
             RxBus.getInstance().post(new RXEvent(RXEvent.TAG_SEARCH, item.getUrl()));
@@ -124,6 +141,17 @@ BaseControlView{
     @Override
     public boolean onItemLongClick(View view, RecyclerView.ViewHolder holder, int position) {
         return false;
+    }
+
+    public boolean isSelectAll() {
+        boolean isSelectAll = true;
+        for (Boolean value : mStatusMap.values()) {
+            if (!value) {
+                isSelectAll = false;
+                break;
+            }
+        }
+        return isSelectAll;
     }
 
     @Override
@@ -166,13 +194,31 @@ BaseControlView{
         }
 
         @Override
-        protected void convert(ViewHolder holder, HistoryItem historyItem, int position) {
+        protected void convert(ViewHolder holder, final HistoryItem historyItem, int position) {
             holder.setText(R.id.tv_title, historyItem.getTitle());
             holder.setText(R.id.tv_url, historyItem.getUrl());
             holder.setVisible(R.id.iv_choose, isEditStatus ? true : false);
             holder.setImageResource(R.id.iv_choose, mStatusMap.get(historyItem)
                     ? R.drawable.ic_selected_circle
                     : R.drawable.ic_unselected);
+
+            final ImageView iv_icon = holder.getView(R.id.iv_icon);
+
+            if (historyItem.getBitmap() == null) {
+                ImageDownloadTask.getIcon(mActivity, historyItem.getUrl())
+                        .subscribe(new Action1<Bitmap>() {
+                            @Override
+                            public void call(Bitmap bitmap) {
+                                if (bitmap != null) {
+                                    Bitmap fav = Utils.padFavicon(bitmap);
+                                    iv_icon.setImageBitmap(fav);
+                                    historyItem.setBitmap(fav);
+                                }
+                            }
+                        });
+            } else {
+                iv_icon.setImageBitmap(historyItem.getBitmap());
+            }
         }
     }
 }

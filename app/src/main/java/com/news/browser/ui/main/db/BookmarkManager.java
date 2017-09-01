@@ -198,7 +198,7 @@ public class BookmarkManager {
      * This method adds the the HistoryItem item to permanent bookmark storage.<br>
      * This operation is blocking if the manager is still not ready.
      *
-     * @param item the item to add
+     * @param item the item to addBrowserFragment
      * @return It returns true if the operation was successful.
      */
     public synchronized boolean addBookmark(@NonNull HistoryItem item) {
@@ -214,7 +214,7 @@ public class BookmarkManager {
     /**
      * This method adds the list of HistoryItems to permanent bookmark storage
      *
-     * @param list the list of HistoryItems to add to bookmarks
+     * @param list the list of HistoryItems to addBrowserFragment to bookmarks
      */
     public synchronized void addBookmarkList(@Nullable List<HistoryItem> list) {
         if (list == null || list.isEmpty()) {

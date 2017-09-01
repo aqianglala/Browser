@@ -55,7 +55,7 @@ public class BrowserActPresenter extends BasePresenter<BrowserActivity> implemen
 
     @Override
     public void getSearchEngine() {
-        HashMap<String, String> params = NetProtocol.getImpl(getIView()).getBaseParams2();
+        HashMap<String, String> params = NetProtocol.getImpl().getBaseParams2();
         Subscription subscribe = mBiz.getSearchEngine(params).compose(new ScheduleTransformer<EngineBean>())
                 .subscribe(new Subscriber<EngineBean>() {
                     @Override

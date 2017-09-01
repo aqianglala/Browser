@@ -3,10 +3,10 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:paddingBottom="20dp"
+    android:paddingBottom="15dp"
     android:paddingLeft="@dimen/margin_horizontal"
     android:paddingRight="@dimen/margin_horizontal"
-    android:paddingTop="20dp">
+    android:paddingTop="15dp">
 
     <RelativeLayout
         android:layout_width="0dp"
@@ -30,6 +30,7 @@
 
             <TextView
                 android:id="@+id/tv_time"
+                android:visibility="gone"
                 style="@style/TextAppearance_NewsSourceTime"
                 android:layout_marginLeft="15dp" />
         </LinearLayout>
@@ -40,6 +41,7 @@
         android:layout_width="90dp"
         android:layout_height="72dp"
         android:layout_alignParentRight="true"
+        android:src="@color/empty_news_bg"
         android:scaleType="centerCrop" />
 
 </LinearLayout>

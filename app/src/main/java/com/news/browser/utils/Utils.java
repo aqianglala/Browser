@@ -1,5 +1,6 @@
 package com.news.browser.utils;
 
+import android.Manifest;
 import android.app.Activity;
 import android.app.Dialog;
 import android.content.Context;
@@ -23,8 +24,13 @@ import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.URLUtil;
 
+import com.anthonycr.grant.PermissionsManager;
+import com.anthonycr.grant.PermissionsResultAction;
 import com.news.browser.R;
+import com.news.browser.preference.PreferenceManager;
+import com.news.browser.ui.download.DownloadHandler;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -140,7 +146,7 @@ public class Utils {
      * Displays a snackbar to the user with a String resource.
      *
      * @param activity the activity needed to create a snackbar.
-     * @param resource the string resource to show to the user.
+     * @param resource the string resource to showBrowserFragment to the user.
      */
     public static void showSnackbar(@NonNull Activity activity, @StringRes int resource) {
         View view = activity.findViewById(R.id.coordinator_layout);
@@ -156,7 +162,7 @@ public class Utils {
      * Displays a snackbar to the user with a string message.
      *
      * @param activity the activity needed to create a snackbar.
-     * @param message  the string message to show to the user.
+     * @param message  the string message to showBrowserFragment to the user.
      */
     public static void showSnackbar(@NonNull Activity activity, @NonNull String message) {
         View view = activity.findViewById(R.id.coordinator_layout);
@@ -309,15 +315,12 @@ public class Utils {
     /**
      * yhw
      * 手机号匹配规则
-     *   1:13号段(130 131 .....)
-     *   2:15号段(150 158  151.....)
-     *   3:18号段(180 185 189....)
      * @param mobiles
      * @return
      */
     public static boolean isTelephoneNum(String mobiles) {
         Pattern p = Pattern
-                .compile("^(13[0,1,2,3,4,5,6,7,8,9]|15[0,8,9,1,7]|18[0,5,6,7,8,9])\\d{8}$");
+                .compile("^((13[0-9])|(14[5|7])|(15([0-3]|[5-9]))|(18[0,5-9]))\\\\d{8}$");
         Matcher m = p.matcher(mobiles);
         return m.matches();
     }
@@ -362,6 +365,35 @@ public class Utils {
     public static String halfUp(float d){
         BigDecimal bigDecimal = new BigDecimal(d).setScale(0, BigDecimal.ROUND_HALF_UP);
         return bigDecimal.toString();
+    }
+
+    /**
+     * Downloads a file from the specified URL. Handles permissions
+     * requests, and creates all the necessary dialogs that must be
+     * showed to the user.
+     *
+     * @param activity           activity needed to created dialogs.
+     * @param url                url to download from.
+     * @param userAgent          the user agent of the browser.
+     * @param contentDisposition the content description of the file.
+     */
+    public static void downloadFile(final Activity activity, final PreferenceManager manager, final String url,
+                                    final String userAgent, final String contentDisposition) {
+        PermissionsManager.getInstance().requestPermissionsIfNecessaryForResult(activity, new String[]{Manifest.permission.READ_EXTERNAL_STORAGE,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE}, new PermissionsResultAction() {
+            @Override
+            public void onGranted() {
+                String fileName = URLUtil.guessFileName(url, null, null);
+                DownloadHandler.onDownloadStart(activity, manager, url, userAgent, contentDisposition, null);
+                Log.i(Constants.TAG, "Downloading" + fileName);
+            }
+
+            @Override
+            public void onDenied(String permission) {
+                // TODO Show Message
+            }
+        });
+
     }
 
 }

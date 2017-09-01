@@ -96,6 +96,10 @@
         "source": "C:\\Users\\zy1584\\.android\\build-cache\\b5e82b016122bb6c7025b38074b020e139c66648\\output\\res\\drawable-xhdpi-v4\\notification_bg_normal.9.png"
     },
     {
+        "merged": "C:\\Users\\zy1584\\AndroidStudioProjects\\MyBase\\directoryChooserlib\\build\\intermediates\\res\\merged\\release\\drawable-xhdpi-v4\\ic_arrow_up.png",
+        "source": "C:\\Users\\zy1584\\AndroidStudioProjects\\MyBase\\directoryChooserlib\\src\\main\\res\\drawable-xhdpi\\ic_arrow_up.png"
+    },
+    {
         "merged": "C:\\Users\\zy1584\\AndroidStudioProjects\\MyBase\\directoryChooserlib\\build\\intermediates\\res\\merged\\release\\drawable-xhdpi-v4\\abc_ic_star_black_36dp.png",
         "source": "C:\\Users\\zy1584\\.android\\build-cache\\b5e82b016122bb6c7025b38074b020e139c66648\\output\\res\\drawable-xhdpi-v4\\abc_ic_star_black_36dp.png"
     },
@@ -106,6 +110,10 @@
     {
         "merged": "C:\\Users\\zy1584\\AndroidStudioProjects\\MyBase\\directoryChooserlib\\build\\intermediates\\res\\merged\\release\\drawable-xhdpi-v4\\abc_btn_switch_to_on_mtrl_00001.9.png",
         "source": "C:\\Users\\zy1584\\.android\\build-cache\\b5e82b016122bb6c7025b38074b020e139c66648\\output\\res\\drawable-xhdpi-v4\\abc_btn_switch_to_on_mtrl_00001.9.png"
+    },
+    {
+        "merged": "C:\\Users\\zy1584\\AndroidStudioProjects\\MyBase\\directoryChooserlib\\build\\intermediates\\res\\merged\\release\\drawable-xhdpi-v4\\ic_back_white.png",
+        "source": "C:\\Users\\zy1584\\AndroidStudioProjects\\MyBase\\directoryChooserlib\\src\\main\\res\\drawable-xhdpi\\ic_back_white.png"
     },
     {
         "merged": "C:\\Users\\zy1584\\AndroidStudioProjects\\MyBase\\directoryChooserlib\\build\\intermediates\\res\\merged\\release\\drawable-xhdpi-v4\\abc_scrubber_control_to_pressed_mtrl_005.png",
@@ -190,6 +198,10 @@
     {
         "merged": "C:\\Users\\zy1584\\AndroidStudioProjects\\MyBase\\directoryChooserlib\\build\\intermediates\\res\\merged\\release\\drawable-xhdpi-v4\\abc_ic_star_half_black_16dp.png",
         "source": "C:\\Users\\zy1584\\.android\\build-cache\\b5e82b016122bb6c7025b38074b020e139c66648\\output\\res\\drawable-xhdpi-v4\\abc_ic_star_half_black_16dp.png"
+    },
+    {
+        "merged": "C:\\Users\\zy1584\\AndroidStudioProjects\\MyBase\\directoryChooserlib\\build\\intermediates\\res\\merged\\release\\drawable-xhdpi-v4\\ic_folder.png",
+        "source": "C:\\Users\\zy1584\\AndroidStudioProjects\\MyBase\\directoryChooserlib\\src\\main\\res\\drawable-xhdpi\\ic_folder.png"
     },
     {
         "merged": "C:\\Users\\zy1584\\AndroidStudioProjects\\MyBase\\directoryChooserlib\\build\\intermediates\\res\\merged\\release\\drawable-xhdpi-v4\\abc_ic_star_black_48dp.png",

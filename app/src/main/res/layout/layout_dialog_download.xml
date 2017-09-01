@@ -20,13 +20,8 @@
             android:maxLines="1"
             android:text="@string/prompt_download"
             android:textColor="@color/text_gray"
-            android:textSize="12sp" />
+            android:textSize="14sp" />
 
-        <include
-            layout="@layout/include_line_horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/height_line"
-            android:layout_alignParentBottom="true" />
     </RelativeLayout>
 
     <TextView
@@ -35,10 +30,10 @@
         android:layout_height="wrap_content"
         android:layout_marginLeft="@dimen/margin_horizontal"
         android:layout_marginRight="@dimen/margin_horizontal"
-        android:layout_marginTop="@dimen/margin_top"
+        android:layout_marginTop="11dp"
         android:maxLines="3"
         android:shadowColor="@color/text_gray"
-        android:textSize="10sp" />
+        android:textSize="12sp" />
 
     <TextView
         android:id="@+id/tv_file_size"
@@ -49,13 +44,13 @@
         android:layout_marginTop="@dimen/margin_top"
         android:maxLines="1"
         android:shadowColor="@color/text_gray"
-        android:textSize="10sp" />
+        android:textSize="12sp" />
 
     <include
         layout="@layout/include_line_horizontal"
         android:layout_width="match_parent"
         android:layout_height="@dimen/height_line"
-        android:layout_marginTop="@dimen/margin_horizontal" />
+        android:layout_marginTop="25dp" />
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -72,7 +67,7 @@
             android:gravity="center"
             android:text="@string/cancel"
             android:textColor="@color/text_gray"
-            android:textSize="12sp" />
+            android:textSize="14sp" />
 
         <include layout="@layout/include_line_vertical" />
 
@@ -86,7 +81,7 @@
             android:gravity="center"
             android:text="@string/download_right_now"
             android:textColor="@color/text_blue"
-            android:textSize="12sp" />
+            android:textSize="14sp" />
 
     </LinearLayout>
 

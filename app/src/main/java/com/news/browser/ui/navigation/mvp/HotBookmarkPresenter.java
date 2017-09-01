@@ -25,7 +25,7 @@ public class HotBookmarkPresenter extends BasePresenter<HotTagFragment> implemen
 
     @Override
     public void getHotBookmarkList() {
-        HashMap<String, String> params = NetProtocol.getImpl(getIView().getContext()).getBaseParams2();
+        HashMap<String, String> params = NetProtocol.getImpl().getBaseParams2();
         Subscription subscribe = mBiz.getHotTags(params).compose(new ScheduleTransformer<HotTagBean>())
                 .subscribe(new Subscriber<HotTagBean>() {
                     @Override

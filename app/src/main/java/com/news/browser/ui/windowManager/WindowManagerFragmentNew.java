@@ -6,13 +6,15 @@ import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.helper.ItemTouchHelper;
 import android.view.View;
 
+import com.jaeger.library.StatusBarUtil;
 import com.news.browser.R;
 import com.news.browser.base.BaseFragment;
 import com.news.browser.base.BasePresenter;
 import com.news.browser.manager.TabsManager;
 import com.news.browser.ui.main.BrowserActivity;
 import com.news.browser.ui.main.BrowserFragment;
-import com.news.browser.ui.main.view.LightningViewTitle;
+import com.news.browser.ui.main.view.BrowserViewTitle;
+import com.news.browser.utils.UIUtils;
 
 import java.util.ArrayList;
 
@@ -25,32 +27,34 @@ import butterknife.OnClick;
  */
 
 public class WindowManagerFragmentNew extends BaseFragment implements WindowSwipeAdapterNew.onSwipeDismissListener,
-        WindowSwipeAdapterNew.OnItemClickLitener{
+        WindowSwipeAdapterNew.OnItemClickLitener {
     @BindView(R.id.recyclerView)
     RecyclerView mRecyclerView;
     private BrowserActivity mBrowserAct;
+    private LinearLayoutManager mLayoutManager;
 
     @OnClick(R.id.ll_new_create)
-    void addTab(){
-        if (mTabsManager.size() >= 20) {
+    void addTab() {
+        if (mTabsManager.size() >= 12) {
             toast("窗口数量已达上限");
-        }else{
+        } else {
             mBrowserAct.getSupportFragmentManager().popBackStack();
             mTabsManager.newTab("", false, true);
         }
     }
 
     @OnClick(R.id.ll_clear)
-    void clear(){
+    void clear() {
         mTabsManager.clearAllTab();
         mBrowserAct.getSupportFragmentManager().popBackStack();
     }
 
     @OnClick(R.id.ll_complete)
-    void complete(){
+    void complete() {
         mBrowserAct.getSupportFragmentManager().popBackStack();
     }
-    private ArrayList<LightningViewTitle> mData = new ArrayList<>();
+
+    private ArrayList<BrowserViewTitle> mData = new ArrayList<>();
     private WindowSwipeAdapterNew mAdapter;
 
     private TabsManager mTabsManager;
@@ -68,14 +72,17 @@ public class WindowManagerFragmentNew extends BaseFragment implements WindowSwip
     @Override
     protected void initView(Bundle savedInstanceState) {
         super.initView(savedInstanceState);
+
         mBrowserAct = (BrowserActivity) mActivity;
         mTabsManager = mBrowserAct.getTabModel();
         initData();
         mAdapter = new WindowSwipeAdapterNew(mActivity, mData);
         mAdapter.setOnSwipeDismissListener(this);
         mAdapter.setOnItemClickLitener(this);
-        mRecyclerView.setLayoutManager(new LinearLayoutManager(mActivity,LinearLayoutManager.HORIZONTAL, false));
+        mLayoutManager = new LinearLayoutManager(mActivity, LinearLayoutManager.HORIZONTAL, false);
+        mRecyclerView.setLayoutManager(mLayoutManager);
         mRecyclerView.setAdapter(mAdapter);
+        mLayoutManager.scrollToPosition(mTabsManager.getCurrentIndex());
         ItemTouchHelper itemTouchHelper = new ItemTouchHelper(
                 new MyItemTouchHelperCallBack(0, ItemTouchHelper.UP | ItemTouchHelper.DOWN));
         itemTouchHelper.attachToRecyclerView(mRecyclerView);
@@ -88,13 +95,10 @@ public class WindowManagerFragmentNew extends BaseFragment implements WindowSwip
 
     private void initData() {
         ArrayList<BrowserFragment> tabsList = mTabsManager.getTabList();
-        if (tabsList.size() == 0){
-            tabsList.add(null);
-        }
-        for (BrowserFragment tab : tabsList){
-            if (tab == null){
+        for (BrowserFragment tab : tabsList) {
+            if (tab == null) {
                 mData.add(mTabsManager.getHomeTitleInfo());
-            }else{
+            } else {
                 mData.add(tab.getTitleInfo());
             }
         }
@@ -103,7 +107,7 @@ public class WindowManagerFragmentNew extends BaseFragment implements WindowSwip
     @Override
     public void onDismiss(int position) {
         mTabsManager.deleteTab(position);
-        if (mTabsManager.getTabList().size() == 0){
+        if (mData.size() == 0) {
             mBrowserAct.getSupportFragmentManager().popBackStack();
         }
     }
@@ -119,7 +123,7 @@ public class WindowManagerFragmentNew extends BaseFragment implements WindowSwip
         mData.remove(position);
         mAdapter.notifyItemRemoved(position);
         mTabsManager.deleteTab(position);
-        if (mTabsManager.getTabList().size() == 0){
+        if (mData.size() == 0) {
             mBrowserAct.getSupportFragmentManager().popBackStack();
         }
     }
@@ -140,5 +144,17 @@ public class WindowManagerFragmentNew extends BaseFragment implements WindowSwip
             int position = viewHolder.getAdapterPosition();
             mAdapter.removeData(position);
         }
+    }
+
+    @Override
+    public void onStart() {
+        super.onStart();
+        StatusBarUtil.setColor(mActivity, UIUtils.getColor(R.color.color_window_manager));
+    }
+
+    @Override
+    public void onStop() {
+        super.onStop();
+        StatusBarUtil.setColor(mActivity, UIUtils.getColor(R.color.colorPrimary));
     }
 }

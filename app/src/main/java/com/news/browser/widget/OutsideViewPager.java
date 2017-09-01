@@ -1,6 +1,8 @@
 package com.news.browser.widget;
 
 import android.content.Context;
+import android.support.design.widget.CoordinatorLayout;
+import android.support.design.widget.TabLayout;
 import android.support.v4.view.ViewPager;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -11,6 +13,7 @@ import android.view.View;
  */
 
 public class OutsideViewPager extends ViewPager {
+    private NewsViewPager mNewsViewPager;
     private boolean isPagingEnabled = true;
 
     public void setPagingEnabled(boolean b) {
@@ -23,6 +26,26 @@ public class OutsideViewPager extends ViewPager {
 
     public OutsideViewPager(Context context, AttributeSet attrs) {
         super(context, attrs);
+    }
+
+    private void findNewsViewPager() {
+        if (mNewsViewPager != null) return;
+        int childCount = getChildCount();
+        for (int i = 0; i< childCount; i++){
+            View childAt = getChildAt(i);
+            if (childAt instanceof CoordinatorLayout){
+                CoordinatorLayout coordinatorLayout = (CoordinatorLayout) childAt;
+                int count = coordinatorLayout.getChildCount();
+                for (int j = 0; j < count; j++){
+                    View child = coordinatorLayout.getChildAt(j);
+                    if (child instanceof NewsViewPager){
+                        mNewsViewPager = (NewsViewPager) child;
+                        break;
+                    }
+                }
+                break;
+            }
+        }
     }
 
     @Override
@@ -102,10 +125,19 @@ public class OutsideViewPager extends ViewPager {
 //        return super.onInterceptTouchEvent(ev);
 //    }
 
+
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+        findNewsViewPager();
+    }
+
     @Override
     protected boolean canScroll(View v, boolean checkV, int dx, int x, int y) {
-        if (v instanceof NewsViewPager){
-            return ((NewsViewPager) v).isPagingEnabled();
+        if (v instanceof NewsViewPager || v instanceof TabLayout){
+            if (mNewsViewPager != null){
+                return mNewsViewPager.isPagingEnabled();
+            }
         }
         return super.canScroll(v, checkV, dx, x, y);
     }

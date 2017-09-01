@@ -33,7 +33,7 @@ public class MainFrgPresenter extends BasePresenter<MainFragment> implements Mai
 
     @Override
     public void getChannelList() {
-        HashMap<String, String> queryMap = NetProtocol.getImpl(getIView().getActivity()).getBaseParams2();
+        HashMap<String, String> queryMap = NetProtocol.getImpl().getBaseParams2();
         Subscription subscribe = mBiz.getChannelList(queryMap).compose(new ScheduleTransformer<ResponseBody>())
                 .subscribe(new Subscriber<ResponseBody>() {
                     @Override
@@ -85,7 +85,7 @@ public class MainFrgPresenter extends BasePresenter<MainFragment> implements Mai
 
     @Override
     public void getHomeNavigationList() {
-        HashMap<String, String> queryMap = NetProtocol.getImpl(getIView().getActivity()).getBaseParams2();
+        HashMap<String, String> queryMap = NetProtocol.getImpl().getBaseParams2();
         Subscription subscribe = mBiz.getHomeNavigationList(queryMap)
                 .compose(new ScheduleTransformer<HomeNavigationBean>())
                 .subscribe(new Subscriber<HomeNavigationBean>() {

@@ -1,12 +1,12 @@
 package com.news.browser.base;
 
-import android.app.Application;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Handler;
 import android.os.Looper;
 import android.support.annotation.NonNull;
+import android.support.multidex.MultiDexApplication;
 import android.util.Log;
 
 import com.liulishuo.filedownloader.FileDownloadMonitor;
@@ -14,13 +14,17 @@ import com.liulishuo.filedownloader.FileDownloader;
 import com.liulishuo.filedownloader.connection.FileDownloadUrlConnection;
 import com.liulishuo.filedownloader.util.FileDownloadLog;
 import com.liulishuo.filedownloader.util.FileDownloadUtils;
+import com.news.browser.data.AccessRecordTool;
 import com.news.browser.receiver.PackageChangeReceiver;
 import com.news.browser.service.UpdateService;
 import com.news.browser.ui.download.GlobalMonitor;
+import com.news.browser.utils.ChannelUtil;
 import com.news.browser.utils.CrashHandler;
 import com.news.browser.utils.ForegroundCallbacks;
 import com.orhanobut.logger.AndroidLogAdapter;
 import com.orhanobut.logger.Logger;
+import com.tencent.mta.track.StatisticsDataAPI;
+import com.tencent.stat.StatConfig;
 
 import java.net.Proxy;
 import java.util.concurrent.Executor;
@@ -30,7 +34,7 @@ import cn.dreamtobe.threaddebugger.IThreadDebugger;
 import cn.dreamtobe.threaddebugger.ThreadDebugger;
 import cn.dreamtobe.threaddebugger.ThreadDebuggers;
 
-public class BaseApplication extends Application {
+public class BaseApplication extends MultiDexApplication {
 
     private static Context context;
     private static Thread mainThread;
@@ -51,10 +55,16 @@ public class BaseApplication extends Application {
 
         getMainThreadData();
         ForegroundCallbacks.init(this);
+        // 初始化统计类
+        AccessRecordTool.getInstance();
         // 注册log
         initFileDownloader();
         //设置包安装，卸载的监听器
         registerPackageChangeReceiver();
+        // 初始化可视化埋点
+        StatisticsDataAPI.instance(this);
+
+        StatConfig.setInstallChannel(ChannelUtil.getChannel(this));// 设置渠道
 
         CrashHandler.getInstance().init(getApplicationContext());
 //        LeakCanary.install(this);
@@ -88,7 +98,7 @@ public class BaseApplication extends Application {
         // below codes just for monitoring thread pools in the FileDownloader:
         IThreadDebugger debugger = ThreadDebugger.install(
                 ThreadDebuggers.create() /** The ThreadDebugger with known thread Categories **/
-                        // add Thread Category
+                        // addBrowserFragment Thread Category
                         .add("OkHttp").add("okio").add("Binder")
                         .add(FileDownloadUtils.getThreadPoolName("Network"), "Network")
                         .add(FileDownloadUtils.getThreadPoolName("Flow"), "FlowSingle")

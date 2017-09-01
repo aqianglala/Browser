@@ -18,7 +18,6 @@ import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.text.TextUtils;
 import android.util.Log;
-import android.view.Display;
 import android.view.Gravity;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -77,6 +76,8 @@ import com.news.browser.utils.CompressImage;
 import com.news.browser.utils.Constants;
 import com.news.browser.utils.GlobalParams;
 import com.news.browser.utils.RxBus;
+import com.news.browser.utils.SPUtils;
+import com.news.browser.utils.ScreenUtils;
 import com.news.browser.utils.UIUtils;
 import com.news.browser.utils.UrlUtils;
 import com.news.browser.utils.Utils;
@@ -149,6 +150,9 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
     // 保存上一个页面的状态
     private Map<Integer, BrowserFragment> tabStatusMap = new HashMap<>();
 
+    private final String STACK_INCLUDE_BOTTOM = "stack_include_bottom";
+    private final String STACK_EXCEPT_BOTTOM = "stack_except_bottom";
+
     @BindView(R.id.viewPager)
     OutsideViewPager mViewPager;
 
@@ -190,6 +194,7 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
     private BookmarkHistoryFragment mBookmarkHistoryFragment;
     private SearchFragment mSearchFragment;
     private HotSiteFragment mHotSiteFragment;
+    private Dialog upgradeDialog;
 
     @OnClick(R.id.tv_complete)
     void onEditComplete() {
@@ -217,6 +222,7 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
 
     @OnClick(R.id.ib_back)
     void back() {
+        if (removeOtherFragment()) return;
         BrowserFragment currentTab = mTabsManager.getCurrentFragment();
         if (currentTab != null) {
             if (currentTab.canGoBack()) {
@@ -234,6 +240,93 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
     }
 
     /**
+     * 如果当前页是搜索、书签历史、窗口页、热门网站页，则将其移除
+     *
+     * @return
+     */
+    private boolean removeOtherFragment() {
+        if (mSearchFragment != null && mSearchFragment.isVisible()) {
+            remove(mSearchFragment);
+            setButtonEnable();
+            return true;
+        }
+        if (mBookmarkHistoryFragment != null && mBookmarkHistoryFragment.isVisible()) {
+            remove(mBookmarkHistoryFragment);
+            setButtonEnable();
+            return true;
+        }
+        if (mWindowManagerFragment != null && mWindowManagerFragment.isVisible()) {
+            remove(mWindowManagerFragment);
+            setButtonEnable();
+            return true;
+        }
+        if (mTabsManager.getCurrentFragment() == null && mHotSiteFragment != null && mHotSiteFragment.isVisible()) {
+            remove(mHotSiteFragment);
+            setButtonEnable();
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * 按右下角的home键，将所有的fragment移除
+     * @return
+     */
+    private void removeExceptBrowser() {
+        if (mSearchFragment != null) {
+            remove(mSearchFragment);
+        }
+        if (mBookmarkHistoryFragment != null) {
+            remove(mBookmarkHistoryFragment);
+        }
+        if (mWindowManagerFragment != null) {
+            remove(mWindowManagerFragment);
+        }
+        if (mHotSiteFragment != null) {
+            remove(mHotSiteFragment);
+        }
+        ib_back.setEnabled(false);
+        ib_forward.setEnabled(false);
+    }
+
+    /**
+     * 设置前进后退按钮是否可操作
+     */
+    public void setButtonEnable() {
+//        if (checkButton()) return;
+        BrowserFragment currentFragment = mTabsManager.getCurrentFragment();
+        if (currentFragment != null) {
+            ib_back.setEnabled(true);
+            ib_forward.setEnabled(currentFragment.canGoForward());
+        } else {
+            BrowserFragment browserFragment = tabStatusMap.get(mTabsManager.getCurrentIndex());
+            ib_back.setEnabled(false);
+            if (browserFragment != null) {
+                ib_forward.setEnabled(true);
+            } else {
+                ib_forward.setEnabled(false);
+            }
+        }
+    }
+
+    /**
+     * 如果栈顶是搜索页、书签历史页、窗口页或热门网站页，则返回键置为可见，前进键不可见
+     *
+     * @return true表示已处理
+     */
+    private boolean checkButton() {
+        if ((mSearchFragment != null && mSearchFragment.isVisible())
+                || (mBookmarkHistoryFragment != null && mBookmarkHistoryFragment.isVisible())
+                || (mWindowManagerFragment != null && mWindowManagerFragment.isVisible())
+                || (mHotSiteFragment != null && mHotSiteFragment.isVisible())) {
+            ib_back.setEnabled(true);
+            ib_forward.setEnabled(false);
+            return true;
+        }
+        return false;
+    }
+
+    /**
      * 当从网页中返回到主页面时，保存网页并更新tab列表、后退按钮、前进按钮、添加书签按钮及更新按钮
      *
      * @param currentTab
@@ -244,11 +337,25 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
         if (fragment != null && fragment != currentTab) {
             remove(fragment);
         }
-        hide(currentTab);
+        pauseFragment(currentTab);
+        hideBrowserFragment(currentTab);
         mTabsManager.backToHome(currentTab);
         tabStatusMap.put(currentIndex, currentTab);
-        ib_back.setEnabled(false);
+        ib_back.setEnabled(mHotSiteFragment == null || !mHotSiteFragment.isVisible() ? false : true);
         ib_forward.setEnabled(true);
+    }
+
+    private void pauseFragment(BrowserFragment currentTab) {
+        currentTab.pauseTimers();
+        currentTab.onPause();
+    }
+
+    private void resumeFragment(BrowserFragment currentTab) {
+        currentTab.resumeTimers();
+        currentTab.onResume();
+
+        currentTab.updateUrl(currentTab.getUrl(), true);
+        currentTab.updateProgress(currentTab.getProgress());
     }
 
     private void setMenuButtonEnable(boolean isEnable) {
@@ -269,7 +376,9 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
         } else {
             BrowserFragment browserFragment = tabStatusMap.get(currentIndex);
             if (browserFragment != null) {
-                show(browserFragment);
+                resumeFragment(browserFragment);
+
+                showBrowserFragment(browserFragment);
                 mTabsManager.updateCurrentTab(browserFragment);
                 ib_back.setEnabled(true);
                 ib_forward.setEnabled(browserFragment.canGoForward());
@@ -290,29 +399,14 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
                 mTabsManager.setShot(bitmap);
                 // TODO: 2017-7-17 这里可以优化成全局的fragment
                 mWindowManagerFragment = new WindowManagerFragmentNew();
-                addFragment(mWindowManagerFragment, R.id.fl_container_full, true);
+                addFragment(mWindowManagerFragment, R.id.fl_container_full, true, STACK_INCLUDE_BOTTOM);
             }
         });
     }
 
     @OnClick(R.id.ib_home)
     void home() {
-        if (mSearchFragment != null && mSearchFragment.isAdded()) {
-            remove(mSearchFragment);
-            return;
-        }
-        if (mBookmarkHistoryFragment != null && mBookmarkHistoryFragment.isAdded()) {
-            remove(mBookmarkHistoryFragment);
-            return;
-        }
-        if (mWindowManagerFragment != null && mWindowManagerFragment.isAdded()) {
-            remove(mWindowManagerFragment);
-            return;
-        }
-        if (mHotSiteFragment != null && mHotSiteFragment.isAdded()) {
-            remove(mHotSiteFragment);
-            return;
-        }
+        removeExceptBrowser();
         BrowserFragment currentTab = mTabsManager.getCurrentFragment();
         if (currentTab != null) {
             saveCurrentTab(currentTab);
@@ -366,8 +460,13 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
         if (intent != null) {
             String url = intent.getDataString();
             if (!TextUtils.isEmpty(url)) {
+                SPUtils.put(GlobalParams.LAUNCH_TYPE, "2");// 外部启动
                 searchTheWeb(url);
+            } else {
+                SPUtils.put(GlobalParams.LAUNCH_TYPE, "1");// 普通启动
             }
+        } else {
+            SPUtils.put(GlobalParams.LAUNCH_TYPE, "1");// 普通启动
         }
         setIntent(null);
         rxSubscription = RxBus.getInstance().toObservable(RXEvent.class)
@@ -376,12 +475,15 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
                     public void call(RXEvent rxEvent) {
                         String tag = rxEvent.getTag();
                         if (RXEvent.TAG_BROWSER_MSG.equals(tag)) {
-                            showSnackBar(rxEvent.getMsgId());
+//                            showSnackBar(rxEvent.getMsgId());
+                            toast(rxEvent.getMsgId());
                         } else if (RXEvent.TAG_SEARCH.equals(tag)) {
                             searchTheWeb(rxEvent.getMsg());
                         } else if (RXEvent.TAG_UPDATE_DEFAULT_ENGINE.equals(tag)) {
                             updateEngineList();
                             updateDefaultEngine();
+                        } else if (RXEvent.TAG_UPDATE_TAB_SIZE.equals(tag)) {
+                            tv_tab_num.setText(String.valueOf(mTabsManager.getTabList().size()));
                         }
                     }
                 });
@@ -395,6 +497,7 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
         if (intent != null) {
             String url = intent.getDataString();
             if (!TextUtils.isEmpty(url)) {
+                SPUtils.put(GlobalParams.LAUNCH_TYPE, "2");// 外部启动
                 searchTheWeb(url);
             }
         }
@@ -412,50 +515,46 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
     @Override
     public boolean onKeyDown(int keyCode, KeyEvent event) {
         if (keyCode == KeyEvent.KEYCODE_BACK) {
-            if (mSearchFragment != null && mSearchFragment.isAdded()) {
+            if (mSearchFragment != null && mSearchFragment.isVisible()) {
                 return super.onKeyDown(keyCode, event);
             }
-            if (mBookmarkHistoryFragment != null && mBookmarkHistoryFragment.isAdded()) {
+            if (mBookmarkHistoryFragment != null && mBookmarkHistoryFragment.isVisible()) {
                 return super.onKeyDown(keyCode, event);
             }
-            if (mWindowManagerFragment != null && mWindowManagerFragment.isAdded()) {
+            if (mWindowManagerFragment != null && mWindowManagerFragment.isVisible()) {
                 return super.onKeyDown(keyCode, event);
             }
-            if (mHotSiteFragment != null && mHotSiteFragment.isAdded()) {
-                return super.onKeyDown(keyCode, event);
+            if (mTabsManager.getCurrentFragment() == null && mHotSiteFragment != null && mHotSiteFragment.isVisible()) {
+                remove(mHotSiteFragment);
+                ib_back.setEnabled(false);
+                return true;
             }
             BrowserFragment currentTab = mTabsManager.getCurrentFragment();
             if (currentTab != null) {
                 if (currentTab.canGoBack()) {
                     if (!currentTab.isShown()) {
                         onHideCustomView();
-                        return true;
                     } else {
                         currentTab.goBack();
-                        return true;
                     }
                 } else {
                     saveCurrentTab(currentTab);
-                    return true;
                 }
             } else if (mCustomView != null || mCustomViewCallback != null) {
                 onHideCustomView();
-                return true;
             } else if (isHotTagEditable()) {
                 onEditComplete();
-                return true;
             } else {
                 if (mainFragment.onBackPressed()) {
                     return true;
                 } else if ((System.currentTimeMillis() - mExitTime) > 2000) {
                     toast(R.string.exit_app_toast);
                     mExitTime = System.currentTimeMillis();
-                    return true;
                 } else {
                     finish();
-                    return true;
                 }
             }
+            return true;
         }
         return super.onKeyDown(keyCode, event);
     }
@@ -478,7 +577,7 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
             tv_refresh = (TextView) menuView.findViewById(R.id.tv_refresh);
             iv_refresh = (ImageView) menuView.findViewById(R.id.iv_refresh);
 
-            setMenuButtonEnable(mTabsManager.getCurrentFragment() == null ? false : true);
+            setMenuButtonEnable(mTabsManager.getCurrentFragment() != null);
 
             int height = UIUtils.getDimen(R.dimen.menu_height);
             mMenuPopupWindow = new PopupWindow(menuView, CoordinatorLayout.LayoutParams.MATCH_PARENT, height);
@@ -500,7 +599,7 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
         } else {
             if (!mMenuPopupWindow.isShowing()) {
                 mMenuPopupWindow.showAtLocation(mContentView, Gravity.BOTTOM, 0, 0);
-                setMenuButtonEnable(mTabsManager.getCurrentFragment() == null ? false : true);
+                setMenuButtonEnable(mTabsManager.getCurrentFragment() != null);
                 setBackgroundBlur();
             }
         }
@@ -592,7 +691,7 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
             case R.id.ll_bookmark_history:
                 dismissMenuWindow();
                 mBookmarkHistoryFragment = new BookmarkHistoryFragment();
-                addFragment(mBookmarkHistoryFragment, R.id.fl_container_full, true);
+                addFragment(mBookmarkHistoryFragment, R.id.fl_container_full, true, STACK_INCLUDE_BOTTOM);
                 break;
             case R.id.ll_refresh:
                 dismissMenuWindow();
@@ -625,11 +724,13 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
                 }
                 break;
             case R.id.ll_bookmark:
-                if (mBookmarkManager.isBookmark(currentTab.getUrl())) {
-                    toast("书签已存在");
-                } else {
-                    currentTab.bookmarkCurrentPage();
-                    toast("书签添加成功");
+                if (currentTab != null) {
+                    if (mBookmarkManager.isBookmark(currentTab.getUrl())) {
+                        toast("书签已存在");
+                    } else {
+                        currentTab.bookmarkCurrentPage();
+                        toast("书签添加成功");
+                    }
                 }
                 mBookmarkPopupWindow.dismiss();
                 break;
@@ -670,14 +771,9 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
     /**
      * 跳转到搜索页
      */
-    public void jumpToSearch() {
-        getShotInThread().subscribe(new Action1<Bitmap>() {
-            @Override
-            public void call(Bitmap bitmap) {
-                mSearchFragment = new SearchFragment();
-                addFragment(mSearchFragment, R.id.fl_container_full, true, false);
-            }
-        });
+    public void jumpToSearch(final int lastPage) {
+        mSearchFragment = SearchFragment.newInstance(lastPage);
+        addFragment(mSearchFragment, R.id.fl_container_full, true, STACK_INCLUDE_BOTTOM, false);
     }
 
     /**
@@ -685,7 +781,7 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
      */
     public void loadUrlInNewFragment(String query) {
         BrowserFragment fragment = BrowserFragment.newInstance(query, false);
-        add(fragment);
+        addBrowserFragment(fragment);
         ib_back.setEnabled(true);
         mTabsManager.updateCurrentTab(fragment);
     }
@@ -699,7 +795,7 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
         if (query.isEmpty()) {
             return;
         }
-        String searchUrl = null;
+        String searchUrl;
         if (Constants.BAIDU_SEARCH.equals(mSearchText)) {
             searchUrl = mSearchText + UrlUtils.QUERY_PLACE_HOLDER;
         } else {
@@ -709,8 +805,13 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
         String urlFilter = UrlUtils.smartUrlFilter(query, true, searchUrl);
         if (currentTab != null) {
             currentTab.stopLoading();
+            resumeFragment(currentTab);
             currentTab.loadUrl(urlFilter);
         } else {
+            int currentIndex = mTabsManager.getCurrentIndex();
+            tabStatusMap.remove(currentIndex);
+            ib_back.setEnabled(true);
+            ib_forward.setEnabled(false);
             loadUrlInNewFragment(urlFilter);
         }
     }
@@ -925,11 +1026,10 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
         Rect rect = new Rect();
         view.getWindowVisibleDisplayFrame(rect);
         int statusBarHeights = rect.top;
-        Display display = getWindowManager().getDefaultDisplay();
 
         // 获取屏幕宽和高
-        int widths = display.getWidth();
-        int heights = display.getHeight();
+        int widths = ScreenUtils.getScreenWidth(mActivity);
+        int heights = ScreenUtils.getScreenHeight(mActivity);
 
         // 允许当前窗口保存缓存信息
         view.setDrawingCacheEnabled(true);
@@ -942,19 +1042,6 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
         view.destroyDrawingCache();
 
         return bmp;
-    }
-
-    private Observable<Bitmap> getShotInThread() {
-        // 屏幕截图
-        final Bitmap shot = getShot();
-        return Observable.create(new Observable.OnSubscribe<Bitmap>() {
-            @Override
-            public void call(Subscriber<? super Bitmap> subscriber) {
-                Bitmap shotCompressed = CompressImage.compressImage(shot);
-                subscriber.onNext(shotCompressed);
-                subscriber.onCompleted();
-            }
-        }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
     }
 
     @Override
@@ -977,6 +1064,19 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
         } else {
             setViewVisible(rl_update_bar, false);
         }
+    }
+
+    private Observable<Bitmap> getShotInThread() {
+        // 屏幕截图
+        final Bitmap shot = getShot();
+        return Observable.create(new Observable.OnSubscribe<Bitmap>() {
+            @Override
+            public void call(Subscriber<? super Bitmap> subscriber) {
+                Bitmap shotCompressed = CompressImage.compressImage(shot);
+                subscriber.onNext(shotCompressed);
+                subscriber.onCompleted();
+            }
+        }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
     }
 
     private void setViewVisible(View view, boolean isShow) {
@@ -1011,24 +1111,25 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
 
         UpgradeBean.DataBean info = bean.getData().get(0);
 
-        tv_version.setText(info.getVersionName());
-        tv_size.setText(Utils.formatFileSize(info.getFileSize()) + "M");
+        tv_version.setText(getString(R.string.version_name) + info.getVersionName());
+        tv_size.setText(getString(R.string.size) + Utils.formatFileSize(info.getFileSize()) + "M");
         tv_title.setText(info.getUpdateTitle());
         tv_description.setText(info.getUpdateInfo());
 
-        tv_left.setText(info.getIsForce() == 0 ? "下次更新" : "退出");
-        tv_right.setText("立即更新");
+        tv_left.setText(info.getIsForce() == 0 ? R.string.update_next_time : R.string.exit);
+        tv_right.setText(R.string.update_right_now);
 
         builder.setView(layout);
-        final Dialog dialog = builder.show();
+        builder.setCancelable(false);
+        upgradeDialog = builder.show();
 
         tv_left.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                dialog.dismiss();
+                upgradeDialog.dismiss();
                 TextView view = (TextView) v;
                 String str = view.getText().toString();
-                if ("退出".equals(str)) {
+                if (getString(R.string.exit).equals(str)) {
                     ActivityCollector.finishAll();
                 }
             }
@@ -1036,7 +1137,7 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
         tv_right.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                dialog.dismiss();
+                upgradeDialog.dismiss();
                 UpdateService.setCheckVersionInsterface(BrowserActivity.this, BrowserActivity.this, BrowserActivity.this);
                 UpdateService.startDownloadAppStore(bean);
             }
@@ -1103,16 +1204,18 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
 
     @Override
     public void tabNumberChanged(int newNumber) {
-        tv_tab_num.setText(String.valueOf(newNumber));
         BrowserFragment currentTab = mTabsManager.getCurrentFragment();
         if (currentTab != null) {
             ib_back.setEnabled(true);
             ib_forward.setEnabled(currentTab.canGoForward());
         } else {
-            BrowserFragment browserFragment = tabStatusMap.get(newNumber - 1);
+            BrowserFragment browserFragment = tabStatusMap.get(newNumber);
             if (browserFragment != null) {
                 ib_back.setEnabled(false);
                 ib_forward.setEnabled(true);
+            } else {
+                ib_back.setEnabled(false);
+                ib_forward.setEnabled(false);
             }
         }
     }
@@ -1136,40 +1239,51 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
         return mTabsManager;
     }
 
-    public void show(BaseFragment fragment) {
+    /**
+     * 显示浏览页
+     *
+     * @param fragment
+     */
+    public void showBrowserFragment(BaseFragment fragment) {
         if (fragment != null) {
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.setCustomAnimations(R.anim.fragment_enter,R.anim.fragment_exit,R.anim.fragment_enter,R.anim.fragment_exit);
+            transaction.setCustomAnimations(R.anim.fragment_enter, R.anim.fragment_exit, R.anim.fragment_enter, R.anim.fragment_exit);
             transaction.show(fragment);
             transaction.commitAllowingStateLoss();
         }
     }
 
-    public void hide(BaseFragment fragment) {
-        if (fragment != null && !fragment.isHidden()) {
+    /**
+     * 隐藏浏览页
+     *
+     * @param fragment
+     */
+    public void hideBrowserFragment(BaseFragment fragment) {
+        if (fragment != null) {
             FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-            transaction.setCustomAnimations(R.anim.fragment_enter,R.anim.fragment_exit,R.anim.fragment_enter,R.anim.fragment_exit);
+            transaction.setCustomAnimations(R.anim.fragment_enter, R.anim.fragment_exit, R.anim.fragment_enter, R.anim.fragment_exit);
             transaction.hide(fragment);
             transaction.commitAllowingStateLoss();
         }
     }
 
-    public void add(BaseFragment fragment) {
+    /**
+     * 添加浏览页
+     */
+    public void addBrowserFragment(BaseFragment fragment) {
         if (fragment != null) {
-            addFragment(fragment, R.id.fl_container_except_bottom, true);
+            addFragment(fragment, R.id.fl_container_except_bottom, true, STACK_EXCEPT_BOTTOM);
         }
     }
 
+    /**
+     * 跳转到热门网站页
+     */
     public void showHotSiteFragment() {
         mHotSiteFragment = new HotSiteFragment();
-        add(mHotSiteFragment);
-    }
-
-    public void remove(BaseFragment fragment) {
-        if (fragment == null) return;
-        FragmentTransaction transaction = getSupportFragmentManager().beginTransaction();
-        transaction.remove(fragment);
-        transaction.commitAllowingStateLoss();
+        addFragment(mHotSiteFragment, R.id.fl_container_except_bottom, true, STACK_EXCEPT_BOTTOM);
+        ib_back.setEnabled(true);
+        ib_forward.setEnabled(false);
     }
 
     @Override
@@ -1179,6 +1293,9 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
             mTabsManager.pauseAll();
         }
         UpdateService.resetListener();
+        if (upgradeDialog != null){
+            upgradeDialog.dismiss();
+        }
     }
 
     @Override
@@ -1313,8 +1430,8 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
         return tv_complete.getVisibility() == View.VISIBLE;
     }
 
-
     public void setPagingEnabled(boolean isPagingEnable) {
         mViewPager.setPagingEnabled(isPagingEnable);
     }
+
 }

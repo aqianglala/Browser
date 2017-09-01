@@ -19,17 +19,26 @@ package com.news.browser.ui.download;
 import android.text.TextUtils;
 import android.util.Log;
 
-import com.news.browser.http.Http;
-import com.news.browser.ui.download.db.FileItem;
-import com.news.browser.base.BaseApplication;
-import com.news.browser.service.UpdateService;
-import com.news.browser.ui.download.DownloadManagerActivity.TasksManager;
 import com.liulishuo.filedownloader.BaseDownloadTask;
 import com.liulishuo.filedownloader.FileDownloadListener;
 import com.liulishuo.filedownloader.FileDownloadMonitor;
 import com.liulishuo.filedownloader.model.FileDownloadStatus;
+import com.news.browser.base.BaseApplication;
+import com.news.browser.http.Http;
+import com.news.browser.http.transformer.ScheduleTransformer;
+import com.news.browser.service.UpdateService;
+import com.news.browser.ui.download.DownloadManagerActivity.TasksManager;
+import com.news.browser.ui.download.db.FileItem;
 import com.news.browser.utils.ForegroundCallbacks;
+import com.orhanobut.logger.Logger;
 
+import org.json.JSONException;
+import org.json.JSONObject;
+
+import java.io.IOException;
+
+import okhttp3.ResponseBody;
+import rx.Subscriber;
 import rx.schedulers.Schedulers;
 
 
@@ -76,38 +85,49 @@ public class GlobalMonitor implements FileDownloadMonitor.IMonitor {
         UpdateService.updateStatus(task);
     }
 
-    private void reportConversion(BaseDownloadTask task, int action_id ) {
+    private void reportConversion(BaseDownloadTask task, final int action_id) {
         FileItem fileItem = TasksManager.getImpl().getById(task.getId());
-        if (fileItem != null){
+        if (fileItem != null) {
             String clickId = fileItem.getClickId();
             String conversionLink = fileItem.getConversionLink();
             if (TextUtils.isEmpty(clickId) || TextUtils.isEmpty(conversionLink)) return;
+
             String url = conversionLink.replace("__ACTION_ID__", action_id + "")
                     .replace("__CLICK_ID__", clickId);
             Http.getHttpService().reportConversion(url)
-                    .subscribeOn(Schedulers.io());
-//                    .compose(new ScheduleTransformer<ResponseBody>())
-//                    .subscribe(new Action1<ResponseBody>() {
-//                        @Override
-//                        public void call(ResponseBody responseBody) {
-//                            if (responseBody != null){
-//                                try {
-//                                    JSONObject jsonObject = new JSONObject(responseBody.string());
-//                                    int ret = jsonObject.optInt("ret");
-//                                    if (ret == 0){
-//                                        Logger.d("转化上报成功");
-//                                    }else{
-//                                        String msg = jsonObject.optString("msg");
-//                                        Logger.d("转化上报失败，msg： "+ msg);
-//                                    }
-//                                } catch (JSONException e) {
-//                                    e.printStackTrace();
-//                                } catch (IOException e) {
-//                                    e.printStackTrace();
-//                                }
-//                            }
-//                        }
-//                    });
+                    .subscribeOn(Schedulers.io())
+                    .compose(new ScheduleTransformer<ResponseBody>())
+                    .subscribe(new Subscriber<ResponseBody>() {
+                        @Override
+                        public void onCompleted() {
+
+                        }
+
+                        @Override
+                        public void onError(Throwable e) {
+                            Logger.t("tencent").d("转化上报失败： ActionId = " + action_id + " msg: " + e.getMessage());
+                        }
+
+                        @Override
+                        public void onNext(ResponseBody responseBody) {
+                            if (responseBody != null) {
+                                try {
+                                    JSONObject jsonObject = new JSONObject(responseBody.string());
+                                    int ret = jsonObject.optInt("ret");
+                                    if (ret == 0) {
+                                        Logger.t("tencent").d("转化上报成功： ActionId = " + action_id);
+                                    } else {
+                                        String msg = jsonObject.optString("msg");
+                                        Logger.t("tencent").d("转化上报失败 ActionId = " + action_id + " msg： " + msg);
+                                    }
+                                } catch (JSONException e) {
+                                    e.printStackTrace();
+                                } catch (IOException e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }
+                    });
         }
     }
 
@@ -115,11 +135,10 @@ public class GlobalMonitor implements FileDownloadMonitor.IMonitor {
     public void onTaskOver(BaseDownloadTask task) {
         markOver++;
         int status = TasksManager.getImpl().getStatus(task.getId(), task.getPath());
-        if (status == FileDownloadStatus.completed){
+        if (status == FileDownloadStatus.completed) {
             reportConversion(task, ACTION_ID_DOWNLOAD_COMPLETE);
-            TasksManager.getImpl().updateModelSize(task.getId(), task.getSmallFileTotalBytes());
             boolean isApk = TasksManager.getImpl().isApk(task);
-            if (isApk && ForegroundCallbacks.get().isForeground() && task.getId() != UpdateService.taskId){
+            if (isApk && ForegroundCallbacks.get().isForeground() && task.getId() != UpdateService.taskId) {
                 TasksManager.getImpl().normalInstall(task.getPath(), BaseApplication.getContext());
             }
         }

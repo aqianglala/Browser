@@ -6,10 +6,12 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 
 import com.news.browser.R;
-import com.news.browser.ui.main.view.LightningViewTitle;
+import com.news.browser.ui.main.view.BrowserViewTitle;
+import com.news.browser.utils.DensityUtils;
 
 import java.util.ArrayList;
 
@@ -20,10 +22,10 @@ import java.util.ArrayList;
 
 public class WindowSwipeAdapterNew extends RecyclerView.Adapter<WindowSwipeAdapterNew.MyViewHolder> {
     private LayoutInflater inflater;
-    private ArrayList<LightningViewTitle> mData;
+    private ArrayList<BrowserViewTitle> mData;
     private onSwipeDismissListener mDismissListener;
 
-    public WindowSwipeAdapterNew(Context context, ArrayList<LightningViewTitle> data) {
+    public WindowSwipeAdapterNew(Context context, ArrayList<BrowserViewTitle> data) {
         inflater = LayoutInflater.from(context);
         mData = data;
     }
@@ -52,6 +54,19 @@ public class WindowSwipeAdapterNew extends RecyclerView.Adapter<WindowSwipeAdapt
                 mOnItemClickLitener.onItemRemove(holder.itemView, pos);
             }
         });
+        if (position == 0){
+            RelativeLayout itemView = (RelativeLayout) holder.itemView;
+            RecyclerView.LayoutParams layoutParams = (RecyclerView.LayoutParams) itemView.getLayoutParams();
+            layoutParams.leftMargin = DensityUtils.dpToPx(72);
+            layoutParams.rightMargin = 0;
+            itemView.setLayoutParams(layoutParams);
+        }else if (position == mData.size() - 1){
+            RelativeLayout itemView = (RelativeLayout) holder.itemView;
+            RecyclerView.LayoutParams layoutParams = (RecyclerView.LayoutParams) itemView.getLayoutParams();
+            layoutParams.leftMargin = 0;
+            layoutParams.rightMargin = DensityUtils.dpToPx(72);
+            itemView.setLayoutParams(layoutParams);
+        }
     }
 
     @Override

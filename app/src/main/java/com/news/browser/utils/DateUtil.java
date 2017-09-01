@@ -170,7 +170,7 @@ public class DateUtil {
      * @param timestamp
      * @return
      */
-    public static String converTime(long timestamp) {
+    public static String convertTime(long timestamp) {
         long currentSeconds = System.currentTimeMillis() / 1000;
         long timeGap = currentSeconds - timestamp;// 与现在时间相差秒数
         String timeStr = null;

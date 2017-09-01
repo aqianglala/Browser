@@ -3,11 +3,11 @@ package com.news.browser.ui.news.adapter.channel;
 import android.content.Context;
 import android.widget.ImageView;
 
-import com.bumptech.glide.Glide;
 import com.news.browser.R;
 import com.news.browser.bean.BaseNewsItem;
 import com.news.browser.ui.news.bean.NewsChannelBean.DataBean.ListBean.ContentBean;
 import com.news.browser.utils.DateUtil;
+import com.news.browser.utils.GlideUtils;
 import com.zhy.adapter.recyclerview.base.ItemViewDelegate;
 import com.zhy.adapter.recyclerview.base.ViewHolder;
 
@@ -42,22 +42,14 @@ public class ItemThreeImgDelegate implements ItemViewDelegate<BaseNewsItem> {
         holder.setText(R.id.tv_title, bean.getTitle());
         holder.setText(R.id.tv_source, bean.getSrc());
         String timestamp = bean.getTimestamp();
-        String convertTime = DateUtil.converTime(Long.parseLong(timestamp));
+        String convertTime = DateUtil.convertTime(Long.parseLong(timestamp));
         holder.setText(R.id.tv_time, convertTime);
 
         List<String> image33_l = bean.getImage33_l();
         if (image33_l.size() != 3) return;
-        Glide.with(context)
-                .load(image33_l.get(0))
-//                .placeholder(R.mipmap.ic_launcher)// TODO: 2017-7-26
-                .into((ImageView) holder.getView(R.id.iv_first));
-        Glide.with(context)
-                .load(image33_l.get(1))
-//                .placeholder(R.mipmap.ic_launcher)// TODO: 2017-7-26
-                .into((ImageView) holder.getView(R.id.iv_second));
-        Glide.with(context)
-                .load(image33_l.get(2))
-//                .placeholder(R.mipmap.ic_launcher)// TODO: 2017-7-26
-                .into((ImageView) holder.getView(R.id.iv_third));
+
+        GlideUtils.loadNewsImage(context, image33_l.get(0), (ImageView) holder.getView(R.id.iv_first));
+        GlideUtils.loadNewsImage(context, image33_l.get(1), (ImageView) holder.getView(R.id.iv_second));
+        GlideUtils.loadNewsImage(context, image33_l.get(2), (ImageView) holder.getView(R.id.iv_third));
     }
 }

@@ -3,11 +3,11 @@ package com.news.browser.ui.news.adapter.recommend;
 import android.content.Context;
 import android.widget.ImageView;
 
-import com.bumptech.glide.Glide;
 import com.news.browser.R;
 import com.news.browser.bean.BaseNewsItem;
 import com.news.browser.bean.RecommendBean;
 import com.news.browser.utils.DateUtil;
+import com.news.browser.utils.GlideUtils;
 import com.zhy.adapter.recyclerview.base.ItemViewDelegate;
 import com.zhy.adapter.recyclerview.base.ViewHolder;
 
@@ -40,23 +40,14 @@ public class ItemThreeImgDelegate implements ItemViewDelegate<BaseNewsItem> {
         holder.setText(R.id.tv_title, bean.getTitle());
         holder.setText(R.id.tv_source, bean.getSource());
 
-        String convertTime = DateUtil.converTime(bean.getTimestamp());
+        String convertTime = DateUtil.convertTime(bean.getTimestamp());
         holder.setText(R.id.tv_time, convertTime);
 
         String fimgurl33 = bean.getFimgurl33();
         String[] imgList = fimgurl33.split(",");
         if (imgList.length != 3) return;
-        Glide.with(context)
-                .load(imgList[0])
-//                .placeholder(R.mipmap.ic_launcher)// TODO: 2017-7-26
-                .into((ImageView) holder.getView(R.id.iv_first));
-        Glide.with(context)
-                .load(imgList[1])
-//                .placeholder(R.mipmap.ic_launcher)// TODO: 2017-7-26
-                .into((ImageView) holder.getView(R.id.iv_second));
-        Glide.with(context)
-                .load(imgList[2])
-//                .placeholder(R.mipmap.ic_launcher)// TODO: 2017-7-26
-                .into((ImageView) holder.getView(R.id.iv_third));
+        GlideUtils.loadNewsImage(context, imgList[0], (ImageView) holder.getView(R.id.iv_first));
+        GlideUtils.loadNewsImage(context, imgList[1], (ImageView) holder.getView(R.id.iv_second));
+        GlideUtils.loadNewsImage(context, imgList[2], (ImageView) holder.getView(R.id.iv_third));
     }
 }

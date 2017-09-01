@@ -75,6 +75,28 @@
     <!-- SD卡读取权限，用户写入离线定位数据 -->
     <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
 
+    <!--为MTA授权。-->
+    <!--如果是第三方lib项目，请在手册中提示app开发者授予以下权限！-->
+    <uses-permission android:name="android.permission.INTERNET"/>
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>
+    <uses-permission android:name="android.permission.ACCESS_WIFI_STATE"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>
+    <uses-permission android:name="android.permission.WRITE_SETTINGS"/>
+    <!-- 请在application处配置appkey和渠道或在代码处调用StatConfig类接口 < -->
+    <!--可视化埋点-->
+    <uses-permission android:name="android.permission.VIBRATE"/>
+
+    <!--测试-->
+    <!--<uses-permission android:name="android.permission.INTERNET"/>-->
+    <!--<uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"/>-->
+    <!--<uses-permission android:name="android.permission.READ_PHONE_STATE"/>-->
+    <!--<uses-permission android:name="android.permission.GET_TASKS"/>-->
+    <!--<uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"/>-->
+    <!--<uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"/>-->
+    <!--<uses-permission android:name="android.permission.READ_LOGS"/>-->
+
+
     <application
         android:name=".base.BaseApplication"
         android:allowBackup="true"
@@ -84,10 +106,12 @@
         android:theme="@style/AppTheme"
         tools:replace="android:theme">
 
+        <!--腾讯统计-->
+        <meta-data android:name="TA_APPKEY" android:value="ALNZK727SE5N"/>
+
         <meta-data
             android:name="UMENG_CHANNEL"
             android:value="${UMENG_CHANNEL_VALUE}" />
-
         <meta-data
             android:name="com.baidu.lbsapi.API_KEY"
             android:value="9mMy3Git90UMHvxNFk4yZ5kpcMv6myp7" />
@@ -106,11 +130,12 @@
             </intent-filter>
         </receiver>
 
-        <activity android:name=".ui.loading.LoadingActivity"
+        <activity
+            android:name=".ui.loading.LoadingActivity"
             android:theme="@style/AppTheme.Launcher">
-
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -122,10 +147,11 @@
             android:launchMode="singleTask"
             android:windowSoftInputMode="adjustResize">
             <intent-filter>
-                <!--<action android:name="android.intent.action.MAIN" />-->
+
+                <!-- <action android:name="android.intent.action.MAIN" /> -->
 
                 <category android:name="android.intent.category.DEFAULT" />
-                <!--<category android:name="android.intent.category.LAUNCHER" />-->
+                <!-- <category android:name="android.intent.category.LAUNCHER" /> -->
                 <category android:name="android.intent.category.BROWSABLE" />
                 <category android:name="android.intent.category.APP_BROWSER" />
             </intent-filter>
@@ -224,7 +250,8 @@
         <activity android:name="net.rdrei.android.dirchooser.DirectoryChooserActivity" />
         <activity android:name=".ui.feedback.FeedbackActivity" />
         <activity android:name=".ui.about.AboutActivity" />
-        <activity android:name=".ui.setting.SetEngineActivity"></activity>
+        <activity android:name=".ui.setting.SetEngineActivity" />
+        <activity android:name=".ui.windowManager.WindowManagerActivity"></activity>
     </application>
 
 </manifest>

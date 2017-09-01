@@ -132,6 +132,10 @@
         "source": "C:\\Users\\zy1584\\.android\\build-cache\\b5e82b016122bb6c7025b38074b020e139c66648\\output\\res\\layout\\select_dialog_item_material.xml"
     },
     {
+        "merged": "C:\\Users\\zy1584\\AndroidStudioProjects\\MyBase\\directoryChooserlib\\build\\intermediates\\res\\merged\\debug\\layout\\include_title_bar.xml",
+        "source": "C:\\Users\\zy1584\\AndroidStudioProjects\\MyBase\\directoryChooserlib\\src\\main\\res\\layout\\include_title_bar.xml"
+    },
+    {
         "merged": "C:\\Users\\zy1584\\AndroidStudioProjects\\MyBase\\directoryChooserlib\\build\\intermediates\\res\\merged\\debug\\layout\\support_simple_spinner_dropdown_item.xml",
         "source": "C:\\Users\\zy1584\\.android\\build-cache\\b5e82b016122bb6c7025b38074b020e139c66648\\output\\res\\layout\\support_simple_spinner_dropdown_item.xml"
     },
@@ -162,6 +166,10 @@
     {
         "merged": "C:\\Users\\zy1584\\AndroidStudioProjects\\MyBase\\directoryChooserlib\\build\\intermediates\\res\\merged\\debug\\layout\\notification_template_media_custom.xml",
         "source": "C:\\Users\\zy1584\\.android\\build-cache\\b5e82b016122bb6c7025b38074b020e139c66648\\output\\res\\layout\\notification_template_media_custom.xml"
+    },
+    {
+        "merged": "C:\\Users\\zy1584\\AndroidStudioProjects\\MyBase\\directoryChooserlib\\build\\intermediates\\res\\merged\\debug\\layout\\item_list_folder.xml",
+        "source": "C:\\Users\\zy1584\\AndroidStudioProjects\\MyBase\\directoryChooserlib\\src\\main\\res\\layout\\item_list_folder.xml"
     },
     {
         "merged": "C:\\Users\\zy1584\\AndroidStudioProjects\\MyBase\\directoryChooserlib\\build\\intermediates\\res\\merged\\debug\\layout\\directory_chooser_activity.xml",

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.sqlite.SQLiteException;
 import android.graphics.Bitmap;
 import android.graphics.Color;
+import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Build;
 import android.os.Bundle;
@@ -12,25 +13,31 @@ import android.os.Handler;
 import android.os.Message;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.util.ArrayMap;
 import android.text.TextUtils;
 import android.util.Log;
 import android.view.GestureDetector;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.ViewGroup;
+import android.view.WindowManager;
 import android.webkit.CookieManager;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.widget.FrameLayout;
 import android.widget.ImageView;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 
 import com.news.browser.R;
 import com.news.browser.base.BaseApplication;
 import com.news.browser.base.BaseFragment;
 import com.news.browser.base.BasePresenter;
+import com.news.browser.data.AccessRecordTool;
 import com.news.browser.manager.TabsManager;
 import com.news.browser.preference.PreferenceManager;
 import com.news.browser.ui.download.LightningDownloadListener;
@@ -38,9 +45,9 @@ import com.news.browser.ui.main.db.BookmarkManager;
 import com.news.browser.ui.main.db.HistoryDatabase;
 import com.news.browser.ui.main.db.HistoryItem;
 import com.news.browser.ui.main.mvp.BrowserFrgContract;
-import com.news.browser.ui.main.view.LightningChromeClient;
-import com.news.browser.ui.main.view.LightningViewTitle;
-import com.news.browser.ui.main.view.LightningWebClient;
+import com.news.browser.ui.main.view.BrowserChromeClient;
+import com.news.browser.ui.main.view.BrowserViewTitle;
+import com.news.browser.ui.main.view.BrowserWebClient;
 import com.news.browser.utils.Constants;
 import com.news.browser.utils.DensityUtils;
 import com.news.browser.utils.GlobalParams;
@@ -95,12 +102,15 @@ public class BrowserFragment extends BaseFragment implements BrowserFrgContract.
     private String mUntitledTitle;
     private Drawable mDeleteIcon, mRefreshIcon, mIcon;
 
-    @NonNull private final Map<String, String> mRequestHeaders = new ArrayMap<>();
-    @NonNull private LightningViewTitle mTitle;
+    @NonNull
+    private final Map<String, String> mRequestHeaders = new ArrayMap<>();
+    @NonNull
+    private BrowserViewTitle mTitle;
 
     @NonNull
     private GestureDetector mGestureDetector;
-    @NonNull private final WebViewHandler mWebViewHandler = new WebViewHandler(this);
+    @NonNull
+    private final WebViewHandler mWebViewHandler = new WebViewHandler(this);
 
     @BindView(R.id.content_frame)
     FrameLayout content_frame;
@@ -112,8 +122,8 @@ public class BrowserFragment extends BaseFragment implements BrowserFrgContract.
     ImageView iv_right;
 
     @OnClick(R.id.tv_search)
-    void jumpToSearch(){
-        ((BrowserActivity)mActivity).jumpToSearch();
+    void jumpToSearch() {
+        ((BrowserActivity) mActivity).jumpToSearch(AccessRecordTool.PG_BROWSER);
     }
 
     public static BrowserFragment newInstance(String url, boolean isIncognito) {
@@ -151,14 +161,14 @@ public class BrowserFragment extends BaseFragment implements BrowserFrgContract.
             }
             mWebView.loadUrl(mUrl, mRequestHeaders);
         }
-        mIsCreated= true;
+        mIsCreated = true;
     }
 
     @Override
     protected void initView(Bundle savedInstanceState) {
         super.initView(savedInstanceState);
         final Bundle arguments = getArguments();
-        if (arguments != null){
+        if (arguments != null) {
             mIsIncognitoTab = arguments.getBoolean(GlobalParams.IS_INCOGNITO, false);
             mUrl = arguments.getString(GlobalParams.URL);
         }
@@ -175,7 +185,7 @@ public class BrowserFragment extends BaseFragment implements BrowserFrgContract.
         if (Build.VERSION.SDK_INT > Build.VERSION_CODES.JELLY_BEAN) {
             mWebView.setId(android.view.View.generateViewId());
         }
-        mTitle = new LightningViewTitle(mActivity);
+        mTitle = new BrowserViewTitle(mActivity);
         sMaxFling = ViewConfiguration.get(mActivity).getScaledMaximumFlingVelocity();
 
         mWebView.setDrawingCacheBackgroundColor(Color.WHITE);
@@ -194,8 +204,8 @@ public class BrowserFragment extends BaseFragment implements BrowserFrgContract.
         mWebView.setScrollbarFadingEnabled(true);
         mWebView.setSaveEnabled(true);
         mWebView.setNetworkAvailable(true);
-        mWebView.setWebChromeClient(new LightningChromeClient(mActivity, this));
-        mWebView.setWebViewClient(new LightningWebClient(mActivity, this));
+        mWebView.setWebChromeClient(new BrowserChromeClient(mActivity, this));
+        mWebView.setWebViewClient(new BrowserWebClient(mActivity, this));
         mWebView.setDownloadListener(new LightningDownloadListener(mActivity));
         mGestureDetector = new GestureDetector(mActivity, new CustomGestureListener());
         mWebView.setOnTouchListener(new TouchListener());
@@ -245,9 +255,11 @@ public class BrowserFragment extends BaseFragment implements BrowserFrgContract.
         sHomepage = mPreferences.getHomepage();
 
         if (!mIsIncognitoTab) {
-            settings.setGeolocationEnabled(mPreferences.getLocationEnabled());
+//            settings.setGeolocationEnabled(mPreferences.getLocationEnabled());
+            settings.setGeolocationEnabled(true);
         } else {
-            settings.setGeolocationEnabled(false);
+//            settings.setGeolocationEnabled(false);
+            settings.setGeolocationEnabled(true);
         }
 
         setUserAgent(context, mPreferences.getUserAgentChoice());
@@ -443,7 +455,7 @@ public class BrowserFragment extends BaseFragment implements BrowserFrgContract.
         return mWebView != null && mWebView.isShown();
     }
 
-    public LightningViewTitle getTitleInfo() {
+    public BrowserViewTitle getTitleInfo() {
         return mTitle;
     }
 
@@ -456,15 +468,15 @@ public class BrowserFragment extends BaseFragment implements BrowserFrgContract.
 //        mEventBus.post(new BrowserEvents.CurrentPageUrl(url));
         if (shortUrl) {
             switch (mPreferences.getUrlBoxContentChoice()) {
-                case 0: // Default, show only the domain
+                case 0: // Default, showBrowserFragment only the domain
                     url = url.replaceFirst(Constants.HTTP, "");
                     url = Utils.getDomainName(url);
                     tv_search.setText(url);
                     break;
-                case 1: // URL, show the entire URL
+                case 1: // URL, showBrowserFragment the entire URL
                     tv_search.setText(url);
                     break;
-                case 2: // Title, show the page's title
+                case 2: // Title, showBrowserFragment the page's title
                     if (!getTitle().isEmpty()) {
                         tv_search.setText(getTitle());
                     } else {
@@ -567,36 +579,110 @@ public class BrowserFragment extends BaseFragment implements BrowserFrgContract.
      *            a workaround.
      */
     private void longClickPage(@Nullable final String url) {
-//        if (mWebView == null) {
-//            return;
-//        }
-//        final WebView.HitTestResult result = mWebView.getHitTestResult();
-//        String currentUrl = mWebView.getUrl();
-//        if (url != null) {
-//            if (result != null) {
-//                if (result.getType() == WebView.HitTestResult.SRC_IMAGE_ANCHOR_TYPE || result.getType() == WebView.HitTestResult.IMAGE_TYPE) {
-//                    mBookmarksDialogBuilder.showLongPressImageDialog(mActivity, url, getUserAgent());
-//                } else {
+        if (mWebView == null) {
+            return;
+        }
+        final WebView.HitTestResult result = mWebView.getHitTestResult();
+        String currentUrl = mWebView.getUrl();
+        if (url != null) {
+            if (result != null) {
+                if (result.getType() == WebView.HitTestResult.SRC_IMAGE_ANCHOR_TYPE || result.getType() == WebView.HitTestResult.IMAGE_TYPE) {
+                    // TODO: 2017-8-19 mimetype 存在问题
+//                    showImageWindow(url, getUserAgent());
+                } else {
 //                    mBookmarksDialogBuilder.showLongPressLinkDialog(mActivity, url);
-//                }
-//            } else {
+                }
+            } else {
 //                mBookmarksDialogBuilder.showLongPressLinkDialog(mActivity, url);
-//            }
-//        } else if (result != null && result.getExtra() != null) {
-//            final String newUrl = result.getExtra();
-//            if (result.getType() == WebView.HitTestResult.SRC_IMAGE_ANCHOR_TYPE || result.getType() == WebView.HitTestResult.IMAGE_TYPE) {
-//                mBookmarksDialogBuilder.showLongPressImageDialog(mActivity, newUrl, getUserAgent());
-//            } else {
+            }
+        } else if (result != null && result.getExtra() != null) {
+            final String newUrl = result.getExtra();
+            if (result.getType() == WebView.HitTestResult.SRC_IMAGE_ANCHOR_TYPE || result.getType() == WebView.HitTestResult.IMAGE_TYPE) {
+//                showImageWindow(newUrl, getUserAgent());
+            } else {
 //                mBookmarksDialogBuilder.showLongPressLinkDialog(mActivity, newUrl);
-//            }
-//        }
+            }
+        }
     }
+
+    /**
+     * Get the current user agent used
+     * by the WebView.
+     *
+     * @return retuns the current user agent
+     * of the WebView instance, or an empty
+     * string if the WebView is null.
+     */
+    @NonNull
+    private String getUserAgent() {
+        if (mWebView != null) {
+            return mWebView.getSettings().getUserAgentString();
+        } else {
+            return "";
+        }
+    }
+
+    private void showImageWindow(final String url, final String userAgent) {
+        View menuView = LayoutInflater.from(mActivity).inflate(R.layout.include_image_window, (ViewGroup) mContentView, false);
+
+        final PopupWindow imagePopupWindow = new PopupWindow(menuView, CoordinatorLayout.LayoutParams.MATCH_PARENT, CoordinatorLayout.LayoutParams.WRAP_CONTENT);
+
+        imagePopupWindow.setFocusable(true);
+        // 设置允许在外点击消失，必须和setBackgroundDrawable方法一起使用才有效
+        imagePopupWindow.setOutsideTouchable(true);
+        imagePopupWindow.update();
+        imagePopupWindow.setBackgroundDrawable(new BitmapDrawable());
+
+        imagePopupWindow.setAnimationStyle(R.style.PopupAnimation);
+        imagePopupWindow.setOutsideTouchable(true);
+        imagePopupWindow.showAtLocation(mContentView, Gravity.BOTTOM, 0, 0);
+
+        // 设置背景颜色变暗
+        setBackgroundBlur();
+        imagePopupWindow.setOnDismissListener(onDismissListener);
+
+        menuView.findViewById(R.id.tv_first_item).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                imagePopupWindow.dismiss();
+                toast("查看图片");
+            }
+        });
+        menuView.findViewById(R.id.tv_second_item).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                imagePopupWindow.dismiss();
+                Utils.downloadFile(mActivity, PreferenceManager.getInstance(), url, userAgent, "attachment");
+            }
+        });
+        menuView.findViewById(R.id.tv_cancel).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                imagePopupWindow.dismiss();
+            }
+        });
+    }
+
+    private void setBackgroundBlur() {
+        WindowManager.LayoutParams lp = mActivity.getWindow().getAttributes();
+        lp.alpha = 0.7f;
+        mActivity.getWindow().setAttributes(lp);
+    }
+
+    private PopupWindow.OnDismissListener onDismissListener = new PopupWindow.OnDismissListener() {
+        @Override
+        public void onDismiss() {
+            WindowManager.LayoutParams lp = mActivity.getWindow().getAttributes();
+            lp.alpha = 1f;
+            mActivity.getWindow().setAttributes(lp);
+        }
+    };
 
     /**
      * Determines whether or not the WebView can go
      * backward or if it as the end of its history.
      *
-     * @return true if the WebView can go back, false otherwise.
+     * @return true if the WebView can go ic_back_white, false otherwise.
      */
     public boolean canGoBack() {
         return mWebView != null && mWebView.canGoBack();
@@ -789,7 +875,7 @@ public class BrowserFragment extends BaseFragment implements BrowserFrgContract.
 
     /**
      * The OnTouchListener used by the WebView so we can
-     * get scroll events and show/hide the action bar when
+     * get scroll events and showBrowserFragment/hideBrowserFragment the action bar when
      * the page is scrolled up/down.
      */
     private class TouchListener implements android.view.View.OnTouchListener {
@@ -828,7 +914,7 @@ public class BrowserFragment extends BaseFragment implements BrowserFrgContract.
 
     /**
      * The SimpleOnGestureListener used by the {@link TouchListener}
-     * in order to delegate show/hide events to the action bar when
+     * in order to delegate showBrowserFragment/hideBrowserFragment events to the action bar when
      * the user flings the page. Also handles long press events so
      * that we can capture them accurately.
      */
@@ -898,6 +984,8 @@ public class BrowserFragment extends BaseFragment implements BrowserFrgContract.
             mWebView.saveState(webViewState);
             Log.d(TAG, "WebView onPause: " + mWebView.getId());
         }
+        // 解决js不调用的bug
+        pauseTimers();
     }
 
     @Override
@@ -907,6 +995,7 @@ public class BrowserFragment extends BaseFragment implements BrowserFrgContract.
             mWebView.onResume();
             Log.d(TAG, "WebView onResume: " + mWebView.getId());
         }
+        resumeTimers();
     }
 
     @Override
@@ -986,7 +1075,8 @@ public class BrowserFragment extends BaseFragment implements BrowserFrgContract.
      */
     private static class WebViewHandler extends Handler {
 
-        @NonNull private final WeakReference<BrowserFragment> mReference;
+        @NonNull
+        private final WeakReference<BrowserFragment> mReference;
 
         public WebViewHandler(BrowserFragment view) {
             mReference = new WeakReference<>(view);
@@ -1003,4 +1093,9 @@ public class BrowserFragment extends BaseFragment implements BrowserFrgContract.
         }
     }
 
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mIsCreated = false;
+    }
 }

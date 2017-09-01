@@ -146,7 +146,7 @@ public class UpdateService extends Service {
     }
 
     private void checkUpdateInfo() {
-        HashMap<String, String> params = NetProtocol.getImpl(mContext).getBaseParams2();
+        HashMap<String, String> params = NetProtocol.getImpl().getBaseParams2();
         String url = Utils.getUrl(GlobalParams.UPGRADE_INFO);
         Subscription subscribe = Http.getHttpService().checkUpdateInfo(url, params)
                 .compose(new ScheduleTransformer<UpgradeBean>())

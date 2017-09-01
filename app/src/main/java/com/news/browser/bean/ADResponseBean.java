@@ -182,24 +182,44 @@ public class ADResponseBean {
                 /**
                  * 广告曝光上报
                  */
-                private boolean isTiming;// 广告是否已经在计时中
-                private boolean hasExpose;// 广告是否已经曝光上报
+                private boolean isThirdTiming;// 广告是否已经在上报的流程中，第三方统计
+                private boolean hasExpose2Third;// 广告是否已经曝光上报，第三方统计
+
+                private boolean isSelfTiming;// 广告是否已经在上报的流程中，自营统计
+                private boolean hasExpose2Self;// 广告是否已经曝光上报，自营统计
+
                 private final Rect mCurrentViewRect = new Rect();
 
-                public boolean isTiming() {
-                    return isTiming;
+                public boolean isThirdTiming() {
+                    return isThirdTiming;
                 }
 
-                public void setTiming(boolean timing) {
-                    isTiming = timing;
+                public void setThirdTiming(boolean thirdTiming) {
+                    isThirdTiming = thirdTiming;
                 }
 
-                public boolean isHasExpose() {
-                    return hasExpose;
+                public boolean isHasExpose2Third() {
+                    return hasExpose2Third;
                 }
 
-                public void setHasExpose(boolean hasExpose) {
-                    this.hasExpose = hasExpose;
+                public void setHasExpose2Third(boolean hasExpose2Third) {
+                    this.hasExpose2Third = hasExpose2Third;
+                }
+
+                public boolean isSelfTiming() {
+                    return isSelfTiming;
+                }
+
+                public void setSelfTiming(boolean selfTiming) {
+                    isSelfTiming = selfTiming;
+                }
+
+                public boolean isHasExpose2Self() {
+                    return hasExpose2Self;
+                }
+
+                public void setHasExpose2Self(boolean hasExpose2Self) {
+                    this.hasExpose2Self = hasExpose2Self;
                 }
 
                 public int getVisibilityPercents(View view) {

@@ -85,4 +85,7 @@ public interface HttpService {
     @POST("http://ufb.doov.cn:8888/UserFeedBack/BugListSubmit.do")
     Observable<ResponseBody> sendFeedback(@Body RequestBody Body);
 
+    @POST
+    Observable<ResponseBody> uploadRecord(@Url String url, @Body RequestBody body);
+
 }

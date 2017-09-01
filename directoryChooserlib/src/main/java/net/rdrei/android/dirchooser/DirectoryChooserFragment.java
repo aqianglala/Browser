@@ -27,7 +27,6 @@ import android.view.View.OnClickListener;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.AdapterView.OnItemClickListener;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -67,7 +66,8 @@ public class DirectoryChooserFragment extends DialogFragment {
     private TextView mTxtvSelectedFolder;
     private ListView mListDirectories;
 
-    private ArrayAdapter<String> mListDirectoriesAdapter;
+//    private ArrayAdapter<String> mListDirectoriesAdapter;
+    private FileAdapter mAdapter;
     private List<String> mFilenames;
     /**
      * The directory that is currently being shown.
@@ -151,6 +151,14 @@ public class DirectoryChooserFragment extends DialogFragment {
         mBtnCreateFolder = (ImageButton) view.findViewById(R.id.btnCreateFolder);
         mTxtvSelectedFolder = (TextView) view.findViewById(R.id.txtvSelectedFolder);
         mListDirectories = (ListView) view.findViewById(R.id.directoryList);
+        TextView tv_title = (TextView) view.findViewById(R.id.tv_title);
+        tv_title.setText("选择存储路径");
+        view.findViewById(R.id.iv_back).setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                getActivity().finish();
+            }
+        });
 
         mBtnConfirm.setOnClickListener(new OnClickListener() {
 
@@ -214,9 +222,12 @@ public class DirectoryChooserFragment extends DialogFragment {
         adjustResourceLightness();
 
         mFilenames = new ArrayList<>();
-        mListDirectoriesAdapter = new ArrayAdapter<>(getActivity(),
-                android.R.layout.simple_list_item_1, mFilenames);
-        mListDirectories.setAdapter(mListDirectoriesAdapter);
+//        mListDirectoriesAdapter = new ArrayAdapter<>(getActivity(),
+//                android.R.layout.simple_list_item_1, mFilenames);
+//        mListDirectories.setAdapter(mListDirectoriesAdapter);
+        // 修改
+        mAdapter = new FileAdapter(getActivity(), mFilenames);
+        mListDirectories.setAdapter(mAdapter);
 
         final File initialDir;
         if (!TextUtils.isEmpty(mInitialDirectory) && isValidFile(new File(mInitialDirectory))) {
@@ -415,7 +426,9 @@ public class DirectoryChooserFragment extends DialogFragment {
                 Collections.sort(mFilenames);
                 mSelectedDir = dir;
                 mTxtvSelectedFolder.setText(dir.getAbsolutePath());
-                mListDirectoriesAdapter.notifyDataSetChanged();
+//                mListDirectoriesAdapter.notifyDataSetChanged();
+                // 修改
+                mAdapter.notifyDataSetChanged();
                 mFileObserver = createFileObserver(dir.getAbsolutePath());
                 mFileObserver.startWatching();
                 debug("Changed directory to %s", dir.getAbsolutePath());

@@ -59,14 +59,14 @@ public class BookmarkHistoryFragment extends BaseFragment {
 
             mTabLayout.setVisibility(View.GONE);
             tv_edit_title.setVisibility(View.VISIBLE);
-            tv_edit_title.setText(currentItem == 0 ? "选择书签" : "选择历史记录");
+            tv_edit_title.setText(currentItem == 0 ? "选择书签" : "选择历史");
 
             currentFragment.setEditable(true);
             currentFragment.unSelectAll();
         }else if (text.equals("全选")){
-            tv_edit.setText("取消全选");
+            tv_edit.setText("全不选");
             currentFragment.selectAll();
-        }else if (text.equals("取消全选")){
+        }else if (text.equals("全不选")){
             tv_edit.setText("全选");
             currentFragment.unSelectAll();
         }
@@ -140,7 +140,15 @@ public class BookmarkHistoryFragment extends BaseFragment {
 
         @Override
         public void onTabSelected(TabLayout.Tab tab) {
-            mViewPager.setCurrentItem(tab.getPosition());
+            int position = tab.getPosition();
+            mViewPager.setCurrentItem(position);
+            boolean isShowEditButton = false;
+            if (position == 0){
+                isShowEditButton = mBookmarkFragment.isShowEditButton();
+            }else if (position == 1){
+                isShowEditButton = mHistoryFragment.isShowEditButton();
+            }
+            setEditButtonVisibility(isShowEditButton);
         }
 
         @Override
@@ -169,5 +177,13 @@ public class BookmarkHistoryFragment extends BaseFragment {
         public int getCount() {
             return mFragments.size();
         }
+    }
+
+    public void setEditButtonVisibility(boolean isVisible){
+        tv_edit.setVisibility(isVisible ? View.VISIBLE : View.GONE);
+    }
+
+    public void setIsSelectAll(boolean isSelectAll){
+        tv_edit.setText(isSelectAll ? "全不选" : "全选");
     }
 }

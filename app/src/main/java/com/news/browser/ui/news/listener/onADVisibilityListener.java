@@ -42,20 +42,19 @@ public class onADVisibilityListener extends RecyclerView.OnScrollListener {
             BaseNewsItem item = mData.get(i);
             if (item instanceof ADResponseBean.DataBean._$8050018672826551Bean.ListBean){// 广告
                 ADResponseBean.DataBean._$8050018672826551Bean.ListBean bean = (ADResponseBean.DataBean._$8050018672826551Bean.ListBean) item;
-                if (bean.isHasExpose()) continue; // 已经上报
+                if (bean.isHasExpose2Third()) continue; // 已经上报
                 View childAt = mLayoutManager.getChildAt(i - first);
                 int percents = bean.getVisibilityPercents(childAt);
                 if (percents >= 50){
-                    if (!bean.isTiming()){
+                    if (!bean.isThirdTiming()){
                         Message msg = mTimingHandler.obtainMessage();
                         if (msg != null) {
                             msg.obj = bean;
-                            bean.setTiming(true);
+                            bean.setThirdTiming(true);
                             mTimingHandler.sendMessageDelayed(msg, 1000);
                         }
                     }
                 }else{
-                    bean.setTiming(false);
                     mTimingHandler.removeCallbacksAndMessages(bean);
                 }
             }

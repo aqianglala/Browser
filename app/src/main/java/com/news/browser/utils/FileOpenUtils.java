@@ -212,6 +212,8 @@ public class FileOpenUtils {
             return R.drawable.ic_default_type;
         }else if(end.equals("txt")){
             return R.drawable.ic_txt;
+        }else if(end.equals("zip") || end.equals("rar")){
+            return R.drawable.ic_zip;
         }else{
             return R.drawable.ic_default_type;
         }

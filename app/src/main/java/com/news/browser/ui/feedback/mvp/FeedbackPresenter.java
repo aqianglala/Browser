@@ -33,7 +33,7 @@ public class FeedbackPresenter extends BasePresenter<FeedbackActivity> implement
 
     @Override
     public void getFeedbackType() {
-        HashMap<String, String> feedbackMap = NetProtocol.getImpl(getIView()).getBaseFeedbackMap();
+        HashMap<String, String> feedbackMap = NetProtocol.getImpl().getBaseFeedbackMap();
         Subscription subscribe = mBiz.getFeedbackType(feedbackMap).compose(new ScheduleTransformer<FeedbackTypeBean>())
                 .subscribe(new Subscriber<FeedbackTypeBean>() {
                     @Override
@@ -59,7 +59,7 @@ public class FeedbackPresenter extends BasePresenter<FeedbackActivity> implement
 //        MultipartBody.Builder builder = new MultipartBody.Builder().setType(MultipartBody.FORM);
         MultipartBody.Builder builder = new MultipartBody.Builder().setType(MediaType.parse("multipart/form-data;charset=utf-8"));
 
-        HashMap<String, String> strParam = NetProtocol.getImpl(getIView()).getFeedbackStrParam(contact, content, feedType);
+        HashMap<String, String> strParam = NetProtocol.getImpl().getFeedbackStrParam(contact, content, feedType);
         for (Map.Entry<String, String> entry : strParam.entrySet()) {
             RequestBody body = RequestBody.create(MediaType.parse("text/plain"), entry.getValue());
             builder.addFormDataPart(entry.getKey(), null, body);

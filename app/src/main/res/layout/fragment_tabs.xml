@@ -3,19 +3,20 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical"
     android:background="@android:color/white"
+    android:orientation="vertical"
     tools:context="com.news.browser.ui.main.BrowserActivity">
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recyclerView"
         android:layout_width="match_parent"
         android:layout_height="0dp"
-        android:layout_weight="1"/>
+        android:layout_weight="1" />
 
     <Button
         android:id="@+id/btn_add_tab"
+        style="?android:attr/borderlessButtonStyle"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="添加窗口"/>
+        android:text="添加窗口" />
 </LinearLayout>

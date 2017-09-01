@@ -1,7 +1,14 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <color name="bright_blue">#33B5E5</color>
+    <color name="color_blue">#00A2E9</color>
+    <color name="color_page_bg">#F0F0F0</color>
+    <color name="color_window_manager">#1F1D1D</color>
     <color name="selection_background_color">#FEBB20</color>
+    <color name="text_black">#3A3332</color>
+    <color name="text_white">#ffffff</color>
+    <dimen name="margin_horizontal">12.5dp</dimen>
+    <dimen name="margin_top">10dp</dimen>
     <string name="cancel_label">Cancel</string>
     <string name="confirm_label">Confirm</string>
     <string name="create_folder_error">Could not create folder</string>

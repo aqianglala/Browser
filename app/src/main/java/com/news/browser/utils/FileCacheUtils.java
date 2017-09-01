@@ -129,9 +129,9 @@ public class FileCacheUtils {
 					out.close();
 					
 					if(!file.renameTo(new File(dir, fileName))) {
-						Log.e("NetRequestFactory", "rename file fail, add BitmapToFile");
+						Log.e("NetRequestFactory", "rename file fail, addBrowserFragment BitmapToFile");
 					}
-					//Log.i(TAG, "add file to sdCard cache sucess...");
+					//Log.i(TAG, "addBrowserFragment file to sdCard cache sucess...");
 				} catch (Exception e) {
 					e.printStackTrace();
 					if(out != null) {
@@ -404,9 +404,9 @@ public class FileCacheUtils {
 					}
 					
 					if(!file.renameTo(newFile)) {
-						Log.e("NetRequestFactory", "rename file fail, add BitmapToFile");
+						Log.e("NetRequestFactory", "rename file fail, addBrowserFragment BitmapToFile");
 					}
-					//Log.i(TAG, "add file to sdCard cache sucess...");
+					//Log.i(TAG, "addBrowserFragment file to sdCard cache sucess...");
 				} catch (Exception e) {
 					e.printStackTrace();
 					if(out != null) {

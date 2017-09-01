@@ -17,7 +17,6 @@ import com.news.browser.bean.EngineBean.EngineItem;
 import com.news.browser.bus.RXEvent;
 import com.news.browser.db.EngineDatabase;
 import com.news.browser.utils.RxBus;
-import com.news.browser.widget.DividerItemDecoration;
 import com.zhy.adapter.recyclerview.CommonAdapter;
 import com.zhy.adapter.recyclerview.base.ViewHolder;
 
@@ -67,7 +66,7 @@ public class SetEngineActivity extends BaseActivity {
         rv_engines.setLayoutManager(new LinearLayoutManager(mActivity));
         rv_engines.setHasFixedSize(true);
         rv_engines.setItemAnimator(new DefaultItemAnimator());
-        rv_engines.addItemDecoration(new DividerItemDecoration(mActivity, DividerItemDecoration.VERTICAL_LIST));
+        rv_engines.addItemDecoration(getDefaultDivider());
         rv_engines.setAdapter(mEnginesAdapter);
     }
 

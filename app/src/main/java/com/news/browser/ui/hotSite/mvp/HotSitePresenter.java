@@ -19,7 +19,7 @@ public class HotSitePresenter extends BasePresenter<HotSiteFragment> implements 
 
     @Override
     public void getHotSite() {
-        HashMap<String, String> params = NetProtocol.getImpl(getIView().getContext()).getBaseParams2();
+        HashMap<String, String> params = NetProtocol.getImpl().getBaseParams2();
         Subscription subscribe = new HotSiteBiz().getHotSite(params)
                 .compose(new ScheduleTransformer<HotSiteBean>())
                 .subscribe(new Subscriber<HotSiteBean>() {

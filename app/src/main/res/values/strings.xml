@@ -16,7 +16,7 @@
     <string name="action_allow">允许</string>
     <string name="action_dont_allow">不允许</string>
     <string name="loading">正在加载&#8230;</string>
-    <string name="action_new_tab">新建标签</string>
+    <string name="action_new_tab">主页</string>
     <string name="untitled">无法抓取到标题</string>
     <string name="hint_username">用户名</string>
     <string name="title_sign_in">登录</string>
@@ -53,6 +53,7 @@
     <string name="tasks_manager_demo_status_not_downloaded">未下载</string>
 
     <string name="start">开始</string>
+    <string name="go_on">继续</string>
     <string name="pause">暂停</string>
     <string name="delete">删除</string>
     <string name="open">打开</string>
@@ -73,6 +74,7 @@
     <!--rx提示-->
     <string name="prompt_task_exist">任务已在队列中</string>
     <string name="prompt_same_file_exist">文件已存在</string>
+    <string name="prompt_task_start">开始下载</string>
     <string name="menu_add_bookmark">添加书签</string>
     <string name="menu_bookmark_history">书签/历史</string>
     <string name="menu_refresh">刷新</string>
@@ -145,5 +147,12 @@
     <string name="edit_bookmark_name">名称</string>
     <string name="edit_bookmark_url">网址</string>
     <string name="download_right_now">立即下载</string>
+    <string name="save_image">保存图片</string>
+    <string name="show_image">查看图片</string>
+    <string name="load_error">呃，没加载出来</string>
+    <string name="refresh_after_connected">请连接网络后点击空白处刷新</string>
+
+    <string name="version_name">版本号：</string>
+    <string name="size">大小：</string>
 
 </resources>

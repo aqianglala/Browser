@@ -25,8 +25,8 @@
                 android:layout_height="0dp"
                 android:layout_weight="1"
                 android:layout_marginTop="12.5dp"
-                android:paddingLeft="12.5dp"
-                android:paddingRight="12.5dp"
+                android:paddingLeft="12dp"
+                android:paddingRight="12dp"
                 android:background="@android:color/white" />
             
         </LinearLayout>
@@ -52,16 +52,19 @@
     <!--</LinearLayout>-->
 
     <FrameLayout
+        android:id="@+id/fl_news_title"
         android:layout_width="match_parent"
         android:layout_height="@dimen/uc_news_header_title_height"
         android:layout_marginTop="@dimen/uc_news_header_title_init_offset"
         android:background="@drawable/shape_bg_blue"
         android:orientation="vertical"
+        android:clickable="true"
         app:layout_behavior="@string/behavior_uc_title">
 
         <TextView
             android:id="@+id/news_title_tv"
-            style="@style/TextAppearance.AppCompat.Body1"
+            android:textStyle="bold"
+            android:textSize="16sp"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center_vertical"
@@ -88,10 +91,11 @@
         android:layout_height="@dimen/uc_news_tabs_height"
         app:layout_behavior="@string/behavior_uc_news_tab"
         app:tabGravity="fill"
-        android:background="@android:color/white"
+        android:background="#F8F8F8"
         app:tabIndicatorColor="@color/text_blue"
         app:tabSelectedTextColor="@color/text_blue"
-        app:tabTextColor="@color/text_gray"
+        app:tabTextColor="@color/text_black"
+        app:tabIndicatorHeight="0dp"
         app:tabMaxWidth="55dp"/>
 
 

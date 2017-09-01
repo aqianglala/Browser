@@ -4,8 +4,14 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    android:background="#676767"
+    android:background="@color/color_window_manager"
     tools:context="com.news.browser.ui.main.BrowserActivity">
+
+    <View
+        android:id="@+id/fake_status_bar"
+        android:layout_width="match_parent"
+        android:layout_height="@dimen/statusbar_view_height"
+        android:background="@color/color_window_manager"/>
 
     <android.support.v7.widget.RecyclerView
         android:id="@+id/recyclerView"
@@ -17,7 +23,8 @@
         android:layout_width="match_parent"
         android:layout_height="75dp"
         android:orientation="horizontal"
-        android:background="#1F1D1D"
+        android:background="@color/color_window_manager"
+        android:layout_marginBottom="10dp"
         android:layout_alignParentBottom="true">
 
         <LinearLayout
@@ -38,10 +45,10 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="8sp"
+                android:textSize="12sp"
                 android:textColor="@color/text_white"
                 android:text="@string/remove_all_tab"
-                android:layout_marginTop="5dp"
+                android:layout_marginTop="15dp"
                 />
             
         </LinearLayout>
@@ -64,10 +71,10 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="8sp"
+                android:textSize="12sp"
                 android:textColor="@color/text_white"
                 android:text="@string/new_create"
-                android:layout_marginTop="5dp"
+                android:layout_marginTop="15dp"
                 />
 
         </LinearLayout>
@@ -90,10 +97,10 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:textSize="8sp"
+                android:textSize="12sp"
                 android:textColor="@color/text_white"
                 android:text="@string/window_complete"
-                android:layout_marginTop="5dp"
+                android:layout_marginTop="15dp"
                 />
 
         </LinearLayout>

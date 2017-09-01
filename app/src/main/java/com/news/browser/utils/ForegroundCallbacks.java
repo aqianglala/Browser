@@ -8,8 +8,11 @@ import android.os.Handler;
 
 import com.orhanobut.logger.Logger;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
+
+import static com.news.browser.utils.ActivityCollector.activities;
 
 /**
  * Created by zy1584 on 2017-6-15.
@@ -25,10 +28,15 @@ public class ForegroundCallbacks implements Application.ActivityLifecycleCallbac
         public void onBecameBackground();
     }
 
+    public interface AppCloseListener{
+        public void onClose();
+    }
+
     private static ForegroundCallbacks instance;
     private boolean foreground = false, paused = true;
     private Handler handler = new Handler();
     private List<Listener> listeners = new CopyOnWriteArrayList<Listener>();
+    private ArrayList<AppCloseListener> closeListeners = new ArrayList<>();
     private Runnable check;
 
     public static ForegroundCallbacks init(Application application) {
@@ -82,6 +90,13 @@ public class ForegroundCallbacks implements Application.ActivityLifecycleCallbac
 
     public void removeListener(Listener listener) {
         listeners.remove(listener);
+    }
+
+    public void addAppCloseListener(AppCloseListener listener){
+        closeListeners.add(listener);
+    }
+    public void removeAppCloseListener(AppCloseListener listener){
+        closeListeners.remove(listener);
     }
 
     @Override
@@ -150,5 +165,10 @@ public class ForegroundCallbacks implements Application.ActivityLifecycleCallbac
     @Override
     public void onActivityDestroyed(Activity activity) {
         ActivityCollector.removeActivity(activity);
+        if (ActivityCollector.size() == 0){
+            for (AppCloseListener l : closeListeners) {
+                l.onClose();
+            }
+        }
     }
 }

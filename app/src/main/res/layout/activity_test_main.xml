@@ -21,9 +21,12 @@
                 android:id="@+id/viewPager"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"/>
-        </FrameLayout>
 
-        <include layout="@layout/include_update_prompt"/>
+            <include layout="@layout/include_update_prompt"
+                android:layout_width="match_parent"
+                android:layout_height="45dp"
+                android:layout_gravity="bottom"/>
+        </FrameLayout>
 
         <FrameLayout
             android:layout_width="match_parent"
@@ -42,7 +45,7 @@
                 android:textSize="14sp"
                 android:gravity="center"
                 android:visibility="gone"
-                android:background="@android:color/white"
+                android:background="@drawable/shape_bg_white_top_line"
                 android:text="@string/complete"/>
         </FrameLayout>
 

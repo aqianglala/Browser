@@ -6,10 +6,10 @@ import android.text.TextUtils;
 import android.view.View;
 import android.widget.ImageView;
 
-import com.bumptech.glide.Glide;
 import com.news.browser.R;
 import com.news.browser.async.ImageDownloadTask;
 import com.news.browser.bean.HotTagBean;
+import com.news.browser.utils.GlideUtils;
 import com.news.browser.utils.Utils;
 import com.zhy.adapter.recyclerview.base.ItemViewDelegate;
 import com.zhy.adapter.recyclerview.base.ViewHolder;
@@ -54,7 +54,7 @@ public class ItemDelegate implements ItemViewDelegate<HotTagBean.DataBean> {
         Context context = holder.getConvertView().getContext();
         String iconUrl = dataBean.getIconUrl();
         if (!TextUtils.isEmpty(iconUrl)){
-            Glide.with(context).load(dataBean.getIconUrl()).into(iv_icon);
+            GlideUtils.loadIconImage(context, dataBean.getIconUrl(), iv_icon);
         }else{
             if (dataBean.getBitmap() == null){
                 // TODO: 2017-8-16 设置默认图片
@@ -68,6 +68,8 @@ public class ItemDelegate implements ItemViewDelegate<HotTagBean.DataBean> {
                                 dataBean.setBitmap(fav);
                             }
                         });
+            }else{
+                iv_icon.setImageBitmap(dataBean.getBitmap());
             }
         }
         if (isEditable && dataBean.getIsErase() == 1){
@@ -78,7 +80,7 @@ public class ItemDelegate implements ItemViewDelegate<HotTagBean.DataBean> {
         holder.setOnClickListener(R.id.iv_delete, new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                listener.onRemoveClick(holder, dataBean, position);
+                listener.onRemoveClick(holder, dataBean, holder.getLayoutPosition());
             }
         });
     }

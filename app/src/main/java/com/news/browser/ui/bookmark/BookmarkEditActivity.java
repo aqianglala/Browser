@@ -103,10 +103,6 @@ public class BookmarkEditActivity extends BaseActivity {
                 editedItem.setUrl(url);
                 mBookmarkManager.editBookmark(mBookmark, editedItem);
             }
-        } else {
-            if (mBookmark != null) {
-                mBookmarkManager.deleteBookmark(mBookmark);
-            }
         }
         if (iv_choose_home.getVisibility() == View.VISIBLE) {
             if (mHotTag == null) {
@@ -124,14 +120,13 @@ public class BookmarkEditActivity extends BaseActivity {
                 mHotTagDatabase.editHotTag(mHotTag, newTag);
                 RxBus.getInstance().post(new RXEvent(RXEvent.TAG_NOTIFY_DATA, ""));
             }
-        } else {
-            if (mHotTag != null) {
-                mHotTagDatabase.deleteSiteItem(mHotTag.getId());
-                RxBus.getInstance().post(new RXEvent(RXEvent.TAG_NOTIFY_DATA, ""));
-            }
         }
-        toast("保存成功");
-        finish();
+        if (iv_choose_bookmark.getVisibility() == View.GONE && iv_choose_home.getVisibility() == View.GONE){
+            toast("请选择书签类型");
+        }else{
+            toast("保存成功");
+            finish();
+        }
     }
 
     @Override
@@ -165,6 +160,8 @@ public class BookmarkEditActivity extends BaseActivity {
 
         iv_added_bookmark.setVisibility(mBookmark != null ? View.VISIBLE : View.GONE);
         iv_added_home.setVisibility(mHotTag != null ? View.VISIBLE : View.GONE);
+
+        iv_choose_bookmark.setVisibility(View.VISIBLE);
     }
 
 }

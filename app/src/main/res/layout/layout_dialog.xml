@@ -19,25 +19,25 @@
             android:layout_marginRight="@dimen/margin_horizontal"
             android:maxLines="1"
             android:textColor="@color/text_gray"
-            android:textSize="12sp" />
+            android:textSize="14sp" />
 
-        <include
-            layout="@layout/include_line_horizontal"
-            android:layout_width="match_parent"
-            android:layout_height="@dimen/height_line"
-            android:layout_alignParentBottom="true" />
+        <!--<include-->
+            <!--layout="@layout/include_line_horizontal"-->
+            <!--android:layout_width="match_parent"-->
+            <!--android:layout_height="@dimen/height_line"-->
+            <!--android:layout_alignParentBottom="true" />-->
     </RelativeLayout>
 
     <TextView
         android:id="@+id/tv_message"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="@dimen/margin_top"
+        android:layout_marginBottom="25dp"
         android:layout_marginLeft="@dimen/margin_horizontal"
         android:layout_marginRight="@dimen/margin_horizontal"
-        android:layout_marginTop="@dimen/margin_top"
+        android:layout_marginTop="11dp"
         android:shadowColor="@color/text_gray"
-        android:textSize="10sp" />
+        android:textSize="12sp" />
 
     <include layout="@layout/include_line_horizontal" />
 
@@ -55,7 +55,7 @@
             android:clickable="true"
             android:gravity="center"
             android:textColor="@color/text_gray"
-            android:textSize="12sp" />
+            android:textSize="14sp" />
 
         <include layout="@layout/include_line_vertical" />
 
@@ -68,7 +68,7 @@
             android:clickable="true"
             android:gravity="center"
             android:textColor="@color/text_blue"
-            android:textSize="12sp" />
+            android:textSize="14sp" />
 
     </LinearLayout>
 

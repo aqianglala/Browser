@@ -41,7 +41,7 @@ public class AboutActivity extends BaseActivity<AboutPresenter> implements About
         try {
             PackageInfo packageInfo = packageManager.getPackageInfo(mActivity.getPackageName(), 0);
             String versionName = packageInfo.versionName;
-            tv_version.setText(versionName);
+            tv_version.setText("版本号：v" + versionName);
         } catch (PackageManager.NameNotFoundException e) {
             e.printStackTrace();
         }

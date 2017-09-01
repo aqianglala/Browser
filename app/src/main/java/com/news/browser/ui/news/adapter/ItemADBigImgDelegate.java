@@ -6,11 +6,11 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.widget.ImageView;
 
-import com.bumptech.glide.Glide;
 import com.news.browser.R;
 import com.news.browser.bean.ADResponseBean.DataBean._$8050018672826551Bean.ListBean;
 import com.news.browser.bean.BaseNewsItem;
 import com.news.browser.ui.news.interfaces.OnADItemClickListener;
+import com.news.browser.utils.GlideUtils;
 import com.zhy.adapter.recyclerview.base.ItemViewDelegate;
 import com.zhy.adapter.recyclerview.base.ViewHolder;
 
@@ -44,10 +44,7 @@ public class ItemADBigImgDelegate implements ItemViewDelegate<BaseNewsItem> {
         ListBean bean = (ListBean) item;
         Context context = holder.getConvertView().getContext();
         holder.setText(R.id.tv_title, bean.getTitle());
-        Glide.with(context)
-                .load(bean.getImg_url())
-//                .placeholder(R.mipmap.ic_launcher)// TODO: 2017-7-26
-                .into((ImageView) holder.getView(R.id.iv_thumbnail));
+        GlideUtils.loadNewsImage(context, bean.getImg_url(), (ImageView) holder.getView(R.id.iv_thumbnail));
         holder.itemView.setOnTouchListener(new MyOnTouchListener(holder, bean, position, mListener));
     }
 
