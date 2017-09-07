@@ -60,7 +60,7 @@ public class NetProtocol {
     private static String mAndroid_id = null;
     private static String mManufacturer = null;
 
-    private static final String app_bundle_id = "com.test.android";
+    private static final String app_bundle_id = "com.news.browser";
     private static final String app_id = "1104241296";
     private static final String ad_id = "8050018672826551";
     private static final String os = "android";

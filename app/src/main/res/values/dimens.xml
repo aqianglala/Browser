@@ -77,4 +77,6 @@
     <dimen name="text_size_news_title">16sp</dimen>
 
     <dimen name="search_bar_hint_text_size">14sp</dimen>
+    <dimen name="size_hot_tag_inner_circle">37dp</dimen>
+    <dimen name="size_hot_tag_inner_circle_padding">6.5dp</dimen>
 </resources>

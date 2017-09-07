@@ -7,7 +7,7 @@ import android.support.annotation.NonNull;
 import android.text.TextUtils;
 
 import com.news.browser.base.BaseApplication;
-import com.news.browser.bean.ADResponseBean;
+import com.news.browser.bean.ADBean;
 import com.news.browser.http.Http;
 import com.news.browser.http.HttpService;
 import com.news.browser.http.NetProtocol;
@@ -22,6 +22,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.net.URLEncoder;
 import java.util.HashMap;
 import java.util.Map;
@@ -169,12 +170,12 @@ public class AccessRecordTool implements ForegroundCallbacks.Listener, Foregroun
      *
      * @param lastPage
      * @param keyWord
-     * @param address
+     * @param addressUrl
      */
-    public synchronized void recordSearch(int lastPage, String keyWord, String address) {
+    public synchronized void recordSearch(int lastPage, String keyWord, String addressUrl) {
         HashMap<String, String> params = NetProtocol.getImpl().getBaseRecordParams(lastPage, PG_SEARCH, EV_SEARCH);
         params.put("Content", keyWord);
-        params.put("Extras", address);
+        params.put("Extras", encode(addressUrl));
         String url = getUrl(GlobalParams.UPLOAD);
         uploadRecord(url, params);
     }
@@ -182,7 +183,7 @@ public class AccessRecordTool implements ForegroundCallbacks.Listener, Foregroun
     /**
      * 广告和新闻曝光
      */
-    public synchronized void reportAdExpose(final ADResponseBean.DataBean._$8050018672826551Bean.ListBean bean, String channelName, String title, int event, int type) {
+    public synchronized void reportADExpose(final ADBean bean, String channelName, String title, int event, int type) {
         HashMap<String, String> params = NetProtocol.getImpl().getBaseRecordParams(0, PG_HOT_NEWS, event);
         params.put("Content", channelName);
         params.put("Extras", title);
@@ -218,9 +219,9 @@ public class AccessRecordTool implements ForegroundCallbacks.Listener, Foregroun
     }
 
     /**
-     * 广告点击
+     * 广告和新闻点击
      */
-    public synchronized void reportADClick(String channelName, String title, int event, int type) {
+    public synchronized void reportADOrNewsClick(String channelName, String title, int event, int type) {
         HashMap<String, String> params = NetProtocol.getImpl().getBaseRecordParams(0, PG_HOT_NEWS, event);
         params.put("Content", channelName);
         params.put("Extras", title);
@@ -238,7 +239,7 @@ public class AccessRecordTool implements ForegroundCallbacks.Listener, Foregroun
         params.put("Type", type + "");
         params.put("Position", (position + 1) + "");
         params.put("Content", content);
-        params.put("Extras", addressUrl);
+        params.put("Extras", encode(addressUrl));
         String url = getUrl(GlobalParams.UPLOAD);
         uploadRecord(url, params);
     }
@@ -264,7 +265,7 @@ public class AccessRecordTool implements ForegroundCallbacks.Listener, Foregroun
     public synchronized void accessSearchPage(int lastPage, int currentPage, String defaultEngine) {
         HashMap<String, String> params = NetProtocol.getImpl().getBaseRecordParams(lastPage, currentPage, EV_OPEN);
         if (!TextUtils.isEmpty(defaultEngine)) {
-            params.put("Extras", defaultEngine);
+            params.put("Extras", encode(defaultEngine));
         }
         String url = getUrl(GlobalParams.UPLOAD);
         uploadRecord(url, params);
@@ -291,6 +292,15 @@ public class AccessRecordTool implements ForegroundCallbacks.Listener, Foregroun
                         checkUploadRespond(body);
                     }
                 });
+    }
+
+    private String encode(String str){
+        try {
+            return URLEncoder.encode(str, "UTF-8");
+        } catch (UnsupportedEncodingException e) {
+            e.printStackTrace();
+        }
+        return null;
     }
 
     @NonNull

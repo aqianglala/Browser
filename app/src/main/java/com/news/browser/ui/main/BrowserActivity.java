@@ -86,7 +86,6 @@ import com.news.browser.widget.OutsideViewPager;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -148,7 +147,7 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
     private TextView tv_refresh;
 
     // 保存上一个页面的状态
-    private Map<Integer, BrowserFragment> tabStatusMap = new HashMap<>();
+    private HashMap<Integer, BrowserFragment> mTabStatusMap = new HashMap<>();
 
     private final String STACK_INCLUDE_BOTTOM = "stack_include_bottom";
     private final String STACK_EXCEPT_BOTTOM = "stack_except_bottom";
@@ -221,7 +220,7 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
     }
 
     @OnClick(R.id.ib_back)
-    void back() {
+    public void back() {
         if (removeOtherFragment()) return;
         BrowserFragment currentTab = mTabsManager.getCurrentFragment();
         if (currentTab != null) {
@@ -270,6 +269,7 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
 
     /**
      * 按右下角的home键，将所有的fragment移除
+     *
      * @return
      */
     private void removeExceptBrowser() {
@@ -299,7 +299,7 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
             ib_back.setEnabled(true);
             ib_forward.setEnabled(currentFragment.canGoForward());
         } else {
-            BrowserFragment browserFragment = tabStatusMap.get(mTabsManager.getCurrentIndex());
+            BrowserFragment browserFragment = mTabStatusMap.get(mTabsManager.getCurrentIndex());
             ib_back.setEnabled(false);
             if (browserFragment != null) {
                 ib_forward.setEnabled(true);
@@ -333,14 +333,14 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
      */
     private void saveCurrentTab(BrowserFragment currentTab) {
         int currentIndex = mTabsManager.getCurrentIndex();
-        BrowserFragment fragment = tabStatusMap.get(currentIndex);
+        BrowserFragment fragment = mTabStatusMap.get(currentIndex);
         if (fragment != null && fragment != currentTab) {
             remove(fragment);
         }
         pauseFragment(currentTab);
         hideBrowserFragment(currentTab);
         mTabsManager.backToHome(currentTab);
-        tabStatusMap.put(currentIndex, currentTab);
+        mTabStatusMap.put(currentIndex, currentTab);
         ib_back.setEnabled(mHotSiteFragment == null || !mHotSiteFragment.isVisible() ? false : true);
         ib_forward.setEnabled(true);
     }
@@ -374,7 +374,7 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
         if (currentTab != null) {
             currentTab.goForward();
         } else {
-            BrowserFragment browserFragment = tabStatusMap.get(currentIndex);
+            BrowserFragment browserFragment = mTabStatusMap.get(currentIndex);
             if (browserFragment != null) {
                 resumeFragment(browserFragment);
 
@@ -417,6 +417,7 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
                 mViewPager.setCurrentItem(currentItem == 0 ? 1 : 0);
             }
         }
+        ib_back.setEnabled(false);
     }
 
     @Override
@@ -795,12 +796,7 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
         if (query.isEmpty()) {
             return;
         }
-        String searchUrl;
-        if (Constants.BAIDU_SEARCH.equals(mSearchText)) {
-            searchUrl = mSearchText + UrlUtils.QUERY_PLACE_HOLDER;
-        } else {
-            searchUrl = mSearchText;
-        }
+        String searchUrl = mSearchText;
         query = query.trim();
         String urlFilter = UrlUtils.smartUrlFilter(query, true, searchUrl);
         if (currentTab != null) {
@@ -809,7 +805,7 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
             currentTab.loadUrl(urlFilter);
         } else {
             int currentIndex = mTabsManager.getCurrentIndex();
-            tabStatusMap.remove(currentIndex);
+            mTabStatusMap.remove(currentIndex);
             ib_back.setEnabled(true);
             ib_forward.setEnabled(false);
             loadUrlInNewFragment(urlFilter);
@@ -962,16 +958,17 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
                     hasDefault = true;
                 }
             }
-            if (hasDefault) {
-                mEngineItems.clear();
-                mEngineItems.addAll(bean.getData());
-                for (EngineItem item : bean.getData()) {
-                    mEngineDatabase.addEngineItem(item);
-                    if (item.getIsDefault() == 1) {
-                        mDefaultEngine = item;
-                        mPreferences.setSearchUrl(mDefaultEngine.getAddrUrl());
-                        mSearchText = mDefaultEngine.getAddrUrl();
-                    }
+            if (!hasDefault && bean.getData().size() > 0) {
+                bean.getData().get(0).setIsDefault(1);
+            }
+            mEngineItems.clear();
+            mEngineItems.addAll(bean.getData());
+            for (EngineItem item : bean.getData()) {
+                mEngineDatabase.addEngineItem(item);
+                if (item.getIsDefault() == 1) {
+                    mDefaultEngine = item;
+                    mPreferences.setSearchUrl(mDefaultEngine.getAddrUrl());
+                    mSearchText = mDefaultEngine.getAddrUrl();
                 }
             }
         }
@@ -1209,7 +1206,7 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
             ib_back.setEnabled(true);
             ib_forward.setEnabled(currentTab.canGoForward());
         } else {
-            BrowserFragment browserFragment = tabStatusMap.get(newNumber);
+            BrowserFragment browserFragment = mTabStatusMap.get(newNumber);
             if (browserFragment != null) {
                 ib_back.setEnabled(false);
                 ib_forward.setEnabled(true);
@@ -1293,7 +1290,7 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
             mTabsManager.pauseAll();
         }
         UpdateService.resetListener();
-        if (upgradeDialog != null){
+        if (upgradeDialog != null) {
             upgradeDialog.dismiss();
         }
     }
@@ -1374,7 +1371,7 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
             public void call(EngineItem engineItem) {
                 mDefaultEngine = engineItem;
                 if (mDefaultEngine == null) {
-                    mSearchText = Constants.BAIDU_SEARCH;
+                    mSearchText = Constants.SEARCH_SOGOU;
                 } else {
                     mSearchText = mDefaultEngine.getAddrUrl();
                 }
@@ -1434,4 +1431,16 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
         mViewPager.setPagingEnabled(isPagingEnable);
     }
 
+//    @Override
+//    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+//        super.onRestoreInstanceState(savedInstanceState);
+//        getSupportFragmentManager().popBackStack(STACK_INCLUDE_BOTTOM, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+//        getSupportFragmentManager().popBackStack(STACK_EXCEPT_BOTTOM, FragmentManager.POP_BACK_STACK_INCLUSIVE);
+//        Logger.i("onRestoreInstanceState");
+//    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+//        super.onSaveInstanceState(outState);
+    }
 }

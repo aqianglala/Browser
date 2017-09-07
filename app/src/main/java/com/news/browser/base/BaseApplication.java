@@ -19,7 +19,6 @@ import com.news.browser.receiver.PackageChangeReceiver;
 import com.news.browser.service.UpdateService;
 import com.news.browser.ui.download.GlobalMonitor;
 import com.news.browser.utils.ChannelUtil;
-import com.news.browser.utils.CrashHandler;
 import com.news.browser.utils.ForegroundCallbacks;
 import com.orhanobut.logger.AndroidLogAdapter;
 import com.orhanobut.logger.Logger;
@@ -66,7 +65,7 @@ public class BaseApplication extends MultiDexApplication {
 
         StatConfig.setInstallChannel(ChannelUtil.getChannel(this));// 设置渠道
 
-        CrashHandler.getInstance().init(getApplicationContext());
+//        CrashHandler.getInstance().init(getApplicationContext());
 //        LeakCanary.install(this);
 
         Logger.addLogAdapter(new AndroidLogAdapter() {

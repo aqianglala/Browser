@@ -232,7 +232,7 @@ public class PreferenceManager {
 
     @NonNull
     public String getSearchUrl() {
-        return mPrefs.getString(Name.SEARCH_URL, Constants.BAIDU_SEARCH);
+        return mPrefs.getString(Name.SEARCH_URL, Constants.SEARCH_SOGOU);
     }
 
     public boolean getTextReflowEnabled() {

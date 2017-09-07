@@ -31,7 +31,6 @@ import android.widget.TextView;
 import com.news.browser.R;
 import com.news.browser.mvp.IView;
 import com.news.browser.utils.ToastUtils;
-import com.news.browser.utils.UIUtils;
 import com.orhanobut.logger.Logger;
 import com.yqritc.recyclerviewflexibledivider.HorizontalDividerItemDecoration;
 
@@ -274,9 +273,8 @@ public abstract class BaseActivity<P extends BasePresenter> extends AppCompatAct
 
     protected HorizontalDividerItemDecoration getDefaultDivider() {
         return new HorizontalDividerItemDecoration.Builder(mActivity)
-                .color(UIUtils.getColor(R.color.color_line))
+                .drawable(R.drawable.divider)
                 .sizeResId(R.dimen.height_divider)
-                .marginResId(R.dimen.margin_horizontal, R.dimen.margin_horizontal)
                 .build();
     }
 

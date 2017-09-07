@@ -320,7 +320,7 @@ public class Utils {
      */
     public static boolean isTelephoneNum(String mobiles) {
         Pattern p = Pattern
-                .compile("^((13[0-9])|(14[5|7])|(15([0-3]|[5-9]))|(18[0,5-9]))\\\\d{8}$");
+                .compile("^1(3|4|5|7|8)\\d{9}$");
         Matcher m = p.matcher(mobiles);
         return m.matches();
     }
@@ -342,6 +342,10 @@ public class Utils {
         return m.matches();
     }
 
+    public static Bitmap padFavicon(@NonNull Bitmap bitmap) {
+        return padFavicon(bitmap, DensityUtils.dpToPx(4));
+    }
+
     /**
      * Creates and returns a new favicon which is the same as the provided
      * favicon but with horizontal or vertical padding of 4dp
@@ -349,8 +353,7 @@ public class Utils {
      * @param bitmap is the bitmap to pad.
      * @return the padded bitmap.
      */
-    public static Bitmap padFavicon(@NonNull Bitmap bitmap) {
-        int padding = DensityUtils.dpToPx(4);
+    public static Bitmap padFavicon(@NonNull Bitmap bitmap, int padding) {
 
         Bitmap paddedBitmap = Bitmap.createBitmap(bitmap.getWidth() + padding, bitmap.getHeight()
                 + padding, Bitmap.Config.ARGB_8888);
@@ -360,6 +363,15 @@ public class Utils {
         canvas.drawBitmap(bitmap, padding / 2, padding / 2, new Paint(Paint.FILTER_BITMAP_FLAG));
 
         return paddedBitmap;
+    }
+
+    public static Bitmap convertToBitmap(Drawable drawable, int widthPixels, int heightPixels) {
+        Bitmap mutableBitmap = Bitmap.createBitmap(widthPixels, heightPixels, Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(mutableBitmap);
+        drawable.setBounds(0, 0, widthPixels, heightPixels);
+        drawable.draw(canvas);
+
+        return mutableBitmap;
     }
 
     public static String halfUp(float d){

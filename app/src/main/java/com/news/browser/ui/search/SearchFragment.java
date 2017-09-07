@@ -92,19 +92,21 @@ public class SearchFragment extends BaseFragment {
 
     @OnClick(R.id.tv_cancel)
     void searchOrCancel() {
-        String query = et_search.getText().toString().trim();
-        if (!TextUtils.isEmpty(query)) {
-            searchTheWeb(query);
-        } else {
-            hideSoftInputFromWindow();
-            mBrowserAct.getSupportFragmentManager().popBackStack();
-        }
+//        String query = et_search.getText().toString().trim();
+//        if (!TextUtils.isEmpty(query)) {
+//            searchTheWeb(query);
+//        } else {
+//            hideSoftInputFromWindow();
+//            mBrowserAct.getSupportFragmentManager().popBackStack();
+//        }
+        hideSoftInputFromWindow();
+        mBrowserAct.getSupportFragmentManager().popBackStack();
     }
 
     @OnClick(R.id.iv_left)
     void showEngines() {
         mEngineItems = mBrowserAct.getEngineItems();
-        if (mEngineItems != null && mEngineItems.size() > 0) {
+        if (mEngineItems != null && mEngineItems.size() > 1) {
             rv_engines.setVisibility(rv_engines.getVisibility() == View.VISIBLE ? View.GONE : View.VISIBLE);
             rv_history.setVisibility(rv_history.getVisibility() == View.VISIBLE ? View.GONE : View.VISIBLE);
             if (mEnginesAdapter == null) {
@@ -239,13 +241,19 @@ public class SearchFragment extends BaseFragment {
     }
 
     private void showDeleteButton(CharSequence s) {
+//        if (s == null || s.length() == 0) {
+//            iv_right.setVisibility(View.GONE);
+//            tv_cancel.setText("取消");
+//        } else {
+//            iv_right.setVisibility(View.VISIBLE);
+//            iv_right.setImageResource(R.drawable.ic_remove_input);
+//            tv_cancel.setText("搜索");
+//        }
         if (s == null || s.length() == 0) {
             iv_right.setVisibility(View.GONE);
-            tv_cancel.setText("取消");
         } else {
             iv_right.setVisibility(View.VISIBLE);
             iv_right.setImageResource(R.drawable.ic_remove_input);
-            tv_cancel.setText("搜索");
         }
     }
 
@@ -258,6 +266,8 @@ public class SearchFragment extends BaseFragment {
         @Override
         public void onTextChanged(CharSequence s, int start, int before, int count) {
             showDeleteButton(s);
+            rv_engines.setVisibility(View.GONE);
+            rv_history.setVisibility(View.VISIBLE);
             // 获取搜索联想
         }
 

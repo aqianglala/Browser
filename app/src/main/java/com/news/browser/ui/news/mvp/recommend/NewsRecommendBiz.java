@@ -1,9 +1,8 @@
 package com.news.browser.ui.news.mvp.recommend;
 
-import com.news.browser.bean.RecommendBean;
 import com.news.browser.base.BaseModel;
-import com.news.browser.bean.ADResponseBean;
 import com.news.browser.bean.ClickLinkResponseBean;
+import com.news.browser.bean.RecommendBean;
 import com.news.browser.utils.GlobalParams;
 
 import java.util.Map;
@@ -22,7 +21,7 @@ public class NewsRecommendBiz extends BaseModel {
         return httpService.getRecommendNewsList(url, params);
     }
 
-    public Observable<ADResponseBean> getADList(Map<String, String> params){
+    public Observable<ResponseBody> getADList(Map<String, String> params){
         String url = getUrl(GlobalParams.ADVERTISING);
         return httpService.getADList(url, params);
     }

@@ -32,6 +32,7 @@ import com.news.browser.utils.SPUtils;
 import com.news.browser.widget.NewsViewPager;
 import com.news.browser.widget.SpacesItemDecoration;
 import com.news.browser.widget.behavior.uc.UcNewsHeaderPagerBehavior;
+import com.orhanobut.logger.Logger;
 import com.zhy.adapter.recyclerview.CommonAdapter;
 import com.zhy.adapter.recyclerview.MultiItemTypeAdapter;
 import com.zhy.adapter.recyclerview.base.ViewHolder;
@@ -95,6 +96,7 @@ public class MainFragment extends BaseFragment<MainFrgPresenter> implements UcNe
     @Override
     protected void initView(Bundle savedInstanceState) {
         super.initView(savedInstanceState);
+        Logger.i("initview:" + this.hashCode());
         mPagerBehavior = (UcNewsHeaderPagerBehavior) ((CoordinatorLayout.LayoutParams) mContentView.findViewById(R.id.id_uc_news_header_pager).getLayoutParams()).getBehavior();
         mPagerBehavior.setPagerStateListener(this);
         mNewsPager = (NewsViewPager) mContentView.findViewById(R.id.id_uc_news_content);
@@ -217,6 +219,7 @@ public class MainFragment extends BaseFragment<MainFrgPresenter> implements UcNe
             Log.d(TAG, "onPagerClosed: ");
         }
         mNewsPager.setPagingEnabled(true);
+        ((BrowserActivity)mActivity).setPagingEnabled(false);
         // 自营统计
         if (mNewsPager.getCurrentItem() == 0) {
             AccessRecordTool.getInstance().accessPage(0, AccessRecordTool.PG_HOT_NEWS, "推荐");
@@ -226,6 +229,7 @@ public class MainFragment extends BaseFragment<MainFrgPresenter> implements UcNe
     @Override
     public void onPagerOpened() {
         mNewsPager.setPagingEnabled(false);
+        ((BrowserActivity)mActivity).setPagingEnabled(true);
         if (mRecommendFragment != null) {
             mRecommendFragment.scrollToTop();
         }
@@ -233,6 +237,7 @@ public class MainFragment extends BaseFragment<MainFrgPresenter> implements UcNe
     }
 
     public boolean onBackPressed() {
+        Logger.i("initview:" + this.hashCode());
         if (mPagerBehavior != null && mPagerBehavior.isClosed()) {
             mPagerBehavior.openPager();
             return true;
@@ -388,5 +393,11 @@ public class MainFragment extends BaseFragment<MainFrgPresenter> implements UcNe
             }
         }
         return false;
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        mContentView = null;
     }
 }

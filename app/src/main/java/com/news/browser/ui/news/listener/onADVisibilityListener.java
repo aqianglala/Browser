@@ -6,8 +6,8 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.view.View;
 
+import com.news.browser.bean.ADBean;
 import com.news.browser.bean.BaseNewsItem;
-import com.news.browser.bean.ADResponseBean;
 
 import java.util.List;
 
@@ -40,8 +40,8 @@ public class onADVisibilityListener extends RecyclerView.OnScrollListener {
         int last = mLayoutManager.findLastVisibleItemPosition();
         for (int i = first; i <= last; i ++){
             BaseNewsItem item = mData.get(i);
-            if (item instanceof ADResponseBean.DataBean._$8050018672826551Bean.ListBean){// 广告
-                ADResponseBean.DataBean._$8050018672826551Bean.ListBean bean = (ADResponseBean.DataBean._$8050018672826551Bean.ListBean) item;
+            if (item instanceof ADBean){// 广告
+                ADBean bean = (ADBean) item;
                 if (bean.isHasExpose2Third()) continue; // 已经上报
                 View childAt = mLayoutManager.getChildAt(i - first);
                 int percents = bean.getVisibilityPercents(childAt);

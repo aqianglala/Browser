@@ -1,6 +1,6 @@
 package com.news.browser.ui.news.interfaces;
 
-import com.news.browser.bean.ADResponseBean;
+import com.news.browser.bean.ADBean;
 import com.zhy.adapter.recyclerview.base.ViewHolder;
 
 /**
@@ -8,6 +8,6 @@ import com.zhy.adapter.recyclerview.base.ViewHolder;
  */
 
 public interface OnADItemClickListener {
-    void onADItemClick(ViewHolder holder, ADResponseBean.DataBean._$8050018672826551Bean.ListBean item, int position, int dowX, int downY,
+    void onADItemClick(ViewHolder holder, ADBean item, int position, int dowX, int downY,
                        int upX, int upY);
 }

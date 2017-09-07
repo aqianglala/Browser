@@ -213,6 +213,8 @@ public class HistoryFragment extends BaseFragment implements MultiItemTypeAdapte
                                     Bitmap fav = Utils.padFavicon(bitmap);
                                     iv_icon.setImageBitmap(fav);
                                     historyItem.setBitmap(fav);
+                                }else{
+                                    iv_icon.setImageResource(R.drawable.icon_default);
                                 }
                             }
                         });

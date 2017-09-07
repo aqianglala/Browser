@@ -1,7 +1,6 @@
 package com.news.browser.http;
 
 
-import com.news.browser.bean.ADResponseBean;
 import com.news.browser.bean.ClickLinkResponseBean;
 import com.news.browser.bean.EngineBean;
 import com.news.browser.bean.FeedbackTypeBean;
@@ -50,7 +49,7 @@ public interface HttpService {
 
 //    @GET("http://mi.gdt.qq.com/api/v3")
     @GET
-    Observable<ADResponseBean> getADList(@Url String url, @QueryMap Map<String, String> params);
+    Observable<ResponseBody> getADList(@Url String url, @QueryMap Map<String, String> params);
 
     @GET
     Observable<ClickLinkResponseBean> reportClick(@Url String url);

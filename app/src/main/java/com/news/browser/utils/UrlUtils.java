@@ -105,13 +105,8 @@ public class UrlUtils {
         }
         if (canBeSearch) {
             if (!TextUtils.isEmpty(searchUrl)){
-                if (searchUrl.equals(Constants.BAIDU_SEARCH + UrlUtils.QUERY_PLACE_HOLDER)){
-                    return URLUtil.composeSearchUrl(inUrl,
-                            searchUrl, QUERY_PLACE_HOLDER);
-                }else{
-                    return URLUtil.composeSearchUrl(inUrl,
-                            searchUrl, KEY_WORD_HOLDER);
-                }
+                return URLUtil.composeSearchUrl(inUrl,
+                        searchUrl, KEY_WORD_HOLDER);
             }
         }
         return "";

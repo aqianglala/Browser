@@ -39,6 +39,7 @@
         <TextView
             android:id="@+id/tv_time"
             style="@style/TextAppearance_NewsSourceTime"
+            android:visibility="gone"
             android:layout_marginLeft="15dp" />
     </LinearLayout>
 

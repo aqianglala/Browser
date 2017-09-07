@@ -15,8 +15,7 @@ import android.webkit.URLUtil;
 import com.google.gson.Gson;
 import com.news.browser.R;
 import com.news.browser.base.BaseFragment;
-import com.news.browser.bean.ADResponseBean;
-import com.news.browser.bean.ADResponseBean.DataBean._$8050018672826551Bean.ListBean;
+import com.news.browser.bean.ADBean;
 import com.news.browser.bean.BaseNewsItem;
 import com.news.browser.bean.ClickLinkResponseBean;
 import com.news.browser.bean.RecommendBean;
@@ -65,6 +64,7 @@ public class NewsRecommendFragment extends BaseFragment<NewsRecommendPresenter> 
     private List<RecommendBean.NewslistBean> mNewsList = new ArrayList<>();
     private boolean isLoading;
     private boolean isRefresh;
+    private boolean isNeedClearCache;
     private final TimingHandler mTimingHandler = new TimingHandler();
 
     private class TimingHandler extends Handler {
@@ -75,18 +75,18 @@ public class NewsRecommendFragment extends BaseFragment<NewsRecommendPresenter> 
             if (msg == null || msg.obj == null) return;
             switch (msg.what){
                 case WHAT_AD_THIRD:
-                    ListBean thirdBean = (ListBean) msg.obj;
+                    ADBean thirdBean = (ADBean) msg.obj;
                     if (!thirdBean.isHasExpose2Third() && thirdBean.isThirdTiming()){
                         removeMessages(WHAT_AD_THIRD, thirdBean);
                         mPresenter.reportADExpose(thirdBean);
                     }
                     break;
                 case WHAT_AD_SELF:
-                    ListBean selfBean = (ListBean) msg.obj;
+                    ADBean selfBean = (ADBean) msg.obj;
                     if (!selfBean.isHasExpose2Self() && selfBean.isSelfTiming()){
                         removeMessages(WHAT_AD_SELF, selfBean);
                         // 自营统计上报数据：广告
-                        AccessRecordTool.getInstance().reportAdExpose(selfBean, "推荐", selfBean.getTitle(), AccessRecordTool.EV_SHOW, AccessRecordTool.TYPE_AD);
+                        AccessRecordTool.getInstance().reportADExpose(selfBean, "推荐", selfBean.getTitle(), AccessRecordTool.EV_SHOW, AccessRecordTool.TYPE_AD);
                     }
                     break;
             }
@@ -149,6 +149,7 @@ public class NewsRecommendFragment extends BaseFragment<NewsRecommendPresenter> 
             if (last_update_time == 0){
                 isLoading = true;
                 isRefresh = true;
+                isNeedClearCache = true;
                 mPresenter.getNewsRecommendList();
             }else{
                 long currentTimeMillis = System.currentTimeMillis();
@@ -156,6 +157,7 @@ public class NewsRecommendFragment extends BaseFragment<NewsRecommendPresenter> 
                 if (dt > 300 * 1000){
                     isLoading = true;
                     isRefresh = true;
+                    isNeedClearCache = true;
                     mPresenter.getNewsRecommendList();
                 }else{
                     isLoading = false;
@@ -180,15 +182,11 @@ public class NewsRecommendFragment extends BaseFragment<NewsRecommendPresenter> 
         }
 
         if (!TextUtils.isEmpty(json_news) && !TextUtils.isEmpty(json_ad)){
-            ADResponseBean adResponseBean = new Gson().fromJson(json_ad, ADResponseBean.class);
-            List<ListBean> list = adResponseBean.getData().get_$8050018672826551().getList();
-            if (list != null){
-                ListBean listBean = list.get(0);
-                Random random = new Random();
-                int index = mData.size() - 7 + random.nextInt(5);// 随机位置
-                if (index >= 0 && index <= mData.size()){
-                    mData.add(index, listBean);
-                }
+            ADBean listBean = new Gson().fromJson(json_ad, ADBean.class);
+            Random random = new Random();
+            int index = mData.size() - 7 + random.nextInt(5);// 随机位置
+            if (index >= 0 && index <= mData.size()){
+                mData.add(index, listBean);
             }
         }
         if (TextUtils.isEmpty(json_news) && TextUtils.isEmpty(json_ad)){
@@ -203,11 +201,13 @@ public class NewsRecommendFragment extends BaseFragment<NewsRecommendPresenter> 
     public void onReceiveRecommendList(RecommendBean bean) {
         List<RecommendBean.NewslistBean> newslist = bean.getNewslist();
         if (newslist != null && newslist.size() > 0) {
-            if (mData.size() == 10 && mData.get(0) instanceof EmptyNewsBean){
-                mData.clear();
-            }
             if (isRefresh){
-                if (newslist.size() == 10){
+                if ((mData.size() == 10 && mData.get(0) instanceof EmptyNewsBean) || isNeedClearCache){
+                    mData.clear();
+                    mNewsList.clear();
+                    isNeedClearCache = false;
+                }
+                if (newslist.size() > 0){
                     // 缓存新闻
                     SPUtils.put(GlobalParams.DATA_RECOMMEND_NEWS, new Gson().toJson(bean));
                     // 保存更新时间
@@ -237,24 +237,18 @@ public class NewsRecommendFragment extends BaseFragment<NewsRecommendPresenter> 
     }
 
     @Override
-    public void onReceiveADList(ADResponseBean bean) {
+    public void onReceiveADList(ADBean bean) {
         isLoading = false;
-        List<ListBean> list = bean.getData().get_$8050018672826551().getList();
-        if (list != null && list.size() > 0){
+        int index;
+        Random random = new Random();
+        if (isRefresh){
             // 缓存广告
-            if (mData != null && mData.size() == 10){
-                SPUtils.put(GlobalParams.DATA_RECOMMEND_AD, new Gson().toJson(bean));
-            }
-            ListBean listBean = list.get(0);
-            int index;
-            Random random = new Random();
-            if (isRefresh){
-                index = 3 + random.nextInt(5);
-            }else{
-                index = mData.size() - 7 + random.nextInt(5);// 随机位置
-            }
-            mData.add(index, listBean);
+            SPUtils.put(GlobalParams.DATA_RECOMMEND_AD, new Gson().toJson(bean));
+            index = 3 + random.nextInt(5);
+        }else{
+            index = mData.size() - 7 + random.nextInt(5);// 随机位置
         }
+        mData.add(index, bean);
         notifyDataSetChanged();
     }
 
@@ -268,7 +262,7 @@ public class NewsRecommendFragment extends BaseFragment<NewsRecommendPresenter> 
     }
 
     @Override
-    public void onReceiveReportClick(final ClickLinkResponseBean responseBean, ListBean listBean) {
+    public void onReceiveReportClick(final ClickLinkResponseBean responseBean, ADBean listBean) {
         final String clickid = responseBean.getData().getClickid();
         final String dstlink = responseBean.getData().getDstlink();
         final String conversion_link = listBean.getConversion_link();
@@ -304,7 +298,7 @@ public class NewsRecommendFragment extends BaseFragment<NewsRecommendPresenter> 
             RecommendBean.NewslistBean bean = (RecommendBean.NewslistBean) item;
             BrowserActivity browserAct = (BrowserActivity) mActivity;
             browserAct.searchTheWeb(bean.getUrl());
-            AccessRecordTool.getInstance().reportADClick("推荐", bean.getTitle(), AccessRecordTool.EV_CLICK, AccessRecordTool.TYPE_NEWS);
+            AccessRecordTool.getInstance().reportADOrNewsClick("推荐", bean.getTitle(), AccessRecordTool.EV_CLICK, AccessRecordTool.TYPE_NEWS);
         }
     }
 
@@ -321,7 +315,7 @@ public class NewsRecommendFragment extends BaseFragment<NewsRecommendPresenter> 
     }
 
     @Override
-    public void onADItemClick(ViewHolder holder, ListBean item, int position, int dowX, int downY, int upX, int upY) {
+    public void onADItemClick(ViewHolder holder, ADBean item, int position, int dowX, int downY, int upX, int upY) {
         String click_link = item.getClick_link();
         if (TextUtils.isEmpty(click_link)) return;
 
@@ -340,7 +334,7 @@ public class NewsRecommendFragment extends BaseFragment<NewsRecommendPresenter> 
         }else if (interact_type == 1){
             mPresenter.reportClick(url, item);
         }
-        AccessRecordTool.getInstance().reportADClick("推荐", item.getTitle(), AccessRecordTool.EV_CLICK, AccessRecordTool.TYPE_AD);
+        AccessRecordTool.getInstance().reportADOrNewsClick("推荐", item.getTitle(), AccessRecordTool.EV_CLICK, AccessRecordTool.TYPE_AD);
     }
     private static final int WHAT_AD_THIRD = 1;
     private static final int WHAT_AD_SELF = 2;
@@ -360,8 +354,8 @@ public class NewsRecommendFragment extends BaseFragment<NewsRecommendPresenter> 
             for (int i = first; i <= last; i ++){
                 if (i >= mData.size()) continue;// footer
                 BaseNewsItem item = mData.get(i);
-                if (item instanceof ListBean){// 广告
-                    ListBean bean = (ListBean) item;
+                if (item instanceof ADBean){// 广告
+                    ADBean bean = (ADBean) item;
                     // 第三方统计
                     if (!bean.isHasExpose2Third()) {
                         View childAt = mLayoutManager.getChildAt(i - first);

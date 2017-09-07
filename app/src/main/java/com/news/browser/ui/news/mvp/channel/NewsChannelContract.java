@@ -1,9 +1,8 @@
 package com.news.browser.ui.news.mvp.channel;
 
+import com.news.browser.bean.ADBean;
 import com.news.browser.bean.ClickLinkResponseBean;
 import com.news.browser.ui.news.bean.NewsChannelBean;
-import com.news.browser.bean.ADResponseBean;
-import com.news.browser.bean.ADResponseBean.DataBean._$8050018672826551Bean.ListBean;
 
 /**
  * Created by zy1584 on 2017-7-25.
@@ -17,11 +16,11 @@ public interface NewsChannelContract {
 
         void onGetNewsChannelListError(Throwable e);
 
-        void onReceiveADList(ADResponseBean bean);
+        void onReceiveADList(ADBean bean);
 
         void onGetADListError(Throwable e);
 
-        void onReceiveReportClick(ClickLinkResponseBean bean, ListBean listBean);
+        void onReceiveReportClick(ClickLinkResponseBean bean, ADBean listBean);
 
     }
 
@@ -33,9 +32,9 @@ public interface NewsChannelContract {
 
         void getADList();
 
-        void reportClick(String url, ListBean item);
+        void reportClick(String url, ADBean item);
 
-        void reportADExpose(ListBean bean);
+        void reportADExpose(ADBean bean);
 
     }
 }

@@ -31,6 +31,7 @@ import android.widget.Toast;
 import com.news.browser.R;
 import com.news.browser.base.BaseActivity;
 import com.news.browser.bean.FeedbackTypeBean;
+import com.news.browser.dialog.BrowserDialog;
 import com.news.browser.ui.feedback.mvp.FeedbackContract;
 import com.news.browser.ui.feedback.mvp.FeedbackPresenter;
 import com.news.browser.utils.Utils;
@@ -55,18 +56,12 @@ public class FeedbackActivity extends BaseActivity<FeedbackPresenter> implements
 
     @OnClick(R.id.btn_commit)
     void commit(){
-        if (mCurrentType != null){
-            if ("请在此快速选择您遇到的问题类型".equals(mCurrentType.getTypeName())){
-                toast("反馈类型不能为空！");
-                return;
-            }
-        }
         String content = et_content.getText().toString().trim();
         if (TextUtils.isEmpty(content)){
             tv_warn.setVisibility(View.VISIBLE);
             return;
         }else{
-            tv_warn.setVisibility(View.GONE);
+            tv_warn.setVisibility(View.INVISIBLE);
         }
 
         String contact = et_contact.getText().toString().trim();
@@ -162,6 +157,7 @@ public class FeedbackActivity extends BaseActivity<FeedbackPresenter> implements
                 mTypeList.clear();
                 FeedbackTypeBean.TypelistBean typelistBean = new FeedbackTypeBean.TypelistBean();
                 typelistBean.setTypeName("请在此快速选择您遇到的问题类型");
+                typelistBean.setId(17);
                 mTypeList.add(typelistBean);
                 mTypeList.addAll(typeList);
                 mFeedbackTypeAdapter.notifyDataSetChanged();
@@ -251,24 +247,14 @@ public class FeedbackActivity extends BaseActivity<FeedbackPresenter> implements
     };
 
     protected void picRemove(final View v) {
-        AlertDialog.Builder picBuilder = new AlertDialog.Builder(this);
-        picBuilder.setMessage(R.string.pic_remove);
-        picBuilder.setPositiveButton(R.string.sure,
-                new DialogInterface.OnClickListener() {
+        BrowserDialog.showConfirm(this, true, R.string.prompt_remove_image, R.string.pic_remove, null,
+                new BrowserDialog.Item(R.string.sure) {
                     @Override
-                    public void onClick(DialogInterface dialog, int which) {
+                    public void onClick() {
                         mLinearLayout.removeView(v);
                         addUploadImage();
                     }
                 });
-        picBuilder.setNegativeButton(R.string.cancel,
-                new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        dialog.cancel();
-                    }
-                });
-        picBuilder.create().show();
     }
 
     /**

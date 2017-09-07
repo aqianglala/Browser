@@ -20,6 +20,7 @@ public final class Constants {
     public static final String HOMEPAGE = "about:home";
     public static final String BAIDU_SEARCH = "https://www.baidu.com/s?wd=";
     public static final String SEARCH_360 = "https://www.so.com/s?q=";
+    public static final String SEARCH_SOGOU = "http://wap.sogou.com/web/sl?keyword=__KeyWord__&pid=sogou-mobb-0f0ee3310223fe38";
     public static final String JAVASCRIPT_INVERT_PAGE = "javascript:(function(){var e='img {-webkit-filter: invert(100%);'+'-moz-filter: invert(100%);'+'-o-filter: invert(100%);'+'-ms-filter: invert(100%); }',t=document.getElementsByTagName('head')[0],n=document.createElement('style');if(!window.counter){window.counter=1}else{window.counter++;if(window.counter%2==0){var e='html {-webkit-filter: invert(0%); -moz-filter: invert(0%); -o-filter: invert(0%); -ms-filter: invert(0%); }'}}n.type='text/css';if(n.styleSheet){n.styleSheet.cssText=e}else{n.appendChild(document.createTextNode(e))}t.appendChild(n)})();";
     public static final String JAVASCRIPT_TEXT_REFLOW = "javascript:document.getElementsByTagName('body')[0].style.width=window.innerWidth+'px';";
     public static final String JAVASCRIPT_THEME_COLOR = "(function () {\n" +

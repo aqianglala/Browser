@@ -15,7 +15,7 @@ import android.webkit.URLUtil;
 import com.google.gson.Gson;
 import com.news.browser.R;
 import com.news.browser.base.BaseFragment;
-import com.news.browser.bean.ADResponseBean;
+import com.news.browser.bean.ADBean;
 import com.news.browser.bean.BaseNewsItem;
 import com.news.browser.bean.ClickLinkResponseBean;
 import com.news.browser.data.AccessRecordTool;
@@ -67,6 +67,7 @@ public class NewsChannelFragment extends BaseFragment<NewsChannelPresenter> impl
     private List<BaseNewsItem> mData = new ArrayList<>();
     private boolean isLoading;
     private boolean isRefresh;
+    private boolean isNeedClearCache;
     private String mChannelCode;
     private String mChannelName;
 
@@ -87,18 +88,18 @@ public class NewsChannelFragment extends BaseFragment<NewsChannelPresenter> impl
             if (msg == null || msg.obj == null) return;
             switch (msg.what) {
                 case WHAT_AD_THIRD:
-                    ADResponseBean.DataBean._$8050018672826551Bean.ListBean bean = (ADResponseBean.DataBean._$8050018672826551Bean.ListBean) msg.obj;
+                    ADBean bean = (ADBean) msg.obj;
                     if (!bean.isHasExpose2Third() && bean.isThirdTiming()) {
                         removeMessages(WHAT_AD_THIRD, bean);
                         mPresenter.reportADExpose(bean);
                     }
                     break;
                 case WHAT_AD_SELF:
-                    ADResponseBean.DataBean._$8050018672826551Bean.ListBean selfBean = (ADResponseBean.DataBean._$8050018672826551Bean.ListBean) msg.obj;
+                    ADBean selfBean = (ADBean) msg.obj;
                     if (!selfBean.isHasExpose2Self() && selfBean.isSelfTiming()) {
                         removeMessages(WHAT_AD_SELF, selfBean);
                         // 自营统计上报数据：广告
-                        AccessRecordTool.getInstance().reportAdExpose(selfBean, mChannelName, selfBean.getTitle(), AccessRecordTool.EV_SHOW, AccessRecordTool.TYPE_AD);
+                        AccessRecordTool.getInstance().reportADExpose(selfBean, mChannelName, selfBean.getTitle(), AccessRecordTool.EV_SHOW, AccessRecordTool.TYPE_AD);
                     }
                     break;
             }
@@ -164,6 +165,7 @@ public class NewsChannelFragment extends BaseFragment<NewsChannelPresenter> impl
                     isLoading = true;
                     isRefresh = true;
                     mPreferenceManager = PreferenceManager.getInstance();
+                    isNeedClearCache = true;
                     mPresenter.getNewsChannelList(0, 10, mChannelCode);
                 }
             }
@@ -189,9 +191,7 @@ public class NewsChannelFragment extends BaseFragment<NewsChannelPresenter> impl
         }
 
         if (!TextUtils.isEmpty(json_news) && !TextUtils.isEmpty(json_ad)) {
-            ADResponseBean adResponseBean = new Gson().fromJson(json_ad, ADResponseBean.class);
-            List<ADResponseBean.DataBean._$8050018672826551Bean.ListBean> list = adResponseBean.getData().get_$8050018672826551().getList();
-            ADResponseBean.DataBean._$8050018672826551Bean.ListBean listBean = list.get(0);
+            ADBean listBean = new Gson().fromJson(json_ad, ADBean.class);
             Random random = new Random();
             int index = mData.size() - 7 + random.nextInt(5);
             Logger.t("index").e("data size :" + mData.size() + "    index:" + index);
@@ -211,15 +211,19 @@ public class NewsChannelFragment extends BaseFragment<NewsChannelPresenter> impl
         List<ContentBean> newsList = new ArrayList<>();
         List<NewsChannelBean.DataBean.ListBean> originalList = bean.getData().getList();
         if (originalList != null && originalList.size() > 0) {
-            if (mData.size() == 10 && mData.get(0) instanceof EmptyNewsBean){
-                mData.clear();
-            }
             for (NewsChannelBean.DataBean.ListBean b : originalList) {
                 newsList.add(b.getContent());
             }
             if (isRefresh) {
+                if ((mData.size() == 10 && mData.get(0) instanceof EmptyNewsBean) || isNeedClearCache){
+                    mData.clear();
+                    mNewsList.clear();
+                    isNeedClearCache = false;
+                }
                 // 缓存新闻
-                SPUtils.put(mChannelCode + CACHE_SUFFIX_NEWS, new Gson().toJson(bean));
+                if (newsList.size() > 0){
+                    SPUtils.put(mChannelCode + CACHE_SUFFIX_NEWS, new Gson().toJson(bean));
+                }
 
                 mData.addAll(0, newsList);
                 mNewsList.addAll(newsList);
@@ -241,25 +245,19 @@ public class NewsChannelFragment extends BaseFragment<NewsChannelPresenter> impl
     }
 
     @Override
-    public void onReceiveADList(ADResponseBean bean) {
+    public void onReceiveADList(ADBean bean) {
         isLoading = false;
-        List<ADResponseBean.DataBean._$8050018672826551Bean.ListBean> list = bean.getData().get_$8050018672826551().getList();
-        if (list != null && list.size() > 0) {
+        int index;
+        Random random = new Random();
+        if (isRefresh){
             // 缓存广告
-            if (mData.size() == 10) {
-                SPUtils.put(mChannelCode + CACHE_SUFFIX_AD, new Gson().toJson(bean));
-            }
-            ADResponseBean.DataBean._$8050018672826551Bean.ListBean listBean = list.get(0);
-            int index;
-            Random random = new Random();
-            if (isRefresh){
-                index = 3 + random.nextInt(5);
-            }else{
-                index = mData.size() - 7 + random.nextInt(5);
-            }
-            Logger.t("index").e("data size :" + mData.size() + "    index:" + index);
-            mData.add(index, listBean);
+            SPUtils.put(mChannelCode + CACHE_SUFFIX_AD, new Gson().toJson(bean));
+            index = 3 + random.nextInt(5);
+        }else{
+            index = mData.size() - 7 + random.nextInt(5);
         }
+        Logger.t("index").e("data size :" + mData.size() + "    index:" + index);
+        mData.add(index, bean);
         notifyDataSetChanged();
     }
 
@@ -281,7 +279,7 @@ public class NewsChannelFragment extends BaseFragment<NewsChannelPresenter> impl
     }
 
     @Override
-    public void onReceiveReportClick(final ClickLinkResponseBean responseBean, ADResponseBean.DataBean._$8050018672826551Bean.ListBean listBean) {
+    public void onReceiveReportClick(final ClickLinkResponseBean responseBean, ADBean listBean) {
         final String clickid = responseBean.getData().getClickid();
         final String dstlink = responseBean.getData().getDstlink();
         final String conversion_link = listBean.getConversion_link();
@@ -318,7 +316,7 @@ public class NewsChannelFragment extends BaseFragment<NewsChannelPresenter> impl
             BrowserActivity browserAct = (BrowserActivity) mActivity;
             browserAct.searchTheWeb(bean.getUrl());
             mPresenter.reportActionType(bean, action_type_click);
-            AccessRecordTool.getInstance().reportADClick(mChannelName, bean.getTitle(), AccessRecordTool.EV_CLICK, AccessRecordTool.TYPE_NEWS);
+            AccessRecordTool.getInstance().reportADOrNewsClick(mChannelName, bean.getTitle(), AccessRecordTool.EV_CLICK, AccessRecordTool.TYPE_NEWS);
         }
     }
 
@@ -328,7 +326,7 @@ public class NewsChannelFragment extends BaseFragment<NewsChannelPresenter> impl
     }
 
     @Override
-    public void onADItemClick(ViewHolder holder, ADResponseBean.DataBean._$8050018672826551Bean.ListBean item, int position, int dowX, int downY, int upX, int upY) {
+    public void onADItemClick(ViewHolder holder, ADBean item, int position, int dowX, int downY, int upX, int upY) {
         String click_link = item.getClick_link();
         if (TextUtils.isEmpty(click_link)) return;
 
@@ -347,7 +345,7 @@ public class NewsChannelFragment extends BaseFragment<NewsChannelPresenter> impl
         } else if (interact_type == 1) {
             mPresenter.reportClick(url, item);
         }
-        AccessRecordTool.getInstance().reportADClick(mChannelName, item.getTitle(), AccessRecordTool.EV_CLICK, AccessRecordTool.TYPE_AD);
+        AccessRecordTool.getInstance().reportADOrNewsClick(mChannelName, item.getTitle(), AccessRecordTool.EV_CLICK, AccessRecordTool.TYPE_AD);
     }
 
     private void notifyDataSetChanged() {
@@ -374,8 +372,8 @@ public class NewsChannelFragment extends BaseFragment<NewsChannelPresenter> impl
             for (int i = first; i <= last; i++) {
                 if (i >= mData.size()) continue;// footer
                 BaseNewsItem item = mData.get(i);
-                if (item instanceof ADResponseBean.DataBean._$8050018672826551Bean.ListBean) {// 广告
-                    ADResponseBean.DataBean._$8050018672826551Bean.ListBean bean = (ADResponseBean.DataBean._$8050018672826551Bean.ListBean) item;
+                if (item instanceof ADBean) {// 广告
+                    ADBean bean = (ADBean) item;
                     if (!bean.isHasExpose2Third()) {
                         View childAt = mLayoutManager.getChildAt(i - first);
                         int percents = bean.getVisibilityPercents(childAt);

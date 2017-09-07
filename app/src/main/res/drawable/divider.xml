@@ -1,0 +1,17 @@
+<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item>
+        <shape>
+            <solid android:color="@android:color/white" />
+        </shape>
+    </item>
+
+    <item
+        android:left="@dimen/margin_horizontal"
+        android:right="@dimen/margin_horizontal">
+        <shape>
+            <solid android:color="@color/color_line" />
+        </shape>
+    </item>
+
+</layer-list>

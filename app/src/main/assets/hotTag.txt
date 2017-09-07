@@ -4,51 +4,63 @@
     "data": [
         {
             "isErase": 0,
-            "name": "新浪",
-            "addrUrl": "http://www.sina.com.cn/",
-            "iconUrl": "http://ds-browser.oss-cn-shenzhen.aliyuncs.com/picture/icon_1502363499.png"
+            "name": "爱奇艺",
+            "addrUrl": "http://m.iqiyi.com/?vfm=f_438_dwll&fv=8f19871cb048cc9f63695cc558fc4fe2",
+            "iconUrl": "http://ds-browser.oss-cn-shenzhen.aliyuncs.com/picture/icon_1503287177.png"
         },
         {
             "isErase": 0,
             "name": "爱淘宝",
-            "addrUrl": "http://www.taobao.com/",
-            "iconUrl": "http://ds-browser.oss-cn-shenzhen.aliyuncs.com/picture/icon_1502367606.png"
+            "addrUrl": "https://ai.m.taobao.com/",
+            "iconUrl": "http://ds-browser.oss-cn-shenzhen.aliyuncs.com/picture/icon_1502939748.png"
         },
         {
             "isErase": 0,
             "name": "天猫",
-            "addrUrl": "https://www.tmall.com",
-            "iconUrl": "http://ds-browser.oss-cn-shenzhen.aliyuncs.com/picture/icon_1502363790.png"
+            "addrUrl": "https://s.click.taobao.com/VWt5lbw",
+            "iconUrl": "http://ds-browser.oss-cn-shenzhen.aliyuncs.com/picture/icon_1504179902.png"
         },
         {
             "isErase": 0,
-            "name": "携程",
-            "addrUrl": "http://www.ctrip.com/",
-            "iconUrl": "http://ds-browser.oss-cn-shenzhen.aliyuncs.com/picture/icon_1502363864.png"
+            "name": "聚划算",
+            "addrUrl": "https://s.click.taobao.com/ziVBlbw",
+            "iconUrl": "http://ds-browser.oss-cn-shenzhen.aliyuncs.com/picture/icon_1504178252.png"
         },
         {
-            "isErase": 1,
-            "name": "百度",
-            "addrUrl": "https://www.baidu.com/",
-            "iconUrl": "http://ds-browser.oss-cn-shenzhen.aliyuncs.com/picture/icon_1502363904.png"
+            "isErase": 0,
+            "name": "苏宁易购",
+            "addrUrl": "m.suning.com",
+            "iconUrl": "http://ds-browser.oss-cn-shenzhen.aliyuncs.com/picture/icon_1502939790.png"
         },
         {
-            "isErase": 1,
-            "name": "苏宁",
-            "addrUrl": "https://www.suning.com/",
-            "iconUrl": "http://ds-browser.oss-cn-shenzhen.aliyuncs.com/picture/icon_1502365962.png"
+            "isErase": 0,
+            "name": "美团",
+            "addrUrl": "http://i.meituan.com/?utm_source=dwllq&utm_medium=wap",
+            "iconUrl": "http://ds-browser.oss-cn-shenzhen.aliyuncs.com/picture/icon_1504522753.png"
         },
         {
-            "isErase": 1,
-            "name": "知乎",
-            "addrUrl": "https://www.zhihu.com",
-            "iconUrl": "http://ds-browser.oss-cn-shenzhen.aliyuncs.com/picture/icon_1502364062.png"
+            "isErase": 0,
+            "name": "飞猪",
+            "addrUrl": "https://s.click.taobao.com/Spa9lbw",
+            "iconUrl": "http://ds-browser.oss-cn-shenzhen.aliyuncs.com/picture/icon_1504523656.png"
         },
         {
-            "isErase": 1,
-            "name": "爱奇艺",
-            "addrUrl": "http://www.iqiyi.com/",
-            "iconUrl": "http://ds-browser.oss-cn-shenzhen.aliyuncs.com/picture/icon_1502367555.png"
+            "isErase": 0,
+            "name": "赶集网",
+            "addrUrl": "https://e.ganji.com",
+            "iconUrl": "http://ds-browser.oss-cn-shenzhen.aliyuncs.com/picture/icon_1502939920.png"
+        },
+        {
+            "isErase": 0,
+            "name": "17K小说",
+            "addrUrl": "http://h5.17k.com/?hmsr=doov",
+            "iconUrl": "http://ds-browser.oss-cn-shenzhen.aliyuncs.com/picture/icon_1502941089.png"
+        },
+        {
+            "isErase": 0,
+            "name": "哔哩哔哩",
+            "addrUrl": "m.bilibili.com",
+            "iconUrl": "http://ds-browser.oss-cn-shenzhen.aliyuncs.com/picture/icon_1502939884.png"
         }
     ]
 }

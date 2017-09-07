@@ -3,15 +3,16 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:paddingBottom="15dp"
+    android:paddingBottom="10dp"
     android:paddingLeft="@dimen/margin_horizontal"
     android:paddingRight="@dimen/margin_horizontal"
-    android:paddingTop="15dp">
+    android:paddingTop="10dp">
 
     <RelativeLayout
         android:layout_width="0dp"
-        android:layout_height="72dp"
+        android:layout_height="65dp"
         android:layout_marginRight="10dp"
+        android:layout_gravity="center_vertical"
         android:layout_weight="1">
 
         <TextView

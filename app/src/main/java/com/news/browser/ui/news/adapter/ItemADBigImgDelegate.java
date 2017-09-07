@@ -7,7 +7,7 @@ import android.view.View;
 import android.widget.ImageView;
 
 import com.news.browser.R;
-import com.news.browser.bean.ADResponseBean.DataBean._$8050018672826551Bean.ListBean;
+import com.news.browser.bean.ADBean;
 import com.news.browser.bean.BaseNewsItem;
 import com.news.browser.ui.news.interfaces.OnADItemClickListener;
 import com.news.browser.utils.GlideUtils;
@@ -33,7 +33,7 @@ public class ItemADBigImgDelegate implements ItemViewDelegate<BaseNewsItem> {
 
     @Override
     public boolean isForViewType(BaseNewsItem item, int position) {
-        if (item instanceof ListBean){
+        if (item instanceof ADBean) {
             return true;
         }
         return false;
@@ -41,7 +41,7 @@ public class ItemADBigImgDelegate implements ItemViewDelegate<BaseNewsItem> {
 
     @Override
     public void convert(ViewHolder holder, BaseNewsItem item, int position) {
-        ListBean bean = (ListBean) item;
+        ADBean bean = (ADBean) item;
         Context context = holder.getConvertView().getContext();
         holder.setText(R.id.tv_title, bean.getTitle());
         GlideUtils.loadNewsImage(context, bean.getImg_url(), (ImageView) holder.getView(R.id.iv_thumbnail));
@@ -57,11 +57,11 @@ public class ItemADBigImgDelegate implements ItemViewDelegate<BaseNewsItem> {
         private long downTime = 0;
 
         private ViewHolder holder;
-        private ListBean item;
+        private ADBean item;
         private int position;
         private OnADItemClickListener listener;
 
-        public MyOnTouchListener(ViewHolder holder, ListBean item, int position, OnADItemClickListener listener) {
+        public MyOnTouchListener(ViewHolder holder, ADBean item, int position, OnADItemClickListener listener) {
             this.holder = holder;
             this.item = item;
             this.position = position;

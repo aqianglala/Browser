@@ -364,13 +364,14 @@
             "chanId": "99",
             "chanCode": "iapp",
             "chanName": "爱应用",
-            "chanName_m": "爱应用"
+            "chanName_m": "爱应用",
+            "isKB": "0"
         },
         "163": {
             "chanId": "163",
             "chanCode": "24hour",
-            "chanName": "24hour",
-            "chanName_m": "24hour",
+            "chanName": "必读",
+            "chanName_m": "必读",
             "isKB": "0"
         },
         "427": {

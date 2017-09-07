@@ -52,7 +52,7 @@ public class HotSiteFragment extends BaseFragment<HotSitePresenter> implements H
 
     @OnClick(R.id.iv_back)
     void back() {
-        mActivity.getSupportFragmentManager().popBackStack();
+        ((BrowserActivity)mActivity).back();
     }
 
     @Override

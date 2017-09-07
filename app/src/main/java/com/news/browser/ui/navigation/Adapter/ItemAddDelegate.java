@@ -29,6 +29,8 @@ public class ItemAddDelegate implements ItemViewDelegate<HotTagBean.DataBean> {
     @Override
     public void convert(ViewHolder holder, HotTagBean.DataBean dataBean, int position) {
         holder.getView(R.id.tv_name).setVisibility(View.INVISIBLE);
-        holder.setImageResource(R.id.iv_icon, R.drawable.ic_hot_tag_add);
+        holder.setImageResource(R.id.iv_icon_full, R.drawable.ic_hot_tag_add);
+        holder.setVisible(R.id.iv_icon, false);
+        holder.setVisible(R.id.iv_circle_bg, false);
     }
 }

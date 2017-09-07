@@ -61,6 +61,8 @@ public class HotTagBean {
         private String addrUrl;
         private String iconUrl;
         private Bitmap bitmap;
+        private Bitmap bg_bitmap;// gson解析不了drawable，会陷入死循环
+        private int imageRes;
 
         public int getId() {
             return id;
@@ -108,6 +110,22 @@ public class HotTagBean {
 
         public void setBitmap(Bitmap bitmap) {
             this.bitmap = bitmap;
+        }
+
+        public Bitmap getBg_bitmap() {
+            return bg_bitmap;
+        }
+
+        public void setBg_bitmap(Bitmap bg_bitmap) {
+            this.bg_bitmap = bg_bitmap;
+        }
+
+        public int getImageRes() {
+            return imageRes;
+        }
+
+        public void setImageRes(int imageRes) {
+            this.imageRes = imageRes;
         }
 
         public ContentValues toContentValues() {

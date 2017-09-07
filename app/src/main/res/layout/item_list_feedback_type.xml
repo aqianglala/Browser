@@ -1,13 +1,29 @@
 <?xml version="1.0" encoding="utf-8"?>
-<TextView xmlns:android="http://schemas.android.com/apk/res/android"
-    android:id="@android:id/text1"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_width="match_parent"
     android:layout_height="30dp"
-    android:background="@android:color/white"
-    android:ellipsize="marquee"
-    android:gravity="center_vertical"
-    android:paddingLeft="15dp"
-    android:singleLine="true"
-    android:textAlignment="inherit"
-    android:textColor="@color/text_black"
-    android:textSize="12sp" />
+    android:orientation="horizontal"
+    android:background="@android:color/white">
+
+    <TextView
+        android:id="@android:id/text1"
+        android:layout_width="0dp"
+        android:layout_weight="1"
+        android:layout_height="match_parent"
+        android:ellipsize="marquee"
+        android:gravity="center_vertical"
+        android:paddingLeft="15dp"
+        android:singleLine="true"
+        android:textAlignment="inherit"
+        android:textColor="@color/text_black"
+        android:textSize="12sp" />
+
+    <ImageView
+        android:id="@+id/iv_drop_down"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_vertical"
+        android:layout_marginRight="10dp"
+        android:src="@drawable/ic_drop_down"/>
+
+</LinearLayout>

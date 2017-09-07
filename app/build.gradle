@@ -102,4 +102,5 @@ dependencies {
     compile 'com.yqritc:recyclerview-flexibledivider:1.4.0'
 //    compile 'com.bonree.agent.android:agent:2.2.7'
     compile 'com.android.support:multidex:1.0.1'
+    compile 'com.android.support:palette-v7:25.1.0'
 }
