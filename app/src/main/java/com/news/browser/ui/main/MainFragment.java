@@ -107,7 +107,7 @@ public class MainFragment extends BaseFragment<MainFrgPresenter> implements UcNe
         mTableLayout.addOnTabSelectedListener(new TabSelectedListener());
         mNewsPager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(mTableLayout));
         mTableLayout.setupWithViewPager(mNewsPager);
-        mNewsPagerAdapter = new TestFragmentAdapter(mFragments, mTitles, getFragmentManager());
+        mNewsPagerAdapter = new TestFragmentAdapter(mFragments, mTitles, getChildFragmentManager());
         mNewsPager.setAdapter(mNewsPagerAdapter);
 
         initNavigation();
