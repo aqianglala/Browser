@@ -10,6 +10,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.text.TextUtils;
 import android.view.View;
+import android.webkit.CookieManager;
 import android.webkit.URLUtil;
 
 import com.google.gson.Gson;
@@ -21,6 +22,8 @@ import com.news.browser.bean.ClickLinkResponseBean;
 import com.news.browser.data.AccessRecordTool;
 import com.news.browser.preference.PreferenceManager;
 import com.news.browser.ui.download.DownloadHandler;
+import com.news.browser.ui.download.FetchUrlMimeType;
+import com.news.browser.ui.download.FileHeader;
 import com.news.browser.ui.main.BrowserActivity;
 import com.news.browser.ui.news.adapter.channel.NewsChannelAdapter;
 import com.news.browser.ui.news.bean.EmptyNewsBean;
@@ -32,6 +35,7 @@ import com.news.browser.ui.news.mvp.channel.NewsChannelPresenter;
 import com.news.browser.utils.NetUtils;
 import com.news.browser.utils.SPUtils;
 import com.news.browser.utils.UIUtils;
+import com.news.browser.utils.Utils;
 import com.orhanobut.logger.Logger;
 import com.zhy.adapter.recyclerview.MultiItemTypeAdapter;
 import com.zhy.adapter.recyclerview.base.ViewHolder;
@@ -42,6 +46,7 @@ import java.util.List;
 import java.util.Random;
 
 import butterknife.BindView;
+import rx.functions.Action1;
 
 import static com.news.browser.utils.SPUtils.get;
 
@@ -52,7 +57,7 @@ import static com.news.browser.utils.SPUtils.get;
 
 public class NewsChannelFragment extends BaseFragment<NewsChannelPresenter> implements NewsChannelContract.View,
         LoadMoreWrapper.OnLoadMoreListener, SwipeRefreshLayout.OnRefreshListener,
-        MultiItemTypeAdapter.OnItemClickListener, OnADItemClickListener {
+        MultiItemTypeAdapter.OnItemClickListener, OnADItemClickListener, BrowserActivity.OnReceiveADListener {
 
     @BindView(R.id.swipe_refresh_layout)
     SwipeRefreshLayout mSwipeRefreshLayout;
@@ -215,13 +220,13 @@ public class NewsChannelFragment extends BaseFragment<NewsChannelPresenter> impl
                 newsList.add(b.getContent());
             }
             if (isRefresh) {
-                if ((mData.size() == 10 && mData.get(0) instanceof EmptyNewsBean) || isNeedClearCache){
+                if ((mData.size() == 10 && mData.get(0) instanceof EmptyNewsBean) || isNeedClearCache) {
                     mData.clear();
                     mNewsList.clear();
                     isNeedClearCache = false;
                 }
                 // 缓存新闻
-                if (newsList.size() > 0){
+                if (newsList.size() > 0) {
                     SPUtils.put(mChannelCode + CACHE_SUFFIX_NEWS, new Gson().toJson(bean));
                 }
 
@@ -231,10 +236,14 @@ public class NewsChannelFragment extends BaseFragment<NewsChannelPresenter> impl
                 mData.addAll(newsList);
                 mNewsList.addAll(newsList);
             }
-            mPresenter.getADList();// 加载广告
+            ((BrowserActivity) mActivity).getAD(this);
         } else {
             isLoading = false;
             stopRefresh();
+            toast("到底了！");
+            mAdapter.setLoadMoreView(null);
+            mAdapter.setLoadMoreView(0);
+            mAdapter.notifyDataSetChanged();
         }
     }
 
@@ -245,24 +254,19 @@ public class NewsChannelFragment extends BaseFragment<NewsChannelPresenter> impl
     }
 
     @Override
-    public void onReceiveADList(ADBean bean) {
-        isLoading = false;
-        int index;
-        Random random = new Random();
-        if (isRefresh){
-            // 缓存广告
-            SPUtils.put(mChannelCode + CACHE_SUFFIX_AD, new Gson().toJson(bean));
-            index = 3 + random.nextInt(5);
-        }else{
-            index = mData.size() - 7 + random.nextInt(5);
+    public void onReceiveAD(ADBean bean) {
+        if (bean != null) {
+            int index;
+            Random random = new Random();
+            if (isRefresh) {
+                // 缓存广告
+                SPUtils.put(mChannelCode + CACHE_SUFFIX_AD, new Gson().toJson(bean));
+                index = 3 + random.nextInt(5);
+            } else {
+                index = mData.size() - 7 + random.nextInt(5);
+            }
+            mData.add(index, bean);
         }
-        Logger.t("index").e("data size :" + mData.size() + "    index:" + index);
-        mData.add(index, bean);
-        notifyDataSetChanged();
-    }
-
-    @Override
-    public void onGetADListError(Throwable e) {
         isLoading = false;
         notifyDataSetChanged();
     }
@@ -283,9 +287,29 @@ public class NewsChannelFragment extends BaseFragment<NewsChannelPresenter> impl
         final String clickid = responseBean.getData().getClickid();
         final String dstlink = responseBean.getData().getDstlink();
         final String conversion_link = listBean.getConversion_link();
-        String fileName = URLUtil.guessFileName(dstlink, null, null);
-        DownloadHandler.promptDownload(mActivity, mPreferenceManager, fileName, dstlink, null, null,
-                null, clickid, conversion_link);
+
+        final String cookies = CookieManager.getInstance().getCookie(dstlink);
+        if (!TextUtils.isEmpty(dstlink) && dstlink.contains("redirect")) {// 二层链接，需要重定向后才能取到文件名
+            Utils.getRedirectPathObservable(dstlink, null)
+                    .subscribe(new Action1<String>() {
+                        @Override
+                        public void call(final String realUrl) {
+                            FetchUrlMimeType.getHeaderObservable(realUrl, cookies, null)
+                                    .subscribe(new Action1<FileHeader>() {
+                                        @Override
+                                        public void call(FileHeader fileHeader) {
+                                            DownloadHandler.promptDownload(mActivity, mPreferenceManager,
+                                                    fileHeader.getFileName(), realUrl, null, fileHeader.getContentDisposition(),
+                                                    fileHeader.getMimeType(), clickid, conversion_link);
+                                        }
+                                    });
+                        }
+                    });
+        } else {
+            String fileName = URLUtil.guessFileName(dstlink, null, null);
+            DownloadHandler.promptDownload(mActivity, mPreferenceManager, fileName, dstlink, null, null,
+                    null, clickid, conversion_link);
+        }
     }
 
     @Override

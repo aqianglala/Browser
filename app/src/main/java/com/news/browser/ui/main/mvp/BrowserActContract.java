@@ -7,7 +7,10 @@ import android.support.annotation.StringRes;
 import android.view.View;
 import android.webkit.WebChromeClient.CustomViewCallback;
 
+import com.news.browser.bean.ADBean;
 import com.news.browser.bean.EngineBean;
+
+import java.util.ArrayList;
 
 /**
  * Created by zy1584 on 2017-7-13.
@@ -35,6 +38,10 @@ public interface BrowserActContract {
         void receiveSearchEngine(EngineBean bean);
 
         void onReceiveEngineError(Throwable e);
+
+        void onReceiveADList(ArrayList<ADBean> list);
+
+        void onGetADListError(Throwable e);
     }
 
     interface Presenter{
@@ -44,6 +51,8 @@ public interface BrowserActContract {
         void loadUrlInCurrentView(@NonNull final String url);
 
         void getSearchEngine();
+
+        void getADList();
 
     }
 }

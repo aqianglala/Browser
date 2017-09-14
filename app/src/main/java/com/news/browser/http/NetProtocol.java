@@ -462,7 +462,7 @@ public class NetProtocol {
 
     public HashMap<String, String> getADMap() {
         HashMap<String, String> map = getBaseParams2();
-        map.put("ad_count", "1");
+        map.put("ad_count", "10");
 
         map.put("app_bundle_id", app_bundle_id);
 

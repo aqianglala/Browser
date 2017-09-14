@@ -71,7 +71,7 @@ public class BaseApplication extends MultiDexApplication {
         Logger.addLogAdapter(new AndroidLogAdapter() {
             @Override
             public boolean isLoggable(int priority, String tag) {
-                return true;
+                return false;
             }
         });
     }

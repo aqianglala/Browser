@@ -20,6 +20,7 @@ import android.support.v7.app.AlertDialog;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
+import android.webkit.CookieManager;
 import android.webkit.URLUtil;
 import android.widget.TextView;
 
@@ -36,6 +37,8 @@ import com.news.browser.utils.Utils;
 
 import java.io.File;
 import java.io.IOException;
+
+import rx.functions.Action1;
 
 
 /**
@@ -176,9 +179,9 @@ public class DownloadHandler {
      */
     /* package */
     private static void onDownloadStartNoStream(@NonNull final Context context, @NonNull PreferenceManager preferences,
-                                                String url, String userAgent,
+                                                final String url, String userAgent,
                                                 String contentDisposition, String mimetype,
-                                                String click_id, String conversion_link) {
+                                                final String click_id, final String conversion_link) {
         final String filename = URLUtil.guessFileName(url, contentDisposition, mimetype);
 
         // Check to see if we have an SDCard
@@ -233,8 +236,20 @@ public class DownloadHandler {
             RxBus.getInstance().post(new RXEvent(RXEvent.TAG_BROWSER_MSG, R.string.problem_location_download));
             return;
         }
-        // 广告联盟
-        DownloadManagerActivity.TasksManager.getImpl().addTask(url, filename, click_id, conversion_link);
+
+        String cookies = CookieManager.getInstance().getCookie(url);
+        if (mimetype == null) {
+            FetchUrlMimeType.getHeaderObservable(url, cookies, userAgent)
+                    .subscribe(new Action1<FileHeader>() {
+                        @Override
+                        public void call(FileHeader fileHeader) {
+                            DownloadManagerActivity.TasksManager.getImpl().addTask(url, fileHeader.getFileName(), click_id, conversion_link);
+                        }
+                    });
+        } else {
+            // 广告联盟
+            DownloadManagerActivity.TasksManager.getImpl().addTask(url, filename, click_id, conversion_link);
+        }
     }
 
     private static final String sFileName = "test";
@@ -359,10 +374,10 @@ public class DownloadHandler {
                         TextView tv_file_size = (TextView) layout.findViewById(R.id.tv_file_size);
 
                         tv_file_name.setText("名称：" + fileName);
-                        if (contentLength != -1){
+                        if (contentLength != -1) {
                             tv_file_size.setVisibility(View.VISIBLE);
-                            tv_file_size.setText("大小："+Utils.formatFileSize(contentLength)+ "M");
-                        }else{
+                            tv_file_size.setText("大小：" + Utils.formatFileSize(contentLength) + "M");
+                        } else {
                             tv_file_size.setVisibility(View.GONE);
                         }
 

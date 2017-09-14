@@ -263,6 +263,13 @@ public class UcNewsHeaderPagerBehavior extends ViewOffsetBehavior {
         }
     }
 
+    public boolean isScrolling(){
+        if (mOverScroller != null){
+            return mOverScroller.computeScrollOffset();
+        }
+        return false;
+    }
+
     /**
      * callback for HeaderPager 's state
      */

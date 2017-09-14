@@ -57,7 +57,7 @@ public class ItemDelegate implements ItemViewDelegate<HotTagBean.DataBean> {
         final ImageView iv_icon = holder.getView(R.id.iv_icon);
         final ImageView iv_icon_full = holder.getView(R.id.iv_icon_full);
         final ImageView iv_circle_bg = holder.getView(R.id.iv_circle_bg);
-        Context context = holder.getConvertView().getContext();
+        final Context context = holder.getConvertView().getContext();
         String iconUrl = dataBean.getIconUrl();
         if (!TextUtils.isEmpty(iconUrl)) {
             iv_circle_bg.setVisibility(View.GONE);
@@ -97,7 +97,8 @@ public class ItemDelegate implements ItemViewDelegate<HotTagBean.DataBean> {
                                                 gradientDrawable.setColor(vibrant != null ? vibrant.getRgb() : Color.BLACK);
                                                 gradientDrawable.setCornerRadius(DensityUtils.dpToPx(4));
 
-                                                Bitmap b = Utils.convertToBitmap(gradientDrawable, iv_icon_full.getWidth(), iv_icon_full.getHeight());
+                                                int size = (int) context.getResources().getDimension(R.dimen.hot_tag_icon_full_size);
+                                                Bitmap b = Utils.convertToBitmap(gradientDrawable, size, size);
                                                 iv_icon_full.setImageBitmap(b);
                                                 dataBean.setBg_bitmap(b);
                                             }

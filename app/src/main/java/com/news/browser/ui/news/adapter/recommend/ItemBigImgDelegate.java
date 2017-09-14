@@ -1,6 +1,7 @@
 package com.news.browser.ui.news.adapter.recommend;
 
 import android.content.Context;
+import android.text.TextUtils;
 import android.widget.ImageView;
 
 import com.news.browser.R;
@@ -52,6 +53,9 @@ public class ItemBigImgDelegate implements ItemViewDelegate<BaseNewsItem> {
             imgUrl = bean.getFimgurl30();
         } else {
             imgUrl = bean.getFimgurl29();
+        }
+        if (TextUtils.isEmpty(imgUrl)){
+            imgUrl = bean.getThumbnails_qqnews().getQqnews_thu_big();
         }
         holder.setText(R.id.tv_title, bean.getTitle());
 

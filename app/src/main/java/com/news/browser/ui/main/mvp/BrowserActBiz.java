@@ -6,6 +6,7 @@ import com.news.browser.utils.GlobalParams;
 
 import java.util.Map;
 
+import okhttp3.ResponseBody;
 import rx.Observable;
 
 /**
@@ -17,5 +18,10 @@ public class BrowserActBiz extends BaseModel {
     public Observable<EngineBean> getSearchEngine(Map<String, String> params){
         String url = getUrl(GlobalParams.SEARCH_ENGINE);
         return httpService.getSearchEngine(url, params);
+    }
+
+    public Observable<ResponseBody> getADList(Map<String, String> params){
+        String url = getUrl(GlobalParams.ADVERTISING);
+        return httpService.getADList(url, params);
     }
 }

@@ -16,7 +16,7 @@
         android:maxLines="1"
         android:textSize="12sp"
         android:layout_gravity="center_horizontal"
-        android:shadowColor="@color/text_gray"
+        android:shadowColor="@color/text_black"
         />
 
     <include

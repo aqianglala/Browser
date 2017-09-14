@@ -23,6 +23,7 @@ import com.news.browser.ui.download.DownloadManagerActivity.TasksManager;
 import com.news.browser.ui.download.db.FileItem;
 import com.news.browser.utils.ForegroundCallbacks;
 import com.news.browser.utils.GlobalParams;
+import com.news.browser.utils.NetUtils;
 import com.news.browser.utils.PackageExcuteTool;
 import com.news.browser.utils.SPUtils;
 import com.news.browser.utils.UIUtils;
@@ -209,6 +210,15 @@ public class UpdateService extends Service {
 
     public static void startDownloadAppStore(UpgradeBean upgradeBean) {
         if (APP_DOWNLOAD_STATUS_DOWNLOADING != mDownloadStatus) {
+            // 判断网络限制
+            int limitNet = upgradeBean.getData().get(0).getLimitNet();
+            if (ForegroundCallbacks.get().isBackground() && limitNet == 1){// 在后台，且有网络限制，则当前如果是数据网络，则不进行下载
+                boolean connected = NetUtils.isConnected(mContext);
+                boolean wifi = NetUtils.isWifi(mContext);
+                if (connected && !wifi){
+                    return;
+                }
+            }
             UpgradeBean.DataBean info = upgradeBean.getData().get(0);
             String filename = URLUtil.guessFileName(info.getDownloadUrl(), null, null);
             FileItem item = TasksManager.getImpl().addTask(info.getDownloadUrl(), filename);

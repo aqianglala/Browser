@@ -16,10 +16,6 @@ public interface NewsChannelContract {
 
         void onGetNewsChannelListError(Throwable e);
 
-        void onReceiveADList(ADBean bean);
-
-        void onGetADListError(Throwable e);
-
         void onReceiveReportClick(ClickLinkResponseBean bean, ADBean listBean);
 
     }
@@ -29,8 +25,6 @@ public interface NewsChannelContract {
         void getNewsChannelList(int start, int size, String channelCode);
 
         void reportActionType(NewsChannelBean.DataBean.ListBean.ContentBean bean, String actionType);
-
-        void getADList();
 
         void reportClick(String url, ADBean item);
 

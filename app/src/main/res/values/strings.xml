@@ -16,6 +16,7 @@
     <string name="action_allow">允许</string>
     <string name="action_dont_allow">不允许</string>
     <string name="loading">正在加载&#8230;</string>
+    <string name="loading_end">没有更多了</string>
     <string name="action_new_tab">主页</string>
     <string name="untitled">无法抓取到标题</string>
     <string name="hint_username">用户名</string>

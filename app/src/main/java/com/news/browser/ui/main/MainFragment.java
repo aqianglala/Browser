@@ -102,6 +102,8 @@ public class MainFragment extends BaseFragment<MainFrgPresenter> implements UcNe
         mNewsPager = (NewsViewPager) mContentView.findViewById(R.id.id_uc_news_content);
         mTableLayout = (TabLayout) mContentView.findViewById(R.id.id_uc_news_tab);
 
+        ((BrowserActivity)mActivity).setHeaderBehavior(mPagerBehavior);
+
         mRecommendFragment = new NewsRecommendFragment();
         mTableLayout.setTabMode(TabLayout.MODE_SCROLLABLE);
         mTableLayout.addOnTabSelectedListener(new TabSelectedListener());
@@ -253,6 +255,14 @@ public class MainFragment extends BaseFragment<MainFrgPresenter> implements UcNe
 
     private void setChannelList(Map<String, ChannelBean> channelMap) {
         if (channelMap.size() == 0) return;
+        // 修改娱乐频道chanCode
+        ChannelBean channelBean = channelMap.get("4");
+        if (channelBean != null){
+            String chanName = channelBean.getChanName();
+            if (!TextUtils.isEmpty(chanName) && chanName.equals("娱乐")){
+                channelBean.setChanCode("kb_news_bagua");
+            }
+        }
         String[] defaultChannels = getResources().getStringArray(R.array.default_channel);
         List<String> channels = new LinkedList(Arrays.asList(defaultChannels));
         String province = (String) get(LocationUtils.PROVINCE, "");

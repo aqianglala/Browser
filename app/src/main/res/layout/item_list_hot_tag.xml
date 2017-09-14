@@ -18,8 +18,8 @@
 
             <com.makeramen.roundedimageview.RoundedImageView
                 android:id="@+id/iv_icon_full"
-                android:layout_width="50dp"
-                android:layout_height="50dp"
+                android:layout_width="@dimen/hot_tag_icon_full_size"
+                android:layout_height="@dimen/hot_tag_icon_full_size"
                 android:scaleType="centerCrop"
                 app:riv_corner_radius="@dimen/icon_radius" />
 

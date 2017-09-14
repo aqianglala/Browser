@@ -7,6 +7,7 @@ import android.graphics.Bitmap;
 import android.graphics.Color;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
+import android.media.AudioManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
@@ -54,6 +55,7 @@ import com.news.browser.utils.GlobalParams;
 import com.news.browser.utils.UIUtils;
 import com.news.browser.utils.Utils;
 import com.news.browser.widget.AnimatedProgressBar;
+import com.orhanobut.logger.Logger;
 
 import java.io.File;
 import java.lang.ref.WeakReference;
@@ -81,6 +83,8 @@ public class BrowserFragment extends BaseFragment implements BrowserFrgContract.
     private String mUrl;
     private Bundle webViewState;
     private boolean mIsCreated;
+    private AudioManager.OnAudioFocusChangeListener audioListener;
+    private AudioManager audioManager;
 
     public boolean isCreated() {
         return mIsCreated;
@@ -101,6 +105,8 @@ public class BrowserFragment extends BaseFragment implements BrowserFrgContract.
 
     private String mUntitledTitle;
     private Drawable mDeleteIcon, mRefreshIcon, mIcon;
+
+    private boolean needToStopMusic;
 
     @NonNull
     private final Map<String, String> mRequestHeaders = new ArrayMap<>();
@@ -210,6 +216,7 @@ public class BrowserFragment extends BaseFragment implements BrowserFrgContract.
         mGestureDetector = new GestureDetector(mActivity, new CustomGestureListener());
         mWebView.setOnTouchListener(new TouchListener());
         sDefaultUserAgent = mWebView.getSettings().getUserAgentString();
+        Logger.d("UserAgent" + sDefaultUserAgent);
         initializeSettings();
         initializePreferences(mActivity);
 
@@ -1009,6 +1016,8 @@ public class BrowserFragment extends BaseFragment implements BrowserFrgContract.
         BrowserActivity browserAct = (BrowserActivity) mActivity;
         TabsManager tabModel = browserAct.getTabModel();
         tabModel.backToHome(this);
+
+        audioManager = null;
     }
 
     @Override

@@ -72,7 +72,7 @@ public class HotTagFragment extends BaseFragment<HotBookmarkPresenter> implement
 
         rv_tag.setLayoutManager(new GridLayoutManager(mActivity, 4));
         rv_tag.setHasFixedSize(true);
-        rv_tag.addItemDecoration(new SpacesItemDecoration(DensityUtils.dpToPx(12.5f)));
+        rv_tag.addItemDecoration(new SpacesItemDecoration(DensityUtils.dpToPx(8.5f), DensityUtils.dpToPx(14f)));
         rv_tag.setAdapter(mHotTagAdapter);
     }
 

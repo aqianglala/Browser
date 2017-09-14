@@ -44,6 +44,7 @@ import com.news.browser.R;
 import com.news.browser.base.BaseActivity;
 import com.news.browser.base.BaseApplication;
 import com.news.browser.base.BaseFragment;
+import com.news.browser.bean.ADBean;
 import com.news.browser.bean.EngineBean;
 import com.news.browser.bean.EngineBean.EngineItem;
 import com.news.browser.bean.HotTagBean;
@@ -82,10 +83,12 @@ import com.news.browser.utils.UIUtils;
 import com.news.browser.utils.UrlUtils;
 import com.news.browser.utils.Utils;
 import com.news.browser.widget.OutsideViewPager;
+import com.news.browser.widget.behavior.uc.UcNewsHeaderPagerBehavior;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import butterknife.BindView;
 import butterknife.OnClick;
@@ -979,6 +982,27 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
 
     }
 
+    @Override
+    public void onReceiveADList(ArrayList<ADBean> list) {
+        isLoadingAD = false;
+        mADList.addAll(list);
+        for (Map.Entry<Integer, OnReceiveADListener> entry : mReceiveADListenerMap.entrySet()) {
+            ADBean adBean = mADList.get(entry.getKey());
+            entry.getValue().onReceiveAD(adBean);
+        }
+        mReceiveADListenerMap.clear();
+    }
+
+    @Override
+    public void onGetADListError(Throwable e) {
+        isLoadingAD = false;
+        for (Map.Entry<Integer, OnReceiveADListener> entry : mReceiveADListenerMap.entrySet()) {
+            entry.getValue().onReceiveAD(null);
+        }
+        mADIndex = mADList.size() - 1;
+        if (mADIndex < 0) mADIndex = 0;
+    }
+
     /**
      * This method sets whether or not the activity will display
      * in full-screen mode (i.e. the ActionBar will be hidden) and
@@ -1094,51 +1118,56 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
      * @param bean
      */
     private void showUpdateDialog(final UpgradeBean bean) {
-        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        if (upgradeDialog == null) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
-        View layout = LayoutInflater.from(this).inflate(R.layout.layout_dialog_update, null);
+            View layout = LayoutInflater.from(this).inflate(R.layout.layout_dialog_update, null);
 
-        TextView tv_version = (TextView) layout.findViewById(R.id.tv_version);
-        TextView tv_size = (TextView) layout.findViewById(R.id.tv_size);
-        TextView tv_title = (TextView) layout.findViewById(R.id.tv_title_update);
-        TextView tv_description = (TextView) layout.findViewById(R.id.tv_description);
+            TextView tv_version = (TextView) layout.findViewById(R.id.tv_version);
+            TextView tv_size = (TextView) layout.findViewById(R.id.tv_size);
+            TextView tv_title = (TextView) layout.findViewById(R.id.tv_title_update);
+            TextView tv_description = (TextView) layout.findViewById(R.id.tv_description);
 
-        TextView tv_left = (TextView) layout.findViewById(R.id.tv_left);
-        TextView tv_right = (TextView) layout.findViewById(R.id.tv_right);
+            TextView tv_left = (TextView) layout.findViewById(R.id.tv_left);
+            TextView tv_right = (TextView) layout.findViewById(R.id.tv_right);
 
-        UpgradeBean.DataBean info = bean.getData().get(0);
+            UpgradeBean.DataBean info = bean.getData().get(0);
 
-        tv_version.setText(getString(R.string.version_name) + info.getVersionName());
-        tv_size.setText(getString(R.string.size) + Utils.formatFileSize(info.getFileSize()) + "M");
-        tv_title.setText(info.getUpdateTitle());
-        tv_description.setText(info.getUpdateInfo());
+            tv_version.setText(getString(R.string.version_name) + info.getVersionName());
+            tv_size.setText(getString(R.string.size) + Utils.formatFileSize(info.getFileSize()) + "M");
+            tv_title.setText(info.getUpdateTitle());
+            tv_description.setText(info.getUpdateInfo());
 
-        tv_left.setText(info.getIsForce() == 0 ? R.string.update_next_time : R.string.exit);
-        tv_right.setText(R.string.update_right_now);
+            tv_left.setText(info.getIsForce() == 0 ? R.string.update_next_time : R.string.exit);
+            tv_right.setText(R.string.update_right_now);
 
-        builder.setView(layout);
-        builder.setCancelable(false);
-        upgradeDialog = builder.show();
+            builder.setView(layout);
+            builder.setCancelable(false);
+            upgradeDialog = builder.show();
 
-        tv_left.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                upgradeDialog.dismiss();
-                TextView view = (TextView) v;
-                String str = view.getText().toString();
-                if (getString(R.string.exit).equals(str)) {
-                    ActivityCollector.finishAll();
+            tv_left.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    upgradeDialog.dismiss();
+                    TextView view = (TextView) v;
+                    String str = view.getText().toString();
+                    if (getString(R.string.exit).equals(str)) {
+                        ActivityCollector.finishAll();
+                    }
                 }
-            }
-        });
-        tv_right.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                upgradeDialog.dismiss();
-                UpdateService.setCheckVersionInsterface(BrowserActivity.this, BrowserActivity.this, BrowserActivity.this);
-                UpdateService.startDownloadAppStore(bean);
-            }
-        });
+            });
+            tv_right.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    upgradeDialog.dismiss();
+                    UpdateService.setCheckVersionInsterface(BrowserActivity.this, BrowserActivity.this, BrowserActivity.this);
+                    UpdateService.startDownloadAppStore(bean);
+                }
+            });
+        } else if (upgradeDialog != null && !upgradeDialog.isShowing()) {
+            upgradeDialog.show();
+        }
+
     }
 
     @Override
@@ -1431,6 +1460,34 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
         mViewPager.setPagingEnabled(isPagingEnable);
     }
 
+    public void setHeaderBehavior(UcNewsHeaderPagerBehavior behavior) {
+        if (mViewPager != null && behavior != null) {
+            mViewPager.setBehavior(behavior);
+        }
+    }
+
+    private int mADIndex = 0;
+    private boolean isLoadingAD;
+    private ArrayList<ADBean> mADList = new ArrayList<>();
+    private Map<Integer, OnReceiveADListener> mReceiveADListenerMap = new HashMap<>();
+
+    public interface OnReceiveADListener {
+        void onReceiveAD(ADBean bean);
+    }
+
+    public synchronized void getAD(OnReceiveADListener listener) {
+        if (mADIndex <= (mADList.size() - 1)) {
+            listener.onReceiveAD(mADList.get(mADIndex));
+        } else {
+            mReceiveADListenerMap.put(mADIndex, listener);
+            if (!isLoadingAD) {
+                isLoadingAD = true;
+                mPresenter.getADList();
+            }
+        }
+        mADIndex++;
+    }
+
 //    @Override
 //    protected void onRestoreInstanceState(Bundle savedInstanceState) {
 //        super.onRestoreInstanceState(savedInstanceState);
@@ -1443,4 +1500,5 @@ public class BrowserActivity extends BaseActivity<BrowserActPresenter> implement
     protected void onSaveInstanceState(Bundle outState) {
 //        super.onSaveInstanceState(outState);
     }
+
 }

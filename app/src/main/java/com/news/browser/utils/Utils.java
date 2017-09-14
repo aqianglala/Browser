@@ -29,18 +29,27 @@ import android.webkit.URLUtil;
 import com.anthonycr.grant.PermissionsManager;
 import com.anthonycr.grant.PermissionsResultAction;
 import com.news.browser.R;
+import com.news.browser.base.BaseApplication;
 import com.news.browser.preference.PreferenceManager;
 import com.news.browser.ui.download.DownloadHandler;
 
 import java.io.Closeable;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.net.HttpURLConnection;
+import java.net.MalformedURLException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.text.DecimalFormat;
 import java.util.Date;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+
+import rx.Observable;
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
 
 import static com.bumptech.glide.gifdecoder.GifHeaderParser.TAG;
 
@@ -252,6 +261,9 @@ public class Utils {
     }
 
     public static Drawable getApkIcon(Context context, String apkPath) {
+        if (context == null){
+            context = BaseApplication.getContext();
+        }
         PackageManager pm = context.getPackageManager();
         PackageInfo info = pm.getPackageArchiveInfo(apkPath,
                 PackageManager.GET_ACTIVITIES);
@@ -406,6 +418,50 @@ public class Utils {
             }
         });
 
+    }
+
+    /**
+     * 一次重定向，针对腾讯广告中的游戏下载
+     * @param url
+     * @param userAgent
+     * @return
+     */
+    public static Observable<String> getRedirectPathObservable(final String url, final String userAgent) {
+        return Observable.create(new Observable.OnSubscribe<String>() {
+            @Override
+            public void call(Subscriber<? super String> subscriber) {
+                String redirectPath = redirectPath(url, userAgent);
+                subscriber.onNext(redirectPath);
+                subscriber.onCompleted();
+            }
+        }).subscribeOn(Schedulers.io()).observeOn(AndroidSchedulers.mainThread());
+    }
+
+    public static String redirectPath(final String str, String userAgent) {
+        URL url = null;
+        String realURL = null;
+        HttpURLConnection conn = null;
+        try {
+            url = new URL(str);
+            conn = (HttpURLConnection) url.openConnection();
+            conn.setConnectTimeout(3000);
+            conn.setReadTimeout(3000);
+            conn.setRequestProperty("User-Agent", userAgent);
+            conn.setInstanceFollowRedirects(true);
+            conn.getResponseCode();// trigger server redirect
+            realURL = conn.getURL().toString();
+
+            Log.d(TAG, str + "\r\n" + "redirect to \r\n" + realURL);
+        } catch (MalformedURLException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
+        } finally {
+            if (conn != null) {
+                conn.disconnect();
+            }
+        }
+        return realURL;
     }
 
 }

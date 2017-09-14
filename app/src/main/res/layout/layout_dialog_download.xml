@@ -19,7 +19,7 @@
             android:layout_marginRight="@dimen/margin_horizontal"
             android:maxLines="1"
             android:text="@string/prompt_download"
-            android:textColor="@color/text_gray"
+            android:textColor="@color/text_black"
             android:textSize="14sp" />
 
     </RelativeLayout>

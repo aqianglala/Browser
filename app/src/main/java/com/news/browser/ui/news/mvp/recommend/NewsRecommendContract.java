@@ -10,24 +10,18 @@ import com.news.browser.bean.RecommendBean;
 
 public interface NewsRecommendContract {
 
-    interface View{
+    interface View {
 
         void onReceiveRecommendList(RecommendBean bean);
 
         void onGetRecommendListError(Throwable e);
 
-        void onReceiveADList(ADBean bean);
-
-        void onGetADListError(Throwable e);
-
         void onReceiveReportClick(ClickLinkResponseBean bean, ADBean listBean);
     }
 
-    interface Presenter{
+    interface Presenter {
 
         void getNewsRecommendList();
-
-        void getADList();
 
         void reportClick(String url, ADBean item);
 

@@ -8,6 +8,8 @@ import android.util.AttributeSet;
 import android.view.MotionEvent;
 import android.view.View;
 
+import com.news.browser.widget.behavior.uc.UcNewsHeaderPagerBehavior;
+
 /**
  * Created by zy1584 on 2017-7-3.
  */
@@ -28,17 +30,23 @@ public class OutsideViewPager extends ViewPager {
         super(context, attrs);
     }
 
+    private UcNewsHeaderPagerBehavior mBehavior;
+
+    public void setBehavior(UcNewsHeaderPagerBehavior mBehavior) {
+        this.mBehavior = mBehavior;
+    }
+
     private void findNewsViewPager() {
         if (mNewsViewPager != null) return;
         int childCount = getChildCount();
-        for (int i = 0; i< childCount; i++){
+        for (int i = 0; i < childCount; i++) {
             View childAt = getChildAt(i);
-            if (childAt instanceof CoordinatorLayout){
+            if (childAt instanceof CoordinatorLayout) {
                 CoordinatorLayout coordinatorLayout = (CoordinatorLayout) childAt;
                 int count = coordinatorLayout.getChildCount();
-                for (int j = 0; j < count; j++){
+                for (int j = 0; j < count; j++) {
                     View child = coordinatorLayout.getChildAt(j);
-                    if (child instanceof NewsViewPager){
+                    if (child instanceof NewsViewPager) {
                         mNewsViewPager = (NewsViewPager) child;
                         break;
                     }
@@ -50,11 +58,19 @@ public class OutsideViewPager extends ViewPager {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        // 解决向上滑动展开新闻页再快速向左滑导致页面错乱的问题
+        if (mBehavior != null && mBehavior.isScrolling()) {
+            return true;
+        }
         return this.isPagingEnabled && super.onTouchEvent(event);
     }
 
     @Override
     public boolean onInterceptTouchEvent(MotionEvent event) {
+        // 解决向上滑动展开新闻页再快速向左滑导致页面错乱的问题
+        if (mBehavior != null && mBehavior.isScrolling()) {
+            return true;
+        }
         return this.isPagingEnabled && super.onInterceptTouchEvent(event);
     }
 //    float x = 0;
@@ -134,11 +150,12 @@ public class OutsideViewPager extends ViewPager {
 
     @Override
     protected boolean canScroll(View v, boolean checkV, int dx, int x, int y) {
-        if (v instanceof NewsViewPager || v instanceof TabLayout){
-            if (mNewsViewPager != null){
+        if (v instanceof NewsViewPager || v instanceof TabLayout) {
+            if (mNewsViewPager != null) {
                 return mNewsViewPager.isPagingEnabled();
             }
         }
         return super.canScroll(v, checkV, dx, x, y);
     }
+
 }
